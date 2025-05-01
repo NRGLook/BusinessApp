@@ -12,11 +12,11 @@ class Base(DeclarativeBase):
 
 
 class BusinessType(str, Enum):
-    PHYSICAL = "PHYSICAL"  # Should match exactly with SQL enum
+    PHYSICAL = "PHYSICAL"
     VIRTUAL = "VIRTUAL"
 
 class RoleType(str, Enum):
-    USER = "USER"          # Uppercase to match SQL enum
+    USER = "USER"
     ADMIN = "ADMIN"
     MODERATOR = "MODERATOR"
 
@@ -26,7 +26,6 @@ class TransactionType(str, Enum):
     TRANSFER = "TRANSFER"
 
 
-# Таблицы ассоциаций
 user_roles = Table(
     "user_roles",
     Base.metadata,
@@ -43,7 +42,6 @@ user_achievements = Table(
 )
 
 
-# Основные модели
 class User(Base, IDMixin, TimestampMixin):
     __tablename__ = "user"
 
@@ -191,8 +189,6 @@ class StockExchange(Base, IDMixin):
                                          comment="Страна регистрации (например: 'США')")
     currency: Mapped[str] = mapped_column(String(3),
                                           comment="Основная валюта (например: 'USD')")
-
-    # Add this relationship
     stocks: Mapped[List["Stock"]] = relationship(back_populates="exchange")
 
 
@@ -207,8 +203,7 @@ class Stock(Base, IDMixin):
     current_price: Mapped[float] = mapped_column(Float,
                                                  comment="Текущая цена акции")
 
-    # Fix the relationship name to match
-    exchange: Mapped["StockExchange"] = relationship(back_populates="stocks")  # Changed from "stock" to "stocks"
+    exchange: Mapped["StockExchange"] = relationship(back_populates="stocks")
 
 
 class Report(Base, IDMixin, TimestampMixin):
