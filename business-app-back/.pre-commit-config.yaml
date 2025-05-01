@@ -13,4 +13,4 @@ repos:
     rev: v1.15.0
     hooks:
       - id: mypy
-        args: [--exclude=.*]
+        args: [--ignore-missing-imports, --exclude=.*]
