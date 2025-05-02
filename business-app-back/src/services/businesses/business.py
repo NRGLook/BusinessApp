@@ -1,6 +1,8 @@
-from typing import Optional
+from uuid import UUID
+from typing import Optional, List
 
-from fastapi import Depends
+import sqlalchemy
+from fastapi import Depends, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +11,8 @@ from src.api.schemes import PaginationParams
 from src.api.routes.businesses.schemes import (
     BusinessSchema,
     BusinessListResponseSchema,
+    BusinessCreate,
+    BusinessCreateWithUser,
 )
 from src.config.database_config import get_session
 from src.services.common import BaseService
@@ -55,15 +59,46 @@ class BusinessService(BaseService):
             **filters,
         )
         total = await self.business_manager.count(**filters)
-        businesses_mapped = [
-            self.map_obj_to_schema(business, BusinessSchema).model_dump() for business in businesses
-        ]
+        businesses_mapped = [self.map_obj_to_schema(business, BusinessSchema).model_dump() for business in businesses]
 
         return BusinessListResponseSchema.create(
             list_data=businesses_mapped,
             pagination=pagination,
             total=total,
         )
+
+    async def create_or_update_business(
+        self,
+        businesses: List[BusinessCreate],
+        user_id: UUID,
+    ):
+        businesses_with_user = []
+        for business in businesses:
+            businesses_with_user.append(
+                BusinessCreateWithUser(
+                    **business.model_dump(),
+                    user_id=user_id,
+                    current_value=business.initial_investment,
+                )
+            )
+
+        try:
+            updated_businesses = await self.business_manager.create_or_update(businesses_with_user)
+        except sqlalchemy.exc.IntegrityError as e:
+            log.error(f"Integrity error while creating businesses: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail="Business creation failed due to database constraints",
+            )
+        except Exception as e:
+            log.error(f"Unexpected error while creating businesses: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal server error occurred",
+            )
+
+        return updated_businesses
+
 
 async def get_business_service(
     db: AsyncSession = Depends(get_session),

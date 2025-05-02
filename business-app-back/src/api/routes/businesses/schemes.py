@@ -1,6 +1,6 @@
 from enum import Enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -30,6 +30,35 @@ class BusinessCreateSchema(BaseModel):
     initial_capital: Optional[float] = Field(10000.0, ge=0)
 
 
+class BusinessBase(BaseModel):
+    id: Optional[UUID] = None
+    name: str
+    description: Optional[str] = None
+    business_type: str  # "PHYSICAL" или "VIRTUAL"
+    initial_investment: float
+    current_value: Optional[float] = None
+    employees_count: Optional[int] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    level: Optional[int] = 1
+    progress: Optional[float] = 0.0
+    visualization_id: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
+class BusinessCreate(BusinessBase):
+    pass
+
+
+class BusinessCreateWithUser(BusinessBase):
+    user_id: UUID
+
+
+class BusinessCreateBatch(BaseModel):
+    data: List[BusinessCreate]
+
+
 class BusinessUpdateSchema(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
@@ -44,23 +73,3 @@ class BusinessStructureItemType(str, Enum):
     DEPARTMENT = "department"
     WAREHOUSE = "warehouse"
     PRODUCTION_LINE = "production_line"
-
-
-class BusinessStructureSchema(BaseModel):
-    id: UUID
-    parent_id: Optional[UUID] = None
-    name: str
-    level: int
-    type: BusinessStructureItemType
-    sort_order: Optional[int] = None
-
-
-class BusinessStructureListResponseSchema(BaseModel):
-    data: list[BusinessStructureSchema]
-
-
-class BusinessStatsSchema(BaseModel):
-    total_capital: float
-    total_employees: int
-    monthly_profit: float
-    success_rate: float = Field(..., ge=0, le=1)
