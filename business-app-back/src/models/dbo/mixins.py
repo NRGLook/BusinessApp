@@ -1,7 +1,9 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
+    String,
     DateTime,
 )
 from sqlalchemy.orm import (
@@ -28,4 +30,12 @@ class TimestampMixin:
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
+    )
+
+
+class ImageMixin:
+    image_url: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="URL изображения",
     )

@@ -27,6 +27,7 @@ from sqlalchemy.orm import (
 from src.models.dbo.mixins import (
     IDMixin,
     TimestampMixin,
+    ImageMixin,
 )
 
 
@@ -345,7 +346,7 @@ class CourseCategory(Base, IDMixin):
     courses: Mapped[List["Course"]] = relationship(back_populates="category")
 
 
-class Course(Base, IDMixin, TimestampMixin):
+class Course(Base, IDMixin, TimestampMixin, ImageMixin):
     __tablename__ = "course"
 
     title: Mapped[str] = mapped_column(String(100), comment="Название курса")
@@ -358,13 +359,14 @@ class Course(Base, IDMixin, TimestampMixin):
     progress: Mapped[List["UserCourseProgress"]] = relationship(back_populates="course")
 
 
-class Lesson(Base, IDMixin, TimestampMixin):
+class Lesson(Base, IDMixin, TimestampMixin, ImageMixin):
     __tablename__ = "lesson"
 
     course_id: Mapped[UUID] = mapped_column(ForeignKey("course.id"))
     title: Mapped[str] = mapped_column(String(100), comment="Название урока")
     content: Mapped[str] = mapped_column(Text(), comment="Контент урока")
     order: Mapped[int] = mapped_column(Integer, comment="Порядковый номер в курсе")
+    lesson_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="Ссылка на урок")
 
     course: Mapped["Course"] = relationship(back_populates="lessons")
     quizzes: Mapped[List["QuizQuestion"]] = relationship(back_populates="lesson", cascade="all, delete-orphan")

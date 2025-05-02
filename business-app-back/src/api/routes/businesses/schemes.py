@@ -5,7 +5,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from src.api.schemes import ListDataResponseSchema
+from src.api.schemes import (
+    ListDataResponseSchema,
+    IDSchema,
+)
 
 
 class BusinessType(str, Enum):
@@ -13,8 +16,7 @@ class BusinessType(str, Enum):
     VIRTUAL = "VIRTUAL"
 
 
-class BusinessSchema(BaseModel):
-    id: UUID
+class BusinessSchema(IDSchema):
     name: str = Field(..., max_length=100)
     description: Optional[str] = Field(None, max_length=500)
     business_type: BusinessType
@@ -30,8 +32,7 @@ class BusinessCreateSchema(BaseModel):
     initial_capital: Optional[float] = Field(10000.0, ge=0)
 
 
-class BusinessBase(BaseModel):
-    id: Optional[UUID] = None
+class BusinessBase(IDSchema):
     name: str
     description: Optional[str] = None
     business_type: str  # "PHYSICAL" или "VIRTUAL"
