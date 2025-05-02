@@ -2,23 +2,38 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from src.api.schemes import IDSchema, ListDataResponseSchema
 
-class CourseCategoryBase(BaseModel):
+
+class CourseCategoryBaseSchema(IDSchema):
     name: str
     description: Optional[str] = None
 
 
-class CourseCategoryCreate(CourseCategoryBase):
+class CourseCategoryReadSchema(CourseCategoryBaseSchema):
+    class Config:
+        from_attributes = True
+
+
+class CourseCategoryCreateSchema(CourseCategoryBaseSchema):
     pass
 
 
-class CourseCategoryUpdate(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
+class CourseCategoryCreateBatchSchema(BaseModel):
+    data: list[CourseCategoryCreateSchema]
 
 
-class CourseCategoryRead(CourseCategoryBase):
-    id: int
+class CourseCategoryUpdateSchema(CourseCategoryBaseSchema):
+    pass
 
-    class Config:
-        from_attributes = True
+
+class CourseCategoryDeleteSchema(IDSchema):
+    pass
+
+
+class CourseCategoryDeleteBatchSchema(BaseModel):
+    data: list[CourseCategoryDeleteSchema]
+
+
+class CourseCategoryListResponseSchema(ListDataResponseSchema):
+    data: list[CourseCategoryReadSchema]

@@ -352,7 +352,9 @@ class Course(Base, IDMixin, TimestampMixin, ImageMixin):
     title: Mapped[str] = mapped_column(String(100), comment="Название курса")
     description: Mapped[Optional[str]] = mapped_column(Text(), comment="Описание курса")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="Флаг активности курса")
-    category_id: Mapped[UUID] = mapped_column(ForeignKey("course_category.id"), comment="Категория курса")
+    category_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("course_category.id", ondelete="SET NULL"), comment="Категория курса"
+    )
 
     category: Mapped["CourseCategory"] = relationship(back_populates="courses")
     lessons: Mapped[List["Lesson"]] = relationship(back_populates="course", cascade="all, delete-orphan")
