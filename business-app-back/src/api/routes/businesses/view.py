@@ -1,8 +1,6 @@
-from typing import Annotated, Optional
-from uuid import UUID
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from src.api.schemes import (
     OrderParams,
@@ -11,12 +9,7 @@ from src.api.schemes import (
     PaginationParams,
 )
 from src.api.routes.businesses.schemes import (
-    BusinessSchema,
-    BusinessCreateSchema,
-    BusinessUpdateSchema,
     BusinessListResponseSchema,
-    BusinessStructureListResponseSchema,
-    BusinessStatsSchema,
     BusinessType,
 )
 from src.services.businesses.business import (
@@ -29,6 +22,7 @@ business_router = APIRouter(
     prefix="/business",
     tags=["Business"],
 )
+
 
 @business_router.get(
     "",
@@ -53,7 +47,7 @@ async def get_businesses(
     business_type: Optional[BusinessType] = Query(None),
     pagination: PaginationParams = Depends(pagination_params),
     order_by: OrderParams = Depends(),
-    service: BusinessService = Depends(get_business_service)
+    service: BusinessService = Depends(get_business_service),
 ):
     try:
         return await service.get_businesses(
@@ -70,7 +64,7 @@ async def get_businesses(
                 "code": "validation_error",
             },
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={

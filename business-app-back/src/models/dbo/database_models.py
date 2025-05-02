@@ -1,5 +1,7 @@
 from datetime import datetime
 from enum import Enum
+from uuid import UUID
+from decimal import Decimal
 from typing import Optional, List
 
 from sqlalchemy import (
@@ -8,12 +10,12 @@ from sqlalchemy import (
     DateTime,
     Boolean,
     Integer,
-    Float,
     Text,
     Enum as SqlEnum,
     JSON,
     Table,
     Column,
+    Numeric,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -25,6 +27,7 @@ from sqlalchemy.orm import (
 from src.models.dbo.mixins import (
     IDMixin,
     TimestampMixin,
+    ImageMixin,
 )
 
 
@@ -102,7 +105,7 @@ class Role(Base, IDMixin):
 class UserProfile(Base, IDMixin, TimestampMixin):
     __tablename__ = "user_profile"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), unique=True)
     first_name: Mapped[Optional[str]] = mapped_column(String(50), comment="Имя пользователя (например: 'Иван')")
     last_name: Mapped[Optional[str]] = mapped_column(String(50), comment="Фамилия пользователя (например: 'Петров')")
     avatar_url: Mapped[Optional[str]] = mapped_column(
@@ -121,7 +124,7 @@ class Business(Base, IDMixin, TimestampMixin):
     business_type: Mapped[BusinessType] = mapped_column(
         SqlEnum(BusinessType), comment="Тип бизнеса: physical или virtual"
     )
-    owner_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    owner_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
     owner: Mapped["User"] = relationship(back_populates="businesses")
     physical_settings: Mapped["PhysicalBusinessSettings"] = relationship(back_populates="business")
     virtual_settings: Mapped["VirtualBusinessSettings"] = relationship(back_populates="business")
@@ -132,12 +135,12 @@ class Business(Base, IDMixin, TimestampMixin):
 class PhysicalBusinessSettings(Base, IDMixin):
     __tablename__ = "physical_business_settings"
 
-    business_id: Mapped[int] = mapped_column(ForeignKey("business.id"), unique=True)
+    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"), unique=True)
     location: Mapped[str] = mapped_column(
         String(255), comment="Координаты местоположения (например: '55.7558,37.6173')"
     )
-    size_sq_meters: Mapped[float] = mapped_column(Float, comment="Площадь помещения в квадратных метрах")
-    employee_count: Mapped[int] = mapped_column(Integer, comment="Количество сотрудников")
+    size_sq_meters: Mapped[Decimal] = mapped_column(Numeric, comment="Площадь помещения в квадратных метрах")
+    employee_count: Mapped[UUID] = mapped_column(Integer, comment="Количество сотрудников")
     equipment: Mapped[JSON] = mapped_column(
         JSON, comment="Оборудование в формате JSON (например: {'станки': 5, 'транспорт': 2})"
     )
@@ -150,11 +153,11 @@ class PhysicalBusinessSettings(Base, IDMixin):
 class VirtualBusinessSettings(Base, IDMixin):
     __tablename__ = "virtual_business_settings"
 
-    business_id: Mapped[int] = mapped_column(ForeignKey("business.id"), unique=True)
-    initial_capital: Mapped[float] = mapped_column(
-        Float, default=100000.0, comment="Начальный капитал в виртуальной валюте"
+    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"), unique=True)
+    initial_capital: Mapped[Decimal] = mapped_column(
+        Numeric, default=100000.0, comment="Начальный капитал в виртуальной валюте"
     )
-    risk_level: Mapped[int] = mapped_column(Integer, default=3, comment="Уровень риска от 1 (низкий) до 5 (высокий)")
+    risk_level: Mapped[UUID] = mapped_column(Integer, default=3, comment="Уровень риска от 1 (низкий) до 5 (высокий)")
     portfolio: Mapped[JSON] = mapped_column(JSON, comment="Структура портфеля (например: {'BTC': 60, 'ETH': 40})")
 
     business: Mapped["Business"] = relationship(back_populates="virtual_settings")
@@ -165,10 +168,12 @@ class VirtualBusinessSettings(Base, IDMixin):
 class UserStats(Base, IDMixin):
     __tablename__ = "user_stats"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), unique=True)
-    total_businesses: Mapped[int] = mapped_column(Integer, default=0, comment="Общее количество бизнесов пользователя")
-    total_capital: Mapped[float] = mapped_column(Float, default=0.0, comment="Совокупный капитал во всех бизнесах")
-    success_rate: Mapped[float] = mapped_column(Float, default=0.0, comment="Рейтинг успешности от 0.0 до 1.0")
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), unique=True)
+    total_businesses: Mapped[Decimal] = mapped_column(
+        Numeric, default=0, comment="Общее количество бизнесов пользователя"
+    )
+    total_capital: Mapped[Decimal] = mapped_column(Numeric, default=0.0, comment="Совокупный капитал во всех бизнесах")
+    success_rate: Mapped[Decimal] = mapped_column(Numeric, default=0.0, comment="Рейтинг успешности от 0.0 до 1.0")
 
     user: Mapped["User"] = relationship(back_populates="stats")
 
@@ -176,7 +181,7 @@ class UserStats(Base, IDMixin):
 class StrategyPhysicalBusiness(Base, IDMixin):
     __tablename__ = "strategy_physical_business"
 
-    settings_id: Mapped[int] = mapped_column(ForeignKey("physical_business_settings.id"))
+    settings_id: Mapped[UUID] = mapped_column(ForeignKey("physical_business_settings.id"))
     name: Mapped[str] = mapped_column(String(100), comment="Название стратегии (например: 'Оптимизация логистики')")
     description: Mapped[str] = mapped_column(Text(), comment="Подробное описание стратегии")
     parameters: Mapped[JSON] = mapped_column(JSON, comment="Параметры стратегии в JSON-формате")
@@ -187,9 +192,9 @@ class StrategyPhysicalBusiness(Base, IDMixin):
 class UserBriefcase(Base, IDMixin):
     __tablename__ = "user_briefcase"
 
-    settings_id: Mapped[int] = mapped_column(ForeignKey("virtual_business_settings.id"))
+    settings_id: Mapped[UUID] = mapped_column(ForeignKey("virtual_business_settings.id"))
     assets: Mapped[JSON] = mapped_column(JSON, comment="Активы в портфеле (например: {'акции': ['AAPL', 'TSLA']})")
-    balance: Mapped[float] = mapped_column(Float, comment="Текущий баланс виртуальных средств")
+    balance: Mapped[Decimal] = mapped_column(Numeric, comment="Текущий баланс виртуальных средств")
 
     settings: Mapped["VirtualBusinessSettings"] = relationship(back_populates="briefcase")
 
@@ -206,10 +211,10 @@ class StockExchange(Base, IDMixin):
 class Stock(Base, IDMixin):
     __tablename__ = "stock"
 
-    exchange_id: Mapped[int] = mapped_column(ForeignKey("stock_exchange.id"))
+    exchange_id: Mapped[UUID] = mapped_column(ForeignKey("stock_exchange.id"))
     symbol: Mapped[str] = mapped_column(String(10), unique=True, comment="Тикер акции (например: 'AAPL')")
     name: Mapped[str] = mapped_column(String(100), comment="Полное название компании")
-    current_price: Mapped[float] = mapped_column(Float, comment="Текущая цена акции")
+    current_price: Mapped[Decimal] = mapped_column(Numeric, comment="Текущая цена акции")
 
     exchange: Mapped["StockExchange"] = relationship(back_populates="stocks")
 
@@ -217,7 +222,7 @@ class Stock(Base, IDMixin):
 class Report(Base, IDMixin, TimestampMixin):
     __tablename__ = "report"
 
-    business_id: Mapped[int] = mapped_column(ForeignKey("business.id"))
+    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"))
     period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), comment="Начало отчетного периода")
     period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), comment="Конец отчетного периода")
     metrics: Mapped[JSON] = mapped_column(JSON, comment="Метрики в формате JSON (например: {'прибыль': 5000})")
@@ -240,8 +245,8 @@ class Achievement(Base, IDMixin):
 class Level(Base, IDMixin):
     __tablename__ = "level"
 
-    level_number: Mapped[int] = mapped_column(Integer, unique=True, comment="Номер уровня (например: 5)")
-    required_xp: Mapped[int] = mapped_column(Integer, comment="Необходимый опыт для достижения уровня")
+    level_number: Mapped[Decimal] = mapped_column(Numeric, unique=True, comment="Номер уровня (например: 5)")
+    required_xp: Mapped[Decimal] = mapped_column(Numeric, comment="Необходимый опыт для достижения уровня")
     title: Mapped[str] = mapped_column(String(50), comment="Название уровня (например: 'Новичок')")
 
 
@@ -256,7 +261,7 @@ class AppSettings(Base, IDMixin):
 class Message(Base, IDMixin, TimestampMixin):
     __tablename__ = "message"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
     content: Mapped[str] = mapped_column(Text(), comment="Текст сообщения")
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, comment="Флаг прочтения сообщения")
 
@@ -266,7 +271,7 @@ class Message(Base, IDMixin, TimestampMixin):
 class Notification(Base, IDMixin, TimestampMixin):
     __tablename__ = "notification"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
     title: Mapped[str] = mapped_column(String(100), comment="Заголовок уведомления")
     message: Mapped[str] = mapped_column(Text(), comment="Текст уведомления")
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, comment="Флаг прочтения уведомления")
@@ -277,9 +282,9 @@ class Notification(Base, IDMixin, TimestampMixin):
 class ProfitPhysicalBusiness(Base, IDMixin, TimestampMixin):
     __tablename__ = "profit_physical_business"
 
-    settings_id: Mapped[int] = mapped_column(ForeignKey("physical_business_settings.id"))
-    amount: Mapped[float] = mapped_column(
-        Float,
+    settings_id: Mapped[UUID] = mapped_column(ForeignKey("physical_business_settings.id"))
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric,
         comment="Сумма прибыли",
     )
     period: Mapped[str] = mapped_column(
@@ -295,9 +300,9 @@ class ProfitPhysicalBusiness(Base, IDMixin, TimestampMixin):
 class ProfitVirtualBusiness(Base, IDMixin, TimestampMixin):
     __tablename__ = "profit_virtual_business"
 
-    settings_id: Mapped[int] = mapped_column(ForeignKey("virtual_business_settings.id"))
-    amount: Mapped[float] = mapped_column(
-        Float,
+    settings_id: Mapped[UUID] = mapped_column(ForeignKey("virtual_business_settings.id"))
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric,
         comment="Сумма прибыли в виртуальной валюте",
     )
     period: Mapped[str] = mapped_column(
@@ -313,9 +318,9 @@ class ProfitVirtualBusiness(Base, IDMixin, TimestampMixin):
 class Transaction(Base, IDMixin, TimestampMixin):
     __tablename__ = "transaction"
 
-    business_id: Mapped[int] = mapped_column(ForeignKey("business.id"))
-    amount: Mapped[float] = mapped_column(
-        Float,
+    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"))
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric,
         comment="Сумма транзакции",
     )
     transaction_type: Mapped[TransactionType] = mapped_column(
@@ -330,3 +335,61 @@ class Transaction(Base, IDMixin, TimestampMixin):
     business: Mapped["Business"] = relationship(
         back_populates="transactions",
     )
+
+
+class CourseCategory(Base, IDMixin):
+    __tablename__ = "course_category"
+
+    name: Mapped[str] = mapped_column(String(100), unique=True, comment="Название категории курса")
+    description: Mapped[Optional[str]] = mapped_column(Text(), comment="Описание категории")
+
+    courses: Mapped[List["Course"]] = relationship(back_populates="category")
+
+
+class Course(Base, IDMixin, TimestampMixin, ImageMixin):
+    __tablename__ = "course"
+
+    title: Mapped[str] = mapped_column(String(100), comment="Название курса")
+    description: Mapped[Optional[str]] = mapped_column(Text(), comment="Описание курса")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="Флаг активности курса")
+    category_id: Mapped[UUID] = mapped_column(ForeignKey("course_category.id"), comment="Категория курса")
+
+    category: Mapped["CourseCategory"] = relationship(back_populates="courses")
+    lessons: Mapped[List["Lesson"]] = relationship(back_populates="course", cascade="all, delete-orphan")
+    progress: Mapped[List["UserCourseProgress"]] = relationship(back_populates="course")
+
+
+class Lesson(Base, IDMixin, TimestampMixin, ImageMixin):
+    __tablename__ = "lesson"
+
+    course_id: Mapped[UUID] = mapped_column(ForeignKey("course.id"))
+    title: Mapped[str] = mapped_column(String(100), comment="Название урока")
+    content: Mapped[str] = mapped_column(Text(), comment="Контент урока")
+    order: Mapped[int] = mapped_column(Integer, comment="Порядковый номер в курсе")
+    lesson_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="Ссылка на урок")
+
+    course: Mapped["Course"] = relationship(back_populates="lessons")
+    quizzes: Mapped[List["QuizQuestion"]] = relationship(back_populates="lesson", cascade="all, delete-orphan")
+
+
+class QuizQuestion(Base, IDMixin):
+    __tablename__ = "quiz_question"
+
+    lesson_id: Mapped[UUID] = mapped_column(ForeignKey("lesson.id"))
+    question_text: Mapped[str] = mapped_column(Text(), comment="Текст вопроса")
+    choices: Mapped[JSON] = mapped_column(JSON, comment="Список вариантов ответов в формате JSON")
+    correct_answer: Mapped[str] = mapped_column(String(100), comment="Правильный ответ")
+
+    lesson: Mapped["Lesson"] = relationship(back_populates="quizzes")
+
+
+class UserCourseProgress(Base, IDMixin, TimestampMixin):
+    __tablename__ = "user_course_progress"
+
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    course_id: Mapped[UUID] = mapped_column(ForeignKey("course.id"))
+    completed_lessons: Mapped[int] = mapped_column(Integer, default=0, comment="Количество завершенных уроков")
+    is_completed: Mapped[bool] = mapped_column(Boolean, default=False, comment="Флаг завершения курса")
+
+    user: Mapped["User"] = relationship("User")
+    course: Mapped["Course"] = relationship(back_populates="progress")
