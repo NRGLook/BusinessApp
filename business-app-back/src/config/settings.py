@@ -14,7 +14,9 @@ class Settings(BaseModel):
 
     API_VERSION: int = 1
 
-    # Database settings
+    RESET_PASSWORD_TOKEN_SECRET: str
+    VERIFICATION_TOKEN_SECRET: str
+
     DB_HOST: str
     DB_PORT: str
     DB_DRIVER_NAME: str

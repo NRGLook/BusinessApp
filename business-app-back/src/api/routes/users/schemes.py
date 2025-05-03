@@ -4,7 +4,21 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from fastapi_users import schemas
+
 from src.api.schemes import NamedEntitySchema
+
+
+class UserRead(schemas.BaseUser[UUID]):
+    pass
+
+
+class UserCreate(schemas.BaseUserCreate):
+    pass
+
+
+class UserUpdate(schemas.BaseUserUpdate):
+    pass
 
 
 class UserProfileSchema(BaseModel):

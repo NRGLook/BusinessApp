@@ -11,6 +11,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.declarative import declared_attr
 
 
 class IDMixin:
@@ -22,15 +23,22 @@ class IDMixin:
 
 
 class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-    )
+    @declared_attr
+    def created_at(cls) -> Mapped[datetime]:
+        return mapped_column(
+            DateTime(timezone=True),
+            default=datetime.utcnow,
+            nullable=False,
+        )
+
+    @declared_attr
+    def updated_at(cls) -> Mapped[datetime]:
+        return mapped_column(
+            DateTime(timezone=True),
+            default=datetime.utcnow,
+            onupdate=datetime.utcnow,
+            nullable=False,
+        )
 
 
 class ImageMixin:

@@ -12,55 +12,58 @@ from src.api.schemes import (
     Response400Schema,
     Response404Schema,
 )
-from src.api.routes.education.course.schemes import (
-    CourseCreateBatchSchema,
-    CourseReadSchema,
-    CourseDeleteBatchSchema,
+from src.api.routes.education.category.schemes import (
+    CourseCategoryCreateBatchSchema,
+    CourseCategoryReadSchema,
+    CourseCategoryDeleteBatchSchema,
 )
-from src.services.courses.course import CourseService, get_course_service
+from src.services.categories.category import (
+    CourseCategoryService,
+    get_course_category_service,
+)
 from src.utils.helpers import pagination_params
 
-course_router = APIRouter(
-    prefix="/education/courses",
-    tags=["Courses"],
+course_categories_router = APIRouter(
+    prefix="/education/course-categories",
+    tags=["Course Categories"],
 )
 
 
-@course_router.get(
+@course_categories_router.get(
     "",
     responses={
         200: {
-            "model": CourseReadSchema,
-            "description": "Course found successfully",
+            "model": CourseCategoryReadSchema,
+            "description": "Category found successfully",
         },
         404: {
             "model": Response404Schema,
-            "description": "Course not found",
+            "description": "Category not found",
         },
         500: {
             "model": Response500Schema,
             "description": "Server error occurred",
         },
     },
-    summary="Retrieve course by ID",
+    summary="Retrieve course category by ID",
 )
-async def get_courses(
-    course_id: Optional[UUID] = Query(None, description="ID of the course"),
-    search: Optional[str] = Query(None, description="Search by course title"),
+async def get_course_categories(
+    category_id: Optional[UUID] = Query(None, description="ID of the category"),
+    search: Optional[str] = Query(None, description="Search by category name"),
     pagination: PaginationParams = Depends(pagination_params),
     order_by: OrderParams = Depends(),
-    service: CourseService = Depends(get_course_service),
+    service: CourseCategoryService = Depends(get_course_category_service),
 ):
     try:
-        course = await service.get_courses(
-            course_id=course_id,
+        category = await service.get_categories(
+            category_id=category_id,
             search=search,
             pagination=pagination,
             order_by=order_by.model_dump()["order_by"],
         )
-        if not course:
-            raise HTTPException(status_code=404, detail="Course not found")
-        return course
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        return category
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -71,12 +74,12 @@ async def get_courses(
         )
 
 
-@course_router.post(
+@course_categories_router.post(
     "",
     responses={
         201: {
-            "model": CourseCreateBatchSchema,
-            "description": "Course created/updated successfully",
+            "model": CourseCategoryCreateBatchSchema,
+            "description": "Category created/updated successfully",
         },
         400: {
             "model": Response400Schema,
@@ -87,14 +90,14 @@ async def get_courses(
             "description": "Server error occurred",
         },
     },
-    summary="Create or update courses based on provided data",
+    summary="Create, update course categories",
 )
-async def create_or_update_courses(
-    courses: CourseCreateBatchSchema,
-    service: CourseService = Depends(get_course_service),
+async def create_or_update_course_categories(
+    categories: CourseCategoryCreateBatchSchema,
+    service: CourseCategoryService = Depends(get_course_category_service),
 ):
     try:
-        return await service.create_or_update_courses(courses.data)
+        return await service.create_or_update_categories(categories.data)
     except sqlalchemy.exc.IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -102,12 +105,12 @@ async def create_or_update_courses(
         )
 
 
-@course_router.delete(
+@course_categories_router.delete(
     "",
     responses={
         200: {
-            "model": CourseDeleteBatchSchema,
-            "description": "Course deleted successfully",
+            "model": CourseCategoryDeleteBatchSchema,
+            "description": "Category deleted successfully",
         },
         400: {
             "model": Response400Schema,
@@ -118,14 +121,14 @@ async def create_or_update_courses(
             "description": "Server error occurred",
         },
     },
-    summary="Delete courses by ID list",
+    summary="Delete course categories",
 )
-async def delete_courses(
-    courses: CourseDeleteBatchSchema,
-    service: CourseService = Depends(get_course_service),
+async def delete_course_categories(
+    categories: CourseCategoryDeleteBatchSchema,
+    service: CourseCategoryService = Depends(get_course_category_service),
 ):
     try:
-        return await service.delete_courses(courses.data)
+        return await service.delete_categories(categories.data)
     except sqlalchemy.exc.IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

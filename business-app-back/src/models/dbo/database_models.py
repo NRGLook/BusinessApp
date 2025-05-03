@@ -2,7 +2,15 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID
 from decimal import Decimal
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
+
+from fastapi_users_db_sqlalchemy import (
+    SQLAlchemyBaseUserTableUUID,
+    SQLAlchemyUserDatabase,
+)
+from fastapi_users_db_sqlalchemy.access_token import (
+    SQLAlchemyBaseAccessTokenTableUUID,
+)
 
 from sqlalchemy import (
     ForeignKey,
@@ -29,6 +37,10 @@ from src.models.dbo.mixins import (
     TimestampMixin,
     ImageMixin,
 )
+
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class Base(DeclarativeBase):
@@ -68,18 +80,7 @@ user_achievements = Table(
 )
 
 
-class User(Base, IDMixin, TimestampMixin):
-    __tablename__ = "user"
-
-    username: Mapped[str] = mapped_column(
-        String(50), unique=True, index=True, comment="Уникальный логин пользователя (например: 'john_doe_2024')"
-    )
-    email: Mapped[str] = mapped_column(
-        String(100), unique=True, index=True, comment="Почтовый адрес пользователя (например: 'user@example.com')"
-    )
-    password_hash: Mapped[str] = mapped_column(String(128), comment="Хэшированный пароль с использованием bcrypt")
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="Флаг активности аккаунта (True/False)")
-
+class User(Base, SQLAlchemyBaseUserTableUUID, IDMixin, TimestampMixin):
     profile: Mapped["UserProfile"] = relationship(back_populates="user")
     roles: Mapped[List["Role"]] = relationship(secondary=user_roles, back_populates="users")
     businesses: Mapped[List["Business"]] = relationship(back_populates="owner")
@@ -88,12 +89,26 @@ class User(Base, IDMixin, TimestampMixin):
     notifications: Mapped[List["Notification"]] = relationship(back_populates="user")
     achievements: Mapped[List["Achievement"]] = relationship(secondary=user_achievements, back_populates="users")
 
+    @classmethod
+    def get_db(cls, session: "AsyncSession"):
+        return SQLAlchemyUserDatabase(session, cls)
+
+
+class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), nullable=False, unique=True)
+
+    @classmethod
+    def get_db(cls, session: "AsyncSession"):
+        return SQLAlchemyUserDatabase(session, cls)
+
 
 class Role(Base, IDMixin):
     __tablename__ = "role"
 
     name: Mapped[RoleType] = mapped_column(
-        SqlEnum(RoleType), unique=True, comment="Название роли из предопределенного списка"
+        SqlEnum(RoleType),
+        unique=True,
+        comment="Название роли из предопределенного списка",
     )
     description: Mapped[Optional[str]] = mapped_column(
         String(255), comment="Описание роли (например: 'Администратор системы')"
@@ -109,7 +124,8 @@ class UserProfile(Base, IDMixin, TimestampMixin):
     first_name: Mapped[Optional[str]] = mapped_column(String(50), comment="Имя пользователя (например: 'Иван')")
     last_name: Mapped[Optional[str]] = mapped_column(String(50), comment="Фамилия пользователя (например: 'Петров')")
     avatar_url: Mapped[Optional[str]] = mapped_column(
-        String(255), comment="Ссылка на аватар (например: 'https://example.com/avatar.jpg')"
+        String(255),
+        comment="Ссылка на аватар (например: 'https://example.com/avatar.jpg')",
     )
     bio: Mapped[Optional[str]] = mapped_column(Text(), comment="Краткая биография пользователя")
 
@@ -142,7 +158,8 @@ class PhysicalBusinessSettings(Base, IDMixin):
     size_sq_meters: Mapped[Decimal] = mapped_column(Numeric, comment="Площадь помещения в квадратных метрах")
     employee_count: Mapped[UUID] = mapped_column(Integer, comment="Количество сотрудников")
     equipment: Mapped[JSON] = mapped_column(
-        JSON, comment="Оборудование в формате JSON (например: {'станки': 5, 'транспорт': 2})"
+        JSON,
+        comment="Оборудование в формате JSON (например: {'станки': 5, 'транспорт': 2})",
     )
 
     business: Mapped["Business"] = relationship(back_populates="physical_settings")
@@ -234,7 +251,9 @@ class Achievement(Base, IDMixin):
     __tablename__ = "achievement"
 
     name: Mapped[str] = mapped_column(
-        String(100), unique=True, comment="Название достижения (например: 'Первый миллион')"
+        String(100),
+        unique=True,
+        comment="Название достижения (например: 'Первый миллион')",
     )
     description: Mapped[str] = mapped_column(Text(), comment="Условие получения достижения")
     icon_url: Mapped[str] = mapped_column(String(255), comment="Ссылка на иконку достижения")
@@ -352,7 +371,9 @@ class Course(Base, IDMixin, TimestampMixin, ImageMixin):
     title: Mapped[str] = mapped_column(String(100), comment="Название курса")
     description: Mapped[Optional[str]] = mapped_column(Text(), comment="Описание курса")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="Флаг активности курса")
-    category_id: Mapped[UUID] = mapped_column(ForeignKey("course_category.id"), comment="Категория курса")
+    category_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("course_category.id", ondelete="SET NULL"), comment="Категория курса"
+    )
 
     category: Mapped["CourseCategory"] = relationship(back_populates="courses")
     lessons: Mapped[List["Lesson"]] = relationship(back_populates="course", cascade="all, delete-orphan")
