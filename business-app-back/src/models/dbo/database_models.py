@@ -10,6 +10,7 @@ from fastapi_users_db_sqlalchemy import (
 )
 from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyBaseAccessTokenTableUUID,
+    SQLAlchemyAccessTokenDatabase,
 )
 
 from sqlalchemy import (
@@ -95,11 +96,14 @@ class User(Base, SQLAlchemyBaseUserTableUUID, IDMixin, TimestampMixin):
 
 
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), nullable=False, unique=True)
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("user.id", ondelete="cascade"),
+        nullable=False,
+    )
 
     @classmethod
     def get_db(cls, session: "AsyncSession"):
-        return SQLAlchemyUserDatabase(session, cls)
+        return SQLAlchemyAccessTokenDatabase(session, cls)
 
 
 class Role(Base, IDMixin):

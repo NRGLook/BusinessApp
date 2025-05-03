@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)  # add /login + /logout
+app.include_router(auth_router)
 app.include_router(business_router)
 app.include_router(home_router)
 app.include_router(user_router)
