@@ -1,33 +1,45 @@
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.api.schemes import ListDataResponseSchema
+from src.api.schemes import ListDataResponseSchema, IDSchema
 
 
-class CourseBase(BaseModel):
-    name: str
+class CourseBaseSchema(IDSchema):
+    title: str
     description: Optional[str] = None
-    category_id: UUID
+    is_active: bool = Field(default=True, description="Флаг активности курса")
+    category_id: Optional[UUID] = Field(None, description="ID категории курса")
 
 
-class CourseCreate(CourseBase):
-    pass
-
-
-class CourseUpdate(BaseModel):
-    name: Optional[str]
-    description: Optional[str]
-    category_id: Optional[int]
-
-
-class CourseRead(CourseBase):
-    id: UUID
-
+class CourseReadSchema(CourseBaseSchema):
     class Config:
         from_attributes = True
 
 
+class CourseCreateSchema(CourseBaseSchema):
+    pass
+
+
+class CourseCreateBatchSchema(BaseModel):
+    data: list[CourseCreateSchema]
+
+
+class CourseUpdateSchema(BaseModel):
+    title: Optional[str]
+    description: Optional[str]
+    is_active: Optional[bool]
+    category_id: Optional[UUID]
+
+
+class CourseDeleteSchema(IDSchema):
+    pass
+
+
+class CourseDeleteBatchSchema(BaseModel):
+    data: list[CourseDeleteSchema]
+
+
 class CourseListResponseSchema(ListDataResponseSchema):
-    data: list[CourseRead]
+    data: list[CourseReadSchema]
