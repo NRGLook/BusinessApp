@@ -1,8 +1,20 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    HTTPException,
+    status,
+)
+from fastapi.security import HTTPBearer
 
-from src.api.routes.users.schemes import UserProfileResponse
+from src.api.routes.auth.fastapi_users_auth_router import fastapi_users
+from src.api.routes.users.schemes import (
+    UserProfileResponse,
+    UserRead,
+    UserUpdate,
+)
 from src.api.schemes import (
     Response400Schema,
     Response500Schema,
@@ -12,9 +24,19 @@ from src.services.users.user import (
     get_user_service,
 )
 
+http_bearer = HTTPBearer(auto_error=False)
+
 user_router = APIRouter(
     prefix="/user",
     tags=["User"],
+    dependencies=[Depends(http_bearer)],
+)
+
+user_router.include_router(
+    router=fastapi_users.get_users_router(
+        UserRead,
+        UserUpdate,
+    )
 )
 
 
