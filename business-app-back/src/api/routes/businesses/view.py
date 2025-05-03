@@ -1,7 +1,21 @@
-from typing import Optional
+from typing import (
+    Annotated,
+    Optional,
+)
 
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    HTTPException,
+    status,
+)
 
+from src.api.routes.users.schemes import UserRead
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_user,
+    current_active_super_user,
+)
 from src.api.schemes import (
     OrderParams,
     Response400Schema,
@@ -12,6 +26,7 @@ from src.api.routes.businesses.schemes import (
     BusinessListResponseSchema,
     BusinessType,
 )
+from src.models.dbo.database_models import User
 from src.services.businesses.business import (
     BusinessService,
     get_business_service,
@@ -22,6 +37,32 @@ business_router = APIRouter(
     prefix="/business",
     tags=["Business"],
 )
+
+
+@business_router.get("/yours")
+async def get_businesses_for_user(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
+):
+    return {
+        "Your businesses": [1, 2, 3],
+        "user": UserRead.model_validate(user),
+    }
+
+
+@business_router.get("/all")
+async def get_businesses_for_all_user(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
+):
+    return {
+        "Secret businesses": [1, 2, 3],
+        "user": UserRead.model_validate(user),
+    }
 
 
 @business_router.get(
