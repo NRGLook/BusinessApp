@@ -1,26 +1,42 @@
-from typing import List, Optional
-
+from typing import Optional
+from uuid import UUID
 from pydantic import BaseModel
 
-
-class UserCourseProgressBase(BaseModel):
-    user_id: int
-    course_id: int
-    completed_lessons: List[int]
-    score: int
+from src.api.schemes import ListDataResponseSchema, IDSchema
 
 
-class UserCourseProgressCreate(UserCourseProgressBase):
+class UserCourseProgressBaseSchema(IDSchema):
+    user_id: UUID
+    course_id: UUID
+    completed_lessons: int
+    is_completed: bool
+
+
+class UserCourseProgressReadSchema(UserCourseProgressBaseSchema):
+    class Config:
+        from_attributes = True
+
+
+class UserCourseProgressCreateSchema(UserCourseProgressBaseSchema):
     pass
 
 
-class UserCourseProgressUpdate(BaseModel):
-    completed_lessons: Optional[List[int]]
-    score: Optional[int]
+class UserCourseProgressCreateBatchSchema(BaseModel):
+    data: list[UserCourseProgressCreateSchema]
 
 
-class UserCourseProgressRead(UserCourseProgressBase):
-    id: int
+class UserCourseProgressUpdateSchema(BaseModel):
+    completed_lessons: Optional[int] = None
+    is_completed: Optional[bool] = None
 
-    class Config:
-        from_attributes = True
+
+class UserCourseProgressDeleteSchema(IDSchema):
+    pass
+
+
+class UserCourseProgressDeleteBatchSchema(BaseModel):
+    data: list[UserCourseProgressDeleteSchema]
+
+
+class UserCourseProgressListResponseSchema(ListDataResponseSchema):
+    data: list[UserCourseProgressReadSchema]

@@ -1,28 +1,47 @@
-from typing import List, Optional
+from uuid import UUID
+from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from src.api.schemes import ListDataResponseSchema, IDSchema
 
 
-class QuizQuestionBase(BaseModel):
+class QuizQuestionBaseSchema(IDSchema):
+    lesson_id: UUID = Field(..., description="ID урока, к которому относится вопрос")
+    question_text: str = Field(..., description="Текст вопроса")
+    choices: List[str] = Field(..., description="Варианты ответов (в формате списка строк)")
+    correct_answer: str = Field(..., description="Правильный ответ")
+
+
+class QuizQuestionReadSchema(QuizQuestionBaseSchema):
+    class Config:
+        from_attributes = True
+
+
+class QuizQuestionCreateSchema(BaseModel):
+    lesson_id: UUID
     question_text: str
-    answer_options: List[str]
+    choices: List[str]
     correct_answer: str
-    lesson_id: int
 
 
-class QuizQuestionCreate(QuizQuestionBase):
+class QuizQuestionCreateBatchSchema(BaseModel):
+    data: List[QuizQuestionCreateSchema]
+
+
+class QuizQuestionUpdateSchema(BaseModel):
+    question_text: str | None = None
+    choices: List[str] | None = None
+    correct_answer: str | None = None
+
+
+class QuizQuestionDeleteSchema(IDSchema):
     pass
 
 
-class QuizQuestionUpdate(BaseModel):
-    question_text: Optional[str]
-    answer_options: Optional[List[str]]
-    correct_answer: Optional[str]
-    lesson_id: Optional[int]
+class QuizQuestionDeleteBatchSchema(BaseModel):
+    data: List[QuizQuestionDeleteSchema]
 
 
-class QuizQuestionRead(QuizQuestionBase):
-    id: int
-
-    class Config:
-        from_attributes = True
+class QuizQuestionListResponseSchema(ListDataResponseSchema):
+    data: List[QuizQuestionReadSchema]
