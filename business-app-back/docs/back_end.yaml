@@ -1,0 +1,747 @@
+openapi: 3.0.0
+info:
+  title: Business Simulation API
+  description: API for virtual businesses process simulation app
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+tags:
+  - name: Auth
+    description: Authentication and authorization
+  - name: Users
+    description: User profile management
+  - name: BusinessModels
+    description: Available businesses models
+  - name: Sessions
+    description: User businesses simulation sessions
+  - name: Configuration
+    description: Session configuration management
+  - name: Investments
+    description: Investment operations
+  - name: Staff
+    description: Staff management
+  - name: Achievements
+    description: Gamification achievements
+  - name: Visualization
+    description: Business visualization data
+  - name: Plans
+    description: Development plan generation
+  - name: Facilities
+    description: Physical facility operations
+  - name: Crypto
+    description: Virtual currency operations
+  - name: Marketing
+    description: Marketing campaign management
+  - name: Notifications
+    description: User notifications
+  - name: Leaderboard
+    description: Global ranking
+  - name: Support
+    description: Feedback and FAQ
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate user and return token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token generated
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Invalidate current token
+      responses:
+        '204':
+          description: Logged out
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh authentication token
+      responses:
+        '200':
+          description: Token refreshed
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: User profile
+    put:
+      tags: [Users]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Profile updated
+    delete:
+      tags: [Users]
+      summary: Delete user account
+      responses:
+        '204':
+          description: Account deleted
+  /business-models:
+    get:
+      tags: [BusinessModels]
+      summary: List all businesses models
+      responses:
+        '200':
+          description: Array of businesses models
+  /business-models/{modelId}:
+    get:
+      tags: [BusinessModels]
+      summary: Get details of a businesses model
+      parameters:
+        - name: modelId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model details
+  /sessions:
+    post:
+      tags: [Sessions]
+      summary: Create a new simulation session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionCreate'
+      responses:
+        '201':
+          description: Session created
+    get:
+      tags: [Sessions]
+      summary: List all sessions for user
+      responses:
+        '200':
+          description: Array of sessions
+  /sessions/{sessionId}:
+    get:
+      tags: [Sessions]
+      summary: Get session details
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session details
+    delete:
+      tags: [Sessions]
+      summary: Delete a simulation session
+      responses:
+        '204':
+          description: Session deleted
+  /sessions/{sessionId}/configuration:
+    get:
+      tags: [Configuration]
+      summary: Get session configuration
+      responses:
+        '200':
+          description: Configuration details
+    put:
+      tags: [Configuration]
+      summary: Update session configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationUpdate'
+      responses:
+        '200':
+          description: Configuration updated
+  /sessions/{sessionId}/investments:
+    get:
+      tags: [Investments]
+      summary: List investments in session
+      responses:
+        '200':
+          description: Array of investments
+    post:
+      tags: [Investments]
+      summary: Make a new investment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvestmentCreate'
+      responses:
+        '201':
+          description: Investment created
+  /sessions/{sessionId}/investments/{investmentId}:
+    get:
+      tags: [Investments]
+      summary: Get investment details
+      parameters:
+        - name: investmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Investment details
+    delete:
+      tags: [Investments]
+      summary: Remove an investment
+      responses:
+        '204':
+          description: Investment removed
+  /sessions/{sessionId}/staff:
+    get:
+      tags: [Staff]
+      summary: List hired staff
+      responses:
+        '200':
+          description: Array of staff
+    post:
+      tags: [Staff]
+      summary: Hire new staff member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCreate'
+      responses:
+        '201':
+          description: Staff hired
+  /sessions/{sessionId}/staff/{staffId}:
+    put:
+      tags: [Staff]
+      summary: Update staff assignment
+      responses:
+        '200':
+          description: Staff updated
+    delete:
+      tags: [Staff]
+      summary: Fire a staff member
+      responses:
+        '204':
+          description: Staff removed
+  /sessions/{sessionId}/achievements:
+    get:
+      tags: [Achievements]
+      summary: List available achievements
+      responses:
+        '200':
+          description: Array of achievements
+  /sessions/{sessionId}/achievements/{achievementId}:
+    get:
+      tags: [Achievements]
+      summary: Get achievement details
+      parameters:
+        - name: achievementId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Achievement details
+  /sessions/{sessionId}/achievements/{achievementId}/unlock:
+    post:
+      tags: [Achievements]
+      summary: Unlock an achievement
+      responses:
+        '200':
+          description: Achievement unlocked
+  /sessions/{sessionId}/visualization/status:
+    get:
+      tags: [Visualization]
+      summary: Get current businesses status overview
+      responses:
+        '200':
+          description: Status data
+  /sessions/{sessionId}/visualization/timeline:
+    get:
+      tags: [Visualization]
+      summary: Get businesses development timeline
+      responses:
+        '200':
+          description: Timeline data
+  /sessions/{sessionId}/visualization/chart:
+    get:
+      tags: [Visualization]
+      summary: Get chart data for portfolio performance
+      responses:
+        '200':
+          description: Chart data
+  /sessions/{sessionId}/plan:
+    post:
+      tags: [Plans]
+      summary: Generate development plan
+      responses:
+        '201':
+          description: Plan generated
+    get:
+      tags: [Plans]
+      summary: Get generated plan
+      responses:
+        '200':
+          description: Plan details
+  /sessions/{sessionId}/plan/{planId}/accept:
+    post:
+      tags: [Plans]
+      summary: Accept development plan
+      responses:
+        '200':
+          description: Plan accepted
+  /sessions/{sessionId}/plan/{planId}/decline:
+    post:
+      tags: [Plans]
+      summary: Decline development plan
+      responses:
+        '200':
+          description: Plan declined
+  /sessions/{sessionId}/facilities:
+    get:
+      tags: [Facilities]
+      summary: List all physical facilities
+      responses:
+        '200':
+          description: Array of facilities
+    post:
+      tags: [Facilities]
+      summary: Build a new facility
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityCreate'
+      responses:
+        '201':
+          description: Facility built
+  /sessions/{sessionId}/facilities/{facilityId}:
+    get:
+      tags: [Facilities]
+      summary: Get facility details
+      parameters:
+        - name: facilityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Facility details
+    delete:
+      tags: [Facilities]
+      summary: Demolish a facility
+      responses:
+        '204':
+          description: Facility removed
+  /sessions/{sessionId}/crypto:
+    get:
+      tags: [Crypto]
+      summary: List supported cryptocurrencies
+      responses:
+        '200':
+          description: Array of cryptocurrencies
+    post:
+      tags: [Crypto]
+      summary: Place buy/sell order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoOrder'
+      responses:
+        '201':
+          description: Order placed
+  /sessions/{sessionId}/crypto/{orderId}:
+    get:
+      tags: [Crypto]
+      summary: Get order status
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details
+    delete:
+      tags: [Crypto]
+      summary: Cancel order
+      responses:
+        '204':
+          description: Order cancelled
+  /sessions/{sessionId}/marketing:
+    get:
+      tags: [Marketing]
+      summary: List marketing campaigns
+      responses:
+        '200':
+          description: Array of campaigns
+    post:
+      tags: [Marketing]
+      summary: Create a new marketing campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketingCreate'
+      responses:
+        '201':
+          description: Campaign created
+  /sessions/{sessionId}/marketing/{campaignId}:
+    get:
+      tags: [Marketing]
+      summary: Get campaign details
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Campaign details
+    put:
+      tags: [Marketing]
+      summary: Update campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketingCampaign'
+      responses:
+        '200':
+          description: Campaign updated
+    delete:
+      tags: [Marketing]
+      summary: Delete campaign
+      responses:
+        '204':
+          description: Campaign removed
+  /users/me/notifications:
+    get:
+      tags: [Notifications]
+      summary: List user notifications
+      responses:
+        '200':
+          description: Array of notifications
+  /users/me/notifications/{notificationId}/read:
+    post:
+      tags: [Notifications]
+      summary: Mark notification as read
+      responses:
+        '200':
+          description: Notification marked read
+  /users/me/notifications/{notificationId}:
+    delete:
+      tags: [Notifications]
+      summary: Delete notification
+      responses:
+        '204':
+          description: Notification deleted
+  /leaderboard/global:
+    get:
+      tags: [Leaderboard]
+      summary: Get global leaderboard
+      responses:
+        '200':
+          description: Leaderboard entries
+  /leaderboard/friends:
+    get:
+      tags: [Leaderboard]
+      summary: Get friends leaderboard
+      responses:
+        '200':
+          description: Leaderboard entries
+  /support/feedback:
+    post:
+      tags: [Support]
+      summary: Submit feedback or issue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feedback'
+      responses:
+        '201':
+          description: Feedback submitted
+  /support/faq:
+    get:
+      tags: [Support]
+      summary: List frequently asked questions
+      responses:
+        '200':
+          description: Array of FAQs
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+      required: [email, password, name]
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+    BusinessModel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+        modelId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    SessionCreate:
+      type: object
+      properties:
+        modelId:
+          type: string
+      required: [modelId]
+    ConfigurationUpdate:
+      type: object
+      properties:
+        initialInvestment:
+          type: number
+        staffCount:
+          type: integer
+    Investment:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date-time
+    InvestmentCreate:
+      type: object
+      properties:
+        amount:
+          type: number
+      required: [amount]
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        salary:
+          type: number
+    StaffCreate:
+      type: object
+      properties:
+        role:
+          type: string
+        salary:
+          type: number
+      required: [role, salary]
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        unlocked:
+          type: boolean
+    VisualizationStatus:
+      type: object
+      properties:
+        revenue:
+          type: number
+        expenses:
+          type: number
+        profit:
+          type: number
+    VisualizationTimelineItem:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        value:
+          type: number
+    ChartData:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            type: number
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+        steps:
+          type: array
+          items:
+            type: string
+    Facility:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        level:
+          type: integer
+    FacilityCreate:
+      type: object
+      properties:
+        type:
+          type: string
+      required: [type]
+    CryptoCurrency:
+      type: object
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+    CryptoOrder:
+      type: object
+      properties:
+        symbol:
+          type: string
+        amount:
+          type: number
+        orderType:
+          type: string
+      required: [symbol, amount, orderType]
+    MarketingCampaign:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        budget:
+          type: number
+        status:
+          type: string
+    MarketingCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        budget:
+          type: number
+      required: [name, budget]
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+    LeaderboardEntry:
+      type: object
+      properties:
+        userId:
+          type: string
+        name:
+          type: string
+        score:
+          type: number
+    Feedback:
+      type: object
+      properties:
+        subject:
+          type: string
+        message:
+          type: string
+      required: [subject, message]
+    FAQ:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string

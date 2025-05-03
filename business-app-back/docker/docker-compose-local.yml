@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+#  web:
+#      build:
+#        context: ..
+#        dockerfile: docker/Dockerfile
+#      container_name: fastapi_app
+#      ports:
+#        - "${APP_PORT}:8000"
+#      depends_on:
+#        - db
+#        - redis
+#        - kafka
+#      environment:
+#        - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
+#        - REDIS_HOST=${REDIS_HOST}
+#        - REDIS_PORT=${REDIS_PORT}
+#        - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_HOST}:${KAFKA_PORT}
+#      volumes:
+#        - ../:/app
+#      working_dir: /app
+
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE_NAME}
+    command: >
+      postgres -c 'listen_addresses=*'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../.env
+
+#
+#  redis:
+#    image: redis:6
+#    container_name: redis
+#    restart: always
+#    ports:
+#      - "${REDIS_PORT}:${REDIS_PORT}"
+#
+#  zookeeper:
+#    image: wurstmeister/zookeeper
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#
+#  kafka:
+#    image: wurstmeister/kafka
+#    container_name: kafka
+#    ports:
+#      - "${KAFKA_PORT}:${KAFKA_PORT}"
+#    environment:
+#      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_HOST}:${KAFKA_PORT}
+#      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+#      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:${KAFKA_PORT}
+#      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+
+volumes:
+  postgres_data:
