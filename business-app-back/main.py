@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from starlette.middleware.cors import CORSMiddleware
 
+from src.api.routes.auth.views import auth_router
 from src.api.routes.education.category.views import course_categories_router
 from src.api.routes.education.course.views import course_router
 from src.api.routes.education.quiz.views import quiz_router
@@ -21,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)  # add /login + /logout
 app.include_router(business_router)
 app.include_router(home_router)
 app.include_router(user_router)
