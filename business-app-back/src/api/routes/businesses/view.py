@@ -84,6 +84,10 @@ async def get_businesses_for_all_user(
     summary="Retrieve businesses with search, sorting, and pagination",
 )
 async def get_businesses(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     search: Optional[str] = Query(None, description="Search by business name"),
     business_type: Optional[BusinessType] = Query(None),
     pagination: PaginationParams = Depends(pagination_params),

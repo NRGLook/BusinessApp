@@ -1,9 +1,13 @@
 from uuid import UUID
-from typing import Optional
+from typing import Optional, Annotated
 
 import sqlalchemy.exc
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_user,
+    current_active_super_user,
+)
 from src.api.schemes import (
     Response400Schema,
     Response404Schema,
@@ -16,6 +20,7 @@ from src.api.routes.education.user_course_progress.schemes import (
     UserCourseProgressReadSchema,
     UserCourseProgressDeleteBatchSchema,
 )
+from src.models.dbo.database_models import User
 from src.services.user_course_progresses.user_course_progress import (
     UserCourseProgressService,
     get_user_course_progress_service,
@@ -47,6 +52,10 @@ progress_router = APIRouter(
     summary="Retrieve user course progress",
 )
 async def get_user_progress(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     user_id: Optional[UUID] = Query(None, description="User ID to filter progress"),
     course_id: Optional[UUID] = Query(None, description="Course ID to filter progress"),
     pagination: PaginationParams = Depends(pagination_params),
@@ -93,6 +102,10 @@ async def get_user_progress(
     summary="Create or update user course progress records",
 )
 async def create_or_update_user_progress(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     data: UserCourseProgressCreateBatchSchema,
     service: UserCourseProgressService = Depends(get_user_course_progress_service),
 ):
@@ -124,6 +137,10 @@ async def create_or_update_user_progress(
     summary="Delete user course progress records by ID",
 )
 async def delete_user_progress(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     data: UserCourseProgressDeleteBatchSchema,
     service: UserCourseProgressService = Depends(get_user_course_progress_service),
 ):

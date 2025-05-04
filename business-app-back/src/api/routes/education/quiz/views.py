@@ -1,17 +1,31 @@
 from uuid import UUID
-from typing import Optional
+from typing import Optional, Annotated
 
 import sqlalchemy.exc
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from src.api.schemes import Response500Schema, PaginationParams, OrderParams, Response400Schema, Response404Schema
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_super_user,
+    current_active_user,
+)
+from src.api.schemes import (
+    Response500Schema,
+    PaginationParams,
+    OrderParams,
+    Response400Schema,
+    Response404Schema,
+)
 from src.api.routes.education.quiz.schemes import (
     QuizQuestionCreateBatchSchema,
     QuizQuestionReadSchema,
     QuizQuestionDeleteBatchSchema,
 )
-from src.services.quiz_questions.quiz_question import QuizQuestionService, get_quiz_question_service
+from src.models.dbo.database_models import User
+from src.services.quiz_questions.quiz_question import (
+    QuizQuestionService,
+    get_quiz_question_service,
+)
 from src.utils.helpers import pagination_params
 
 quiz_router = APIRouter(
@@ -39,6 +53,10 @@ quiz_router = APIRouter(
     summary="Retrieve quiz questions",
 )
 async def get_quiz_questions(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     question_id: Optional[UUID] = Query(None, description="ID of the quiz question"),
     lesson_id: Optional[UUID] = Query(None, description="Lesson ID for filtering"),
     search: Optional[str] = Query(None, description="Search by question text"),
@@ -83,6 +101,10 @@ async def get_quiz_questions(
     summary="Create or update quiz questions",
 )
 async def create_or_update_quiz_questions(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     questions: QuizQuestionCreateBatchSchema,
     service: QuizQuestionService = Depends(get_quiz_question_service),
 ):
@@ -114,6 +136,10 @@ async def create_or_update_quiz_questions(
     summary="Delete quiz questions",
 )
 async def delete_quiz_questions(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     questions: QuizQuestionDeleteBatchSchema,
     service: QuizQuestionService = Depends(get_quiz_question_service),
 ):

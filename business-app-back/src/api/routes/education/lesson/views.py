@@ -1,12 +1,27 @@
 from uuid import UUID
-from typing import Optional
+from typing import Optional, Annotated
 
 import sqlalchemy.exc
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from src.api.schemes import Response500Schema, PaginationParams, OrderParams, Response400Schema, Response404Schema
-from src.api.routes.education.lesson.schemes import LessonCreateBatchSchema, LessonReadSchema, LessonDeleteBatchSchema
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_user,
+    current_active_super_user,
+)
+from src.api.schemes import (
+    Response500Schema,
+    PaginationParams,
+    OrderParams,
+    Response400Schema,
+    Response404Schema,
+)
+from src.api.routes.education.lesson.schemes import (
+    LessonCreateBatchSchema,
+    LessonReadSchema,
+    LessonDeleteBatchSchema,
+)
+from src.models.dbo.database_models import User
 from src.services.lessons.lesson import LessonService, get_lesson_service
 from src.utils.helpers import pagination_params
 
@@ -35,7 +50,10 @@ lessons_router = APIRouter(
     summary="Retrieve lesson by ID",
 )
 async def get_lessons(
-    # credentials: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())],
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     lesson_id: Optional[UUID] = Query(None, description="ID of the lesson"),
     search: Optional[str] = Query(None, description="Search by lesson name"),
     pagination: PaginationParams = Depends(pagination_params),
@@ -81,7 +99,10 @@ async def get_lessons(
     summary="Create, update lessons according to your provided data",
 )
 async def create_or_update_contractor_works(
-    # credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     lessons: LessonCreateBatchSchema,
     service: LessonService = Depends(get_lesson_service),
 ):
@@ -113,7 +134,10 @@ async def create_or_update_contractor_works(
     summary="Delete lesson according to your provided data",
 )
 async def delete_lessons(
-    # credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     lessons: LessonDeleteBatchSchema,
     service: LessonService = Depends(get_lesson_service),
 ):

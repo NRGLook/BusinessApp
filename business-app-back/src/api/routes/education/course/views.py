@@ -1,10 +1,14 @@
 from uuid import UUID
-from typing import Optional
+from typing import Optional, Annotated
 
 import sqlalchemy.exc
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_super_user,
+    current_active_user,
+)
 from src.api.schemes import (
     Response500Schema,
     PaginationParams,
@@ -17,6 +21,7 @@ from src.api.routes.education.course.schemes import (
     CourseReadSchema,
     CourseDeleteBatchSchema,
 )
+from src.models.dbo.database_models import User
 from src.services.courses.course import CourseService, get_course_service
 from src.utils.helpers import pagination_params
 
@@ -45,6 +50,10 @@ course_router = APIRouter(
     summary="Retrieve course by ID",
 )
 async def get_courses(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     course_id: Optional[UUID] = Query(None, description="ID of the course"),
     search: Optional[str] = Query(None, description="Search by course title"),
     pagination: PaginationParams = Depends(pagination_params),
@@ -90,6 +99,10 @@ async def get_courses(
     summary="Create or update courses based on provided data",
 )
 async def create_or_update_courses(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     courses: CourseCreateBatchSchema,
     service: CourseService = Depends(get_course_service),
 ):
@@ -121,6 +134,10 @@ async def create_or_update_courses(
     summary="Delete courses by ID list",
 )
 async def delete_courses(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     courses: CourseDeleteBatchSchema,
     service: CourseService = Depends(get_course_service),
 ):

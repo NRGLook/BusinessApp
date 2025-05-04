@@ -1,10 +1,17 @@
 from uuid import UUID
-from typing import Optional
+from typing import (
+    Annotated,
+    Optional,
+)
 
 import sqlalchemy.exc
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from src.api.routes.auth.fastapi_users_auth_router import (
+    current_active_user,
+    current_active_super_user,
+)
 from src.api.schemes import (
     Response500Schema,
     PaginationParams,
@@ -17,6 +24,7 @@ from src.api.routes.education.category.schemes import (
     CourseCategoryReadSchema,
     CourseCategoryDeleteBatchSchema,
 )
+from src.models.dbo.database_models import User
 from src.services.categories.category import (
     CourseCategoryService,
     get_course_category_service,
@@ -48,6 +56,10 @@ course_categories_router = APIRouter(
     summary="Retrieve course category by ID",
 )
 async def get_course_categories(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
     category_id: Optional[UUID] = Query(None, description="ID of the category"),
     search: Optional[str] = Query(None, description="Search by category name"),
     pagination: PaginationParams = Depends(pagination_params),
@@ -93,6 +105,10 @@ async def get_course_categories(
     summary="Create, update course categories",
 )
 async def create_or_update_course_categories(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     categories: CourseCategoryCreateBatchSchema,
     service: CourseCategoryService = Depends(get_course_category_service),
 ):
@@ -124,6 +140,10 @@ async def create_or_update_course_categories(
     summary="Delete course categories",
 )
 async def delete_course_categories(
+    user: Annotated[
+        User,
+        Depends(current_active_super_user),
+    ],
     categories: CourseCategoryDeleteBatchSchema,
     service: CourseCategoryService = Depends(get_course_category_service),
 ):
