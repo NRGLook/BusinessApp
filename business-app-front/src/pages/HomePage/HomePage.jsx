@@ -1,154 +1,499 @@
-// src/pages/HomePage/HomePage.jsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Box, Container, Typography, Grid, Button, Paper, Divider, List, ListItem, ListItemText, LinearProgress
+    Box,
+    Container,
+    Typography,
+    Grid,
+    Button,
+    Card,
+    CardContent,
+    useTheme,
 } from '@mui/material';
-import { styled } from '@mui/system';
 import { Link } from 'react-router-dom';
+import {
+    Business,
+    CurrencyExchange,
+} from '@mui/icons-material';
 
-const HeroSection = styled(Box)(({ theme }) => ({
-    padding: theme.spacing(8, 0),
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    textAlign: 'center',
-}));
+const DynamicHeader = () => {
+    const [currentWord, setCurrentWord] = useState(0);
+    const words = ['Стройте', 'Управляйте', 'Развивайте', 'Покоряйте'];
 
-const BusinessCard = styled(Paper)(({ theme }) => ({
-    padding: theme.spacing(4),
-    height: '100%',
-    transition: 'transform 0.3s',
-    '&:hover': {
-        transform: 'translateY(-10px)',
-    },
-}));
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentWord((prev) => (prev + 1) % words.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [words.length]);
+
+    return (
+        <Box sx={{ position: 'relative', mb: 4 }}>
+            <Typography
+                variant="h1"
+                sx={{
+                    fontSize: { xs: '3rem', md: '4rem' },
+                    fontWeight: 900,
+                    lineHeight: 1.2,
+                    letterSpacing: '-0.03em',
+                    color: '#fff',
+                    textShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                }}
+            >
+            </Typography>
+
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={currentWord}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                        position: 'absolute',
+                        bottom: -40,
+                        left: 0,
+                        right: 0,
+                        textAlign: 'center',
+                    }}
+                >
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontSize: '1.8rem',
+                            fontWeight: 600,
+                            color: '#FFD700',
+                        }}
+                    >
+                        {words[currentWord]}
+                    </Typography>
+                </motion.div>
+            </AnimatePresence>
+        </Box>
+    );
+};
+
+const HeroSection = () => {
+    const theme = useTheme();
+
+    return (
+        <Box sx={{
+            py: 10,
+            position: 'relative',
+            background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+            overflow: 'hidden'
+        }}>
+            <MoneyAnimation side="left" />
+            <MoneyAnimation side="right" />
+
+            <Container>
+                <Box sx={{
+                    textAlign: 'center',
+                    maxWidth: 800,
+                    mx: 'auto',
+                    position: 'relative',
+                    zIndex: 1
+                }}>
+                    <Typography
+                        variant="h1"
+                        sx={{
+                            fontSize: { xs: '2.5rem', md: '3.5rem' },
+                            fontWeight: 800,
+                            color: '#fff',
+                            textShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                            mb: 1 // Отступ между заголовком и динамическим текстом
+                        }}
+                    >
+                        Бизнес Империя
+                    </Typography>
+
+                    <Box sx={{ mb: 15 }}> {/* Отступ между динамическим текстом и кнопкой */}
+                        <DynamicHeader />
+                    </Box>
+
+                    <Button
+                        component={Link}
+                        to="/start"
+                        variant="contained"
+                        size="large"
+                        sx={{
+                            px: 6,
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontSize: '1.1rem',
+                            fontWeight: 600,
+                            background: 'linear-gradient(45deg, #FFD700 30%, #FFA000 90%)',
+                            color: '#000',
+                            '&:hover': {
+                                transform: 'translateY(-2px)'
+                            }
+                        }}
+                    >
+                        Стартовать бизнес
+                    </Button>
+                </Box>
+            </Container>
+        </Box>
+    );
+};
+
+const MoneyAnimation = ({ side }) => {
+    const theme = useTheme();
+    const positions = Array.from({ length: 8 }, (_, i) => i * 12);
+
+    return (
+        <Box sx={{
+            position: 'absolute',
+            width: '200px',
+            height: '100%',
+            [side]: 0,
+            overflow: 'hidden',
+            zIndex: 0,
+            pointerEvents: 'none'
+        }}>
+            {positions.map((pos, i) => (
+                <motion.div
+                    key={i}
+                    initial={{
+                        y: -100,
+                        x: side === 'left' ? -pos : pos,
+                        opacity: 0,
+                        rotate: i % 2 === 0 ? 0 : 180
+                    }}
+                    animate={{
+                        y: '100vh',
+                        opacity: [0, 0.5, 0],
+                        x: side === 'left' ? pos : -pos
+                    }}
+                    transition={{
+                        duration: 8 + i,
+                        repeat: Infinity,
+                        ease: "linear"
+                    }}
+                    style={{
+                        position: 'absolute',
+                        fontSize: '2rem',
+                        color: theme.palette.mode === 'dark' ? '#4CAF50' : '#2E7D32'
+                    }}
+                >
+                    {i % 2 === 0 ? '💵' : '💰'}
+                </motion.div>
+            ))}
+        </Box>
+    );
+};
+
+const NewsTicker = ({ items }) => {
+    const [activeIndex, setActiveIndex] = React.useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex(prev => (prev + 1) % items.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [items.length]);
+
+    return (
+        <Box sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            bgcolor: 'background.paper',
+            borderTop: '2px solid',
+            borderColor: 'divider',
+            zIndex: 1000
+        }}>
+            <Container>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    py: 2,
+                    gap: 2
+                }}>
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={activeIndex}
+                            initial={{ x: 100, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: -100, opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            style={{ flexGrow: 1 }}
+                        >
+                            <Typography variant="body1" sx={{
+                                fontWeight: 500,
+                                textAlign: 'center'
+                            }}>
+                                {items[activeIndex]}
+                            </Typography>
+                        </motion.div>
+                    </AnimatePresence>
+                </Box>
+            </Container>
+        </Box>
+    );
+};
 
 
 
+const BusinessCard = ({ title, description, path, icon, color, hoverMessage }) => {
+    const theme = useTheme();
+    const [isHovered, setIsHovered] = useState(false);
 
+    return (
+        <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+            <motion.div
+                style={{ flexGrow: 1 }}
+                whileHover={{ scale: 1.02 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className="relative"
+            >
+                <Card
+                    sx={{
+                        height: 600,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        background: `linear-gradient(45deg, ${color}20 0%, ${theme.palette.background.paper} 100%)`,
+                        border: `2px solid ${color}30`,
+                        borderRadius: 4,
+                        overflow: 'hidden',
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    <CardContent
+                        sx={{
+                            p: 4,
+                            textAlign: 'center',
+                            flexGrow: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                width: 140,
+                                height: 140,
+                                bgcolor: `${color}20`,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 4,
+                            }}
+                        >
+                            {React.cloneElement(icon, {
+                                sx: {
+                                    fontSize: 60,
+                                    color: color,
+                                },
+                            })}
+                        </Box>
 
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 800,
+                                mb: 3,
+                                color: color,
+                                fontSize: '2rem',
+                            }}
+                        >
+                            {title}
+                        </Typography>
 
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                color: theme.palette.text.secondary,
+                                fontSize: '1.1rem',
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            {description}
+                        </Typography>
+                    </CardContent>
 
-const AchievementBadge = styled(Box)(({ theme }) => ({
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: theme.spacing(1.5, 3),
-    borderRadius: '20px',
-    backgroundColor: theme.palette.secondary.light,
-    margin: theme.spacing(0.75),
-    fontWeight: 'bold',
-}));
+                    <Button
+                        component={Link}
+                        to={path}
+                        variant="contained"
+                        sx={{
+                            m: 3,
+                            py: 2,
+                            borderRadius: 2,
+                            fontWeight: 700,
+                            fontSize: '1.1rem',
+                            background: `linear-gradient(45deg, ${color} 0%, ${color}80 100%)`,
+                        }}
+                    >
+                        Начать сейчас
+                    </Button>
+                </Card>
+                <AnimatePresence>
+                    {isHovered && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md"
+                        >
+                            {hoverMessage}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        </Grid>
+    );
+};
+// const BusinessCard = ({ title, description, path, icon, color }) => {
+//     const theme = useTheme();
+//
+//     return (
+//         <Grid item xs={12} md={5} sx={{ display: 'flex' }}>
+//             <motion.div
+//                 style={{ flexGrow: 1 }}
+//                 whileHover={{ scale: 1.02 }}
+//             >
+//                 <Card
+//                     sx={{
+//                         height: 600,
+//                         display: 'flex',
+//                         flexDirection: 'column',
+//                         justifyContent: 'space-between',
+//                         background: `linear-gradient(45deg, ${color}20 0%, ${theme.palette.background.paper} 100%)`,
+//                         border: `2px solid ${color}30`,
+//                         borderRadius: 4,
+//                         overflow: 'hidden',
+//                         boxSizing: 'border-box'
+//                     }}
+//                 >
+//                     <CardContent sx={{
+//                         p: 4,
+//                         textAlign: 'center',
+//                         flexGrow: 1,
+//                         display: 'flex',
+//                         flexDirection: 'column',
+//                         justifyContent: 'center'
+//                     }}>
+//                         <Box sx={{
+//                             width: 140,
+//                             height: 140,
+//                             bgcolor: `${color}20`,
+//                             borderRadius: '50%',
+//                             display: 'flex',
+//                             alignItems: 'center',
+//                             justifyContent: 'center',
+//                             mx: 'auto',
+//                             mb: 4
+//                         }}>
+//                             {React.cloneElement(icon, {
+//                                 sx: {
+//                                     fontSize: 60,
+//                                     color: color
+//                                 }
+//                             })}
+//                         </Box>
+//
+//                         <Typography variant="h4" sx={{
+//                             fontWeight: 800,
+//                             mb: 3,
+//                             color: color,
+//                             fontSize: '2rem'
+//                         }}>
+//                             {title}
+//                         </Typography>
+//
+//                         <Typography variant="body1" sx={{
+//                             color: theme.palette.text.secondary,
+//                             fontSize: '1.1rem',
+//                             lineHeight: 1.6
+//                         }}>
+//                             {description}
+//                         </Typography>
+//                     </CardContent>
+//
+//                     <Button
+//                         component={Link}
+//                         to={path}
+//                         variant="contained"
+//                         sx={{
+//                             m: 3,
+//                             py: 2,
+//                             borderRadius: 2,
+//                             fontWeight: 700,
+//                             fontSize: '1.1rem',
+//                             background: `linear-gradient(45deg, ${color} 0%, ${color}80 100%)`
+//                         }}
+//                     >
+//                         Начать сейчас
+//                     </Button>
+//                 </Card>
+//             </motion.div>
+//         </Grid>
+//     );
+// };
 
 const HomePage = () => {
     const businessTypes = [
-        { title: 'Физический бизнес', description: 'Производство, торговля, услуги', icon: '🏭', path: '/physical' },
-        { title: 'Виртуальный бизнес', description: 'Криптовалюты, инвестиции', icon: '💻', path: '/crypto' },
+        {
+            title: 'Промышленный Гигант',
+            description: 'Создайте производственную империю с полным циклом',
+            path: '/physical',
+            icon: <Business />,
+            color: '#2196F3'
+        },
+        {
+            title: 'Цифровая Экономика',
+            description: 'Инвестируйте в криптовалюты и блокчейн',
+            path: '/crypto',
+            icon: <CurrencyExchange />,
+            color: '#4CAF50'
+        },
     ];
 
-    const achievements = ['Первая прибыль', '5 сотрудников', 'Открыл второй офис', 'Инвестор месяца'];
-
-    const news = [
-        '📢 Инвесторы заинтересованы в вашем бизнесе!',
-        '📈 Рост дохода на 12% за неделю!',
-        '🔧 Проведен аудит фабрики.',
+    const newsItems = [
+        '🔥 Глобальный экономический форум 2024',
+        '📈 Курс криптовалют вырос на 15%',
+        '🏭 Новый промышленный кластер',
+        '💼 Стартап-акселератор до 30 сентября'
     ];
-
-    const recentActions = ['Нанят сотрудник', 'Закуплено оборудование', 'Инвестировано $10,000'];
 
     return (
-        <Box>
-            {/* Hero Section */}
-            <HeroSection>
-                <Container>
-                    <Typography variant="h2" gutterBottom>Бизнес-симулятор</Typography>
-                    <Typography variant="h5">Развивай свою империю — шаг за шагом!</Typography>
-                </Container>
-            </HeroSection>
+        <Box sx={{
+            bgcolor: 'background.default',
+            minHeight: '100vh',
+            position: 'relative'
+        }}>
+            <HeroSection />
 
-            {/* Business Types */}
-            <Container sx={{ py: 8 }}>
-                <Typography variant="h4" align="center" gutterBottom>Выбери направление</Typography>
-                <Grid container spacing={4}>
+            <Container sx={{
+                py: 10,
+                display: 'flex',
+                justifyContent: 'center'
+            }}>
+                <Grid
+                    container
+                    spacing={4}
+                    sx={{
+                        maxWidth: '1400px',
+                        justifyContent: 'center'
+                    }}
+                >
                     {businessTypes.map((b, index) => (
-                        <Grid item xs={12} md={6} key={index}>
-                            <BusinessCard elevation={3}>
-                                <Typography variant="h3" gutterBottom>{b.icon}</Typography>
-                                <Typography variant="h5">{b.title}</Typography>
-                                <Typography color="textSecondary">{b.description}</Typography>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    sx={{ mt: 3 }}
-                                    fullWidth
-                                    component={Link}
-                                    to={b.path}
-                                >
-                                    Начать
-                                </Button>
-                            </BusinessCard>
-                        </Grid>
+                        <BusinessCard key={index} {...b} />
                     ))}
                 </Grid>
             </Container>
 
-            {/* Achievements */}
-            <Box bgcolor="background.default" py={6}>
-                <Container>
-                    <Typography variant="h4" align="center" gutterBottom>Твои достижения</Typography>
-                    <Box display="flex" justifyContent="center" flexWrap="wrap">
-                        {achievements.map((ach, index) => (
-                            <AchievementBadge key={index}>{ach}</AchievementBadge>
-                        ))}
-                    </Box>
-                </Container>
-            </Box>
-
-            {/* Business News & Recent Actions */}
-            <Container sx={{ py: 8 }}>
-                <Grid container spacing={4}>
-                    <Grid item xs={12} md={6}>
-                        <Paper elevation={2} sx={{ p: 3 }}>
-                            <Typography variant="h6">📰 Новости бизнеса</Typography>
-                            <Divider sx={{ my: 1 }} />
-                            <List>
-                                {news.map((item, idx) => (
-                                    <ListItem key={idx}><ListItemText primary={item} /></ListItem>
-                                ))}
-                            </List>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Paper elevation={2} sx={{ p: 3 }}>
-                            <Typography variant="h6">🕒 Последние действия</Typography>
-                            <Divider sx={{ my: 1 }} />
-                            <List>
-                                {recentActions.map((item, idx) => (
-                                    <ListItem key={idx}><ListItemText primary={item} /></ListItem>
-                                ))}
-                            </List>
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </Container>
-
-            {/* Progress Card */}
-            <Container sx={{ py: 4 }}>
-                <Paper elevation={3} sx={{ p: 4 }}>
-                    <Typography variant="h5" gutterBottom>📊 Прогресс развития</Typography>
-                    <Typography>Этап 1: Прибыльность</Typography>
-                    <LinearProgress variant="determinate" value={70} sx={{ height: 10, my: 1, borderRadius: 5 }} />
-                    <Typography>Этап 2: Расширение — 30%</Typography>
-                    <LinearProgress variant="determinate" value={30} sx={{ height: 10, mt: 1, borderRadius: 5 }} />
-                </Paper>
-            </Container>
-
-            {/* Quick Actions */}
-            <Container sx={{ py: 4 }}>
-                <Grid container spacing={2} justifyContent="center">
-                    <Grid item><Button variant="contained" size="large">📈 Аналитика</Button></Grid>
-                    <Grid item><Button variant="outlined" size="large">📚 Обучение</Button></Grid>
-                    <Grid item><Button variant="text" size="large">⚙️ Настройки</Button></Grid>
-                </Grid>
-            </Container>
+            <NewsTicker items={newsItems} />
         </Box>
     );
 };
