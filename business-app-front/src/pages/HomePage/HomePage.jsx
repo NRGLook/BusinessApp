@@ -15,6 +15,7 @@ import {
     Business,
     CurrencyExchange,
 } from '@mui/icons-material';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 const DynamicHeader = () => {
     const [currentWord, setCurrentWord] = useState(0);
@@ -86,13 +87,81 @@ const HeroSection = () => {
             <MoneyAnimation side="left" />
             <MoneyAnimation side="right" />
 
+            {/* Анимированная ракета */}
+            <motion.div
+                initial={{
+                    y: 100,
+                    x: -50,
+                    opacity: 0,
+                    rotate: -45
+                }}
+                animate={{
+                    y: [-20, 20, -20],
+                    x: [-50, -30, -50],
+                    opacity: 1,
+                    rotate: [-45, -35, -45]
+                }}
+                transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                style={{
+                    position: 'absolute',
+                    left: '30%',
+                    top: '20%',
+                    zIndex: 1
+                }}
+            >
+                <RocketLaunchIcon
+                    sx={{
+                        fontSize: 80,
+                        color: '#FFD700',
+                        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                    }}
+                />
+            </motion.div>
+            <motion.div
+                initial={{
+                    y: 100,
+                    x: -50,
+                    opacity: 0,
+                    rotate: -45
+                }}
+                animate={{
+                    y: [-20, 20, -20],
+                    x: [-50, -30, -50],
+                    opacity: 1,
+                    rotate: [-45, -35, -45]
+                }}
+                transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                style={{
+                    position: 'absolute',
+                    left: '70%',
+                    top: '20%',
+                    zIndex: 1
+                }}
+            >
+                <RocketLaunchIcon
+                    sx={{
+                        fontSize: 80,
+                        color: '#FFD700',
+                        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
+                    }}
+                />
+            </motion.div>
+
             <Container>
                 <Box sx={{
                     textAlign: 'center',
                     maxWidth: 800,
                     mx: 'auto',
                     position: 'relative',
-                    zIndex: 1
+                    zIndex: 2
                 }}>
                     <Typography
                         variant="h1"
@@ -101,13 +170,15 @@ const HeroSection = () => {
                             fontWeight: 800,
                             color: '#fff',
                             textShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                            mb: 1 // Отступ между заголовком и динамическим текстом
+                            mb: 1,
+                            position: 'relative',
+                            display: 'inline-block'
                         }}
                     >
                         Бизнес Империя
                     </Typography>
 
-                    <Box sx={{ mb: 15 }}> {/* Отступ между динамическим текстом и кнопкой */}
+                    <Box sx={{ mb: 15 }}>
                         <DynamicHeader />
                     </Box>
 
@@ -139,7 +210,10 @@ const HeroSection = () => {
 
 const MoneyAnimation = ({ side }) => {
     const theme = useTheme();
-    const positions = Array.from({ length: 8 }, (_, i) => i * 12);
+    const symbols = ['💵', '💰', '💸', '🪙', '🤑'];
+    const count = 40;
+
+    const getRandom = (min, max) => Math.random() * (max - min) + min;
 
     return (
         <Box sx={{
@@ -151,34 +225,41 @@ const MoneyAnimation = ({ side }) => {
             zIndex: 0,
             pointerEvents: 'none'
         }}>
-            {positions.map((pos, i) => (
-                <motion.div
-                    key={i}
-                    initial={{
-                        y: -100,
-                        x: side === 'left' ? -pos : pos,
-                        opacity: 0,
-                        rotate: i % 2 === 0 ? 0 : 180
-                    }}
-                    animate={{
-                        y: '100vh',
-                        opacity: [0, 0.5, 0],
-                        x: side === 'left' ? pos : -pos
-                    }}
-                    transition={{
-                        duration: 8 + i,
-                        repeat: Infinity,
-                        ease: "linear"
-                    }}
-                    style={{
-                        position: 'absolute',
-                        fontSize: '2rem',
-                        color: theme.palette.mode === 'dark' ? '#4CAF50' : '#2E7D32'
-                    }}
-                >
-                    {i % 2 === 0 ? '💵' : '💰'}
-                </motion.div>
-            ))}
+            {Array.from({ length: count }).map((_, i) => {
+                const pos = getRandom(0, 200);
+                const rotate = getRandom(-180, 180);
+                const symbol = symbols[i % symbols.length];
+                return (
+                    <motion.div
+                        key={i}
+                        initial={{
+                            y: -100,
+                            x: side === 'left' ? -pos : pos,
+                            opacity: 0,
+                            rotate
+                        }}
+                        animate={{
+                            y: '100vh',
+                            opacity: [0, 0.6, 0],
+                            x: side === 'left' ? pos : -pos,
+                            rotate: rotate + 360
+                        }}
+                        transition={{
+                            duration: getRandom(6, 12),
+                            delay: getRandom(0, 3),
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            position: 'absolute',
+                            fontSize: '2rem',
+                            color: theme.palette.mode === 'dark' ? '#4CAF50' : '#2E7D32'
+                        }}
+                    >
+                        {symbol}
+                    </motion.div>
+                );
+            })}
         </Box>
     );
 };
@@ -233,8 +314,6 @@ const NewsTicker = ({ items }) => {
         </Box>
     );
 };
-
-
 
 const BusinessCard = ({ title, description, path, icon, color, hoverMessage }) => {
     const theme = useTheme();
@@ -353,93 +432,6 @@ const BusinessCard = ({ title, description, path, icon, color, hoverMessage }) =
         </Grid>
     );
 };
-// const BusinessCard = ({ title, description, path, icon, color }) => {
-//     const theme = useTheme();
-//
-//     return (
-//         <Grid item xs={12} md={5} sx={{ display: 'flex' }}>
-//             <motion.div
-//                 style={{ flexGrow: 1 }}
-//                 whileHover={{ scale: 1.02 }}
-//             >
-//                 <Card
-//                     sx={{
-//                         height: 600,
-//                         display: 'flex',
-//                         flexDirection: 'column',
-//                         justifyContent: 'space-between',
-//                         background: `linear-gradient(45deg, ${color}20 0%, ${theme.palette.background.paper} 100%)`,
-//                         border: `2px solid ${color}30`,
-//                         borderRadius: 4,
-//                         overflow: 'hidden',
-//                         boxSizing: 'border-box'
-//                     }}
-//                 >
-//                     <CardContent sx={{
-//                         p: 4,
-//                         textAlign: 'center',
-//                         flexGrow: 1,
-//                         display: 'flex',
-//                         flexDirection: 'column',
-//                         justifyContent: 'center'
-//                     }}>
-//                         <Box sx={{
-//                             width: 140,
-//                             height: 140,
-//                             bgcolor: `${color}20`,
-//                             borderRadius: '50%',
-//                             display: 'flex',
-//                             alignItems: 'center',
-//                             justifyContent: 'center',
-//                             mx: 'auto',
-//                             mb: 4
-//                         }}>
-//                             {React.cloneElement(icon, {
-//                                 sx: {
-//                                     fontSize: 60,
-//                                     color: color
-//                                 }
-//                             })}
-//                         </Box>
-//
-//                         <Typography variant="h4" sx={{
-//                             fontWeight: 800,
-//                             mb: 3,
-//                             color: color,
-//                             fontSize: '2rem'
-//                         }}>
-//                             {title}
-//                         </Typography>
-//
-//                         <Typography variant="body1" sx={{
-//                             color: theme.palette.text.secondary,
-//                             fontSize: '1.1rem',
-//                             lineHeight: 1.6
-//                         }}>
-//                             {description}
-//                         </Typography>
-//                     </CardContent>
-//
-//                     <Button
-//                         component={Link}
-//                         to={path}
-//                         variant="contained"
-//                         sx={{
-//                             m: 3,
-//                             py: 2,
-//                             borderRadius: 2,
-//                             fontWeight: 700,
-//                             fontSize: '1.1rem',
-//                             background: `linear-gradient(45deg, ${color} 0%, ${color}80 100%)`
-//                         }}
-//                     >
-//                         Начать сейчас
-//                     </Button>
-//                 </Card>
-//             </motion.div>
-//         </Grid>
-//     );
-// };
 
 const HomePage = () => {
     const businessTypes = [
