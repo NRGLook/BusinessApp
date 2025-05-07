@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Container,
@@ -10,8 +11,6 @@ import {
     Chip,
     Tabs,
     Tab,
-    InputAdornment,
-    TextField,
     Button,
     CircularProgress,
     Alert,
@@ -23,274 +22,729 @@ import {
     StepLabel,
     LinearProgress,
     Paper,
+    useTheme,
+    alpha,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText
 } from '@mui/material';
-import { Search, VideoLibrary, Article, Quiz } from '@mui/icons-material';
+import {
+    Category as CategoryIcon,
+    VideoLibrary as LessonsIcon,
+    Quiz as QuizIcon,
+    CheckCircle as CompletedIcon,
+    PlayCircle as StartIcon,
+    Videocam as VideoIcon
+} from '@mui/icons-material';
 import { styled } from '@mui/system';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
-// Styled components
 const SectionHeader = styled(Typography)(({ theme }) => ({
-    margin: theme.spacing(4, 0),
-    fontWeight: 700,
-    color: theme.palette.primary.main,
-    letterSpacing: 1.2,
+    margin: theme.spacing(6, 0, 4),
+    fontWeight: 800,
+    background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    letterSpacing: '1.5px',
+    textAlign: 'center',
+    position: 'relative',
+    '&:after': {
+        content: '""',
+        display: 'block',
+        width: '60px',
+        height: '4px',
+        backgroundColor: theme.palette.primary.main,
+        margin: '16px auto 0',
+        borderRadius: '2px'
+    }
 }));
-const CardRoot = styled(Card)(({ theme }) => ({
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'transform 0.3s ease',
+
+const CourseCard = styled(motion(Card))(({ theme }) => ({
+    borderRadius: '16px',
+    overflow: 'visible',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     '&:hover': {
-        transform: 'translateY(-5px)',
-        boxShadow: theme.shadows[6],
+        transform: 'translateY(-8px)',
+        boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.1)}`
     },
+    cursor: 'pointer',
+    position: 'relative'
 }));
-const ProgressChip = styled(({ completed, ...rest }) => <Chip {...rest} />)(
-    ({ theme, completed }) => ({
-        position: 'absolute',
-        top: 8,
-        right: 8,
-        backgroundColor: completed ? theme.palette.success.main : theme.palette.warning.main,
-        color: '#fff',
-    })
-);
+
+const ProgressChip = styled(Chip)(({ theme, completed }) => ({
+    position: 'absolute',
+    top: theme.spacing(2),
+    right: theme.spacing(2),
+    backgroundColor: completed ? theme.palette.success.main : theme.palette.warning.light,
+    color: theme.palette.common.white,
+    fontWeight: 600,
+    borderRadius: '8px',
+    padding: theme.spacing(0.5),
+    fontSize: '0.75rem'
+}));
+
+const LessonCard = styled(motion(Paper))(({ theme }) => ({
+    padding: theme.spacing(3),
+    borderRadius: '12px',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.light, 0.05)
+    },
+    cursor: 'pointer',
+    border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`
+}));
 
 export default function LearnPage() {
-    // state
-    const [catLoading, setCatLoading] = useState(true);
+    const navigate = useNavigate();
+    const theme = useTheme();
     const [categories, setCategories] = useState([]);
-    const [catError, setCatError] = useState(null);
-    const [tabCat, setTabCat] = useState(0);
-
-    const [courseLoading, setCourseLoading] = useState(true);
     const [courses, setCourses] = useState([]);
-    const [courseError, setCourseError] = useState(null);
-    const [tabCourse, setTabCourse] = useState(null);
-
-    const [lessonLoading, setLessonLoading] = useState(true);
     const [lessons, setLessons] = useState([]);
-    const [lessonError, setLessonError] = useState(null);
-    const [selectedLesson, setSelectedLesson] = useState(null);
-
-    const [quizLoading, setQuizLoading] = useState(true);
     const [questions, setQuestions] = useState([]);
-    const [quizError, setQuizError] = useState(null);
-    const [currentQ, setCurrentQ] = useState(0);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({});
+    const [loadingStates, setLoadingStates] = useState({
+        categories: true,
+        courses: true,
+        lessons: true,
+        quiz: true
+    });
+    const [errors, setErrors] = useState({
+        categories: null,
+        courses: null,
+        lessons: null,
+        quiz: null
+    });
+    const [selectedTab, setSelectedTab] = useState({ category: 0, course: null, lesson: null });
+    const [selectedLessonAction, setSelectedLessonAction] = useState(null);
+    const [selectedCourseAction, setSelectedCourseAction] = useState(null); // Добавляем это состояние
 
-    // fetch categories
     useEffect(() => {
         axios.get('http://localhost:8000/education/course-categories')
-            .then(res => setCategories(res.data.data))
-            .catch(() => setCatError('Failed to load categories'))
-            .finally(() => setCatLoading(false));
+            .then(response => {
+                setCategories(response.data.data);
+                setLoadingStates(prev => ({ ...prev, categories: false }));
+            })
+            .catch(error => {
+                setErrors(prev => ({ ...prev, categories: 'Не удалось загрузить категории' }));
+                setLoadingStates(prev => ({ ...prev, categories: false }));
+            });
     }, []);
 
-    // fetch courses
     useEffect(() => {
-        if (!categories.length) return;
-        setCourseLoading(true);
+        if (categories.length === 0) return;
+        setLoadingStates(prev => ({ ...prev, courses: true }));
         axios.get('http://localhost:8000/education/courses')
-            .then(res => setCourses(res.data.data))
-            .catch(() => setCourseError('Failed to load courses'))
-            .finally(() => setCourseLoading(false));
+            .then(response => {
+                setCourses(response.data.data);
+                setLoadingStates(prev => ({ ...prev, courses: false }));
+            })
+            .catch(error => {
+                setErrors(prev => ({ ...prev, courses: 'Не удалось загрузить курсы' }));
+                setLoadingStates(prev => ({ ...prev, courses: false }));
+            });
     }, [categories]);
 
-    // fetch lessons when course selected
     useEffect(() => {
-        if (!tabCourse) return;
-        setLessonLoading(true);
-        axios.get('http://localhost:8000/education/lessons', {
-            params: { course_id: tabCourse }
-        })
-            .then(res => setLessons(res.data.data))
-            .catch(() => setLessonError('Failed to load lessons'))
-            .finally(() => setLessonLoading(false));
-    }, [tabCourse]);
+        if (!selectedTab.course) return;
+        setLoadingStates(prev => ({ ...prev, lessons: true }));
+        axios.get('http://localhost:8000/education/lessons', { params: { course_id: selectedTab.course } })
+            .then(response => {
+                setLessons(response.data.data);
+                setLoadingStates(prev => ({ ...prev, lessons: false }));
+            })
+            .catch(error => {
+                setErrors(prev => ({ ...prev, lessons: 'Не удалось загрузить уроки' }));
+                setLoadingStates(prev => ({ ...prev, lessons: false }));
+            });
+    }, [selectedTab.course]);
 
-    // fetch quiz questions when lesson selected
     useEffect(() => {
-        if (!selectedLesson) return;
-        setQuizLoading(true);
-        axios.get('http://localhost:8000/education/quiz-questions', {
-            params: { lesson_id: selectedLesson }
-        })
-            .then(res => setQuestions(res.data.data))
-            .catch(() => setQuizError('Failed to load quiz'))
-            .finally(() => setQuizLoading(false));
-    }, [selectedLesson]);
+        if (!selectedTab.lesson) return;
+        setLoadingStates(prev => ({ ...prev, quiz: true }));
+        axios.get('http://localhost:8000/education/quiz-questions', { params: { lesson_id: selectedTab.lesson } })
+            .then(response => {
+                setQuestions(response.data.data);
+                setLoadingStates(prev => ({ ...prev, quiz: false }));
+            })
+            .catch(error => {
+                setErrors(prev => ({ ...prev, quiz: 'Не удалось загрузить вопросы' }));
+                setLoadingStates(prev => ({ ...prev, quiz: false }));
+            });
+    }, [selectedTab.lesson]);
 
-    if (catLoading) return <CircularProgress />;
-    if (catError) return <Alert severity="error">{catError}</Alert>;
-
-    const handleCatChange = (_, newVal) => {
-        setTabCat(newVal);
-        setTabCourse(null);
-        setSelectedLesson(null);
-    };
-    const handleCourseSelect = id => {
-        setTabCourse(id);
-        setSelectedLesson(null);
-    };
-    const handleLessonSelect = id => {
-        setSelectedLesson(id);
-        setCurrentQ(0);
-        setAnswers({});
+    const handleCategoryChange = (event, newValue) => {
+        setSelectedTab({ category: newValue, course: null, lesson: null });
     };
 
-    const submitAnswer = () => {
-        setCurrentQ(q => q + 1);
+    const handleCourseSelect = (courseId) => {
+        setSelectedTab(prev => ({ ...prev, course: courseId, lesson: null }));
     };
 
-    // filtered
-    const visibleCourses = courses.filter(c => categories[tabCat]?.id === c.category_id);
-    const visibleLessons = lessons;
+    const handleLessonAction = (lesson) => {
+        if (lesson.lesson_url) {
+            if (lesson.lesson_url.startsWith('/')) {
+                navigate(lesson.lesson_url);
+            } else {
+                window.open(lesson.lesson_url, '_blank');
+            }
+        } else {
+            setSelectedTab(prev => ({ ...prev, lesson: lesson.id }));
+            setCurrentQuestionIndex(0);
+            setAnswers({});
+        }
+        setSelectedLessonAction(null);
+    };
 
-    return (
-        <Container>
-            <SectionHeader variant="h4">Обучающие материалы</SectionHeader>
+    const filteredCourses = courses.filter(course =>
+        categories[selectedTab.category]?.id === course.category_id
+    );
 
-            {/* Categories */}
-            <Tabs value={tabCat} onChange={handleCatChange} variant="scrollable" scrollButtons="auto">
-                {categories.map((cat, i) =>
-                    <Tab key={cat.id} label={cat.name} />
-                )}
-            </Tabs>
+    const quizProgress = (currentQuestionIndex / questions.length) * 100;
 
-            {/* Courses */}
-            {courseLoading ? <CircularProgress /> : courseError ? <Alert severity="error">{courseError}</Alert> :
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                    {visibleCourses.map(course => (
-                        <Grid item xs={12} sm={6} md={4} key={course.id}>
-                            <CardRoot onClick={() => handleCourseSelect(course.id)}>
-                                <CardMedia
-                                    component="img"
-                                    height="140"
-                                    image={course.image_url || '/assets/default-thumbnail.jpg'}
-                                    alt={course.title}
-                                />
-                                <CardContent>
-                                    <Typography variant="h6">{course.title}</Typography>
-                                    <Typography variant="body2">{course.description}</Typography>
-                                </CardContent>
-                            </CardRoot>
-                        </Grid>
-                    ))}
-                </Grid>
+    const getVideoPreview = (lesson_url) => {
+        const FALLBACK_IMAGE = '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/assets/images/course-default.png';
+        console.log('[DEBUG] Input videoUrl:', lesson_url);
+
+        if (!lesson_url) {
+            console.error('[ERROR] Video URL is undefined or empty');
+            return FALLBACK_IMAGE;
+        }
+
+        try {
+            // YouTube обработка
+            if (lesson_url.includes('youtube.com') || lesson_url.includes('youtu.be')) {
+                console.log('[DEBUG] Detected YouTube URL');
+
+                const videoIdMatch = lesson_url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
+                console.log('[DEBUG] Video ID match:', videoIdMatch);
+
+                const videoId = videoIdMatch?.[1];
+                console.log('[DEBUG] Extracted video ID:', videoId);
+
+                if (!videoId) {
+                    console.error('[ERROR] Failed to extract YouTube video ID');
+                    return FALLBACK_IMAGE;
+                }
+
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                console.log('[DEBUG] Generated YouTube thumbnail URL:', thumbnailUrl);
+                return thumbnailUrl;
             }
 
-            {/* Lessons */}
-            {tabCourse && (
-                <>
-                    <SectionHeader variant="h5" sx={{ mt: 4 }}>Уроки</SectionHeader>
-                    {lessonLoading ? <CircularProgress /> : lessonError ? <Alert severity="error">{lessonError}</Alert> :
-                        <Grid container spacing={2}>
-                            {visibleLessons.map(lesson => (
-                                <Grid item xs={12} sm={6} md={4} key={lesson.id}>
-                                    <CardRoot onClick={() => handleLessonSelect(lesson.id)}>
-                                        <CardContent>
-                                            <Typography variant="subtitle1">{lesson.title}</Typography>
-                                        </CardContent>
-                                    </CardRoot>
+            // Vimeo обработка
+            if (lesson_url.includes('vimeo.com')) {
+                console.log('[DEBUG] Detected Vimeo URL');
+
+                const videoId = lesson_url.split('/').pop();
+                console.log('[DEBUG] Extracted Vimeo video ID:', videoId);
+
+                if (!videoId) {
+                    console.error('[ERROR] Failed to extract Vimeo video ID');
+                    return FALLBACK_IMAGE;
+                }
+
+                const thumbnailUrl = `https://vumbnail.com/${videoId}.jpg`;
+                console.log('[DEBUG] Generated Vimeo thumbnail URL:', thumbnailUrl);
+                return thumbnailUrl;
+            }
+
+            console.error('[ERROR] Unsupported video platform');
+            return FALLBACK_IMAGE;
+
+        } catch (error) {
+            console.error('[ERROR] Error in getVideoPreview:', error);
+            return FALLBACK_IMAGE;
+        }
+    };
+
+    if (loadingStates.categories) return <CircularProgress sx={{ margin: '40vh auto' }} />;
+    if (errors.categories) return <Alert severity="error" sx={{ margin: 4 }}>{errors.categories}</Alert>;
+
+    return (
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+            {/* Категории курсов */}
+            <Tabs
+                value={selectedTab.category}
+                onChange={handleCategoryChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                    marginBottom: 4,
+                    '& .MuiTab-root': {
+                        minHeight: 48,
+                        borderRadius: 2,
+                        margin: theme.spacing(0.5),
+                        transition: 'all 0.3s',
+                        '&.Mui-selected': {
+                            backgroundColor: alpha(theme.palette.primary.main, 0.1)
+                        }
+                    }
+                }}
+            >
+                {categories.map((category, index) => (
+                    <Tab
+                        key={category.id}
+                        label={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CategoryIcon fontSize="small" />
+                                {category.name}
+                            </Box>
+                        }
+                    />
+                ))}
+            </Tabs>
+
+            {/* Список курсов */}
+            {loadingStates.courses ? (
+                <CircularProgress sx={{ display: 'block', margin: '40px auto' }} />
+            ) : errors.courses ? (
+                <Alert severity="error" sx={{ margin: 4 }}>{errors.courses}</Alert>
+            ) : (
+                <Grid container spacing={3} sx={{ marginBottom: 6 }}>
+                    {filteredCourses.map(course => {
+                        // Добавляем переменную lessonUrl с проверкой
+                        const lessonUrl = course?.lesson_url;
+
+                        return (
+                            <Grid item key={course.id} sx={{
+                                width: { xs: '100%', sm: '50%', md: '33.33%', lg: '25%' },
+                                padding: 2
+                            }}>
+                                <CourseCard
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    onClick={() => {
+                                        handleCourseSelect(course.id);
+                                        setSelectedCourseAction(course);
+                                    }}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="200"
+                                        image={
+                                            (() => {
+                                                console.log('[DEBUG] Course object:', course);
+                                                // Используем объявленную переменную lessonUrl
+                                                const preview = lessonUrl
+                                                    ? getVideoPreview(lessonUrl)
+                                                    : '/assets/images/course-default.png';
+
+                                                console.log('[DEBUG] Preview URL:', preview);
+                                                return preview;
+                                            })()
+                                        }
+                                        alt={course?.title || "Название курса"}
+                                        sx={{
+                                            borderRadius: '16px 16px 0 0',
+                                            objectFit: 'cover',
+                                            backgroundColor: theme.palette.grey[200],
+                                            backgroundImage: 'url(/assets/images/course-default.png)'
+                                        }}
+                                        onError={(e) => {
+                                            e.target.src = '/assets/images/course-default.png';
+                                        }}
+                                        loading="lazy"
+                                    />
+                                    <ProgressChip
+                                        label={`${course.progress ?? 0}%`}
+                                        completed={course.progress === 100 ? "true" : "false"}
+                                        sx={{
+                                            position: 'absolute',
+                                            top: theme.spacing(2),
+                                            right: theme.spacing(2),
+                                            backgroundColor: course.progress === 100
+                                                ? theme.palette.success.main
+                                                : theme.palette.warning.light,
+                                            color: theme.palette.common.white,
+                                            borderRadius: '8px',
+                                            fontSize: '0.75rem'
+                                        }}
+                                    />
+                                    <CardContent>
+                                        <Typography variant="h6" gutterBottom>
+                                            {course.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {course.description}
+                                        </Typography>
+                                        <Box sx={{ mt: 2, display: 'flex', gap: 2, flexDirection: 'column' }}>
+                                            {lessonUrl && (
+                                                <Button
+                                                    variant="outlined"
+                                                    startIcon={<VideoIcon />}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(lessonUrl, '_blank');
+                                                    }}
+                                                >
+                                                    Смотреть программу курса
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    </CardContent>
+                                </CourseCard>
+                            </Grid>
+                        );
+                    })}
+                </Grid>
+            )}
+
+            {/* Список уроков */}
+            {selectedTab.course && (
+                <Box sx={{ marginBottom: 6 }}>
+                    <SectionHeader variant="h3">
+                        <LessonsIcon sx={{ verticalAlign: 'middle', marginRight: 2, fontSize: 'inherit' }} />
+                        Уроки курса
+                    </SectionHeader>
+
+                    {loadingStates.lessons ? (
+                        <CircularProgress sx={{ display: 'block', margin: '40px auto' }} />
+                    ) : errors.lessons ? (
+                        <Alert severity="error" sx={{ margin: 4 }}>{errors.lessons}</Alert>
+                    ) : (
+                        <Grid container spacing={3}>
+                            {lessons.map(lesson => (
+                                <Grid item xs={12} md={6} key={lesson.id}>
+                                    <LessonCard
+                                        onClick={() => setSelectedLessonAction(lesson)}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                            <CompletedIcon
+                                                fontSize="large"
+                                                color={lesson.completed ? 'success' : 'disabled'}
+                                                sx={{ flexShrink: 0 }}
+                                            />
+                                            <Box sx={{ flexGrow: 1 }}>
+                                                <Typography variant="h6">{lesson.title}</Typography>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Длительность: {lesson.duration} минут
+                                                </Typography>
+                                                <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                                                    {lesson.lesson_url && (
+                                                        <Button
+                                                            variant="outlined"
+                                                            startIcon={<VideoIcon />}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleLessonAction(lesson);
+                                                            }}
+                                                        >
+                                                            Смотреть урок
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        variant="contained"
+                                                        startIcon={<QuizIcon />}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedTab(prev => ({ ...prev, lesson: lesson.id }));
+                                                            setCurrentQuestionIndex(0);
+                                                            setAnswers({});
+                                                        }}
+                                                    >
+                                                        Пройти тест
+                                                    </Button>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </LessonCard>
                                 </Grid>
                             ))}
                         </Grid>
-                    }
-                </>
+                    )}
+                </Box>
             )}
 
-            {selectedLesson && (
-                <>
-                    <SectionHeader variant="h5" sx={{ mt: 4 }}>
-                        Викторина
+            {/* Диалог выбора действия для урока */}
+            <Dialog open={!!selectedLessonAction} onClose={() => setSelectedLessonAction(null)}>
+                <DialogTitle>Выберите действие для урока</DialogTitle>
+                <DialogContent>
+                    <List>
+                        <ListItem
+                            button
+                            onClick={() => {
+                                setSelectedTab(prev => ({ ...prev, lesson: selectedLessonAction.id }));
+                                setCurrentQuestionIndex(0);
+                                setAnswers({});
+                                setSelectedLessonAction(null);
+                            }}
+                        >
+                            <ListItemIcon><QuizIcon /></ListItemIcon>
+                            <ListItemText primary="Пройти тест" />
+                        </ListItem>
+                        {selectedLessonAction?.lesson_url && (
+                            <ListItem
+                                button
+                                onClick={() => {
+                                    handleLessonAction(selectedLessonAction);
+                                    setSelectedLessonAction(null);
+                                }}
+                            >
+                                <ListItemIcon><VideoIcon /></ListItemIcon>
+                                <ListItemText primary="Смотреть урок" />
+                            </ListItem>
+                        )}
+                    </List>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!selectedCourseAction} onClose={() => setSelectedCourseAction(null)}>
+                <DialogTitle>Выберите действие для курса</DialogTitle>
+                <DialogContent>
+                    <List>
+                        {selectedCourseAction?.lesson_url && (
+                            <ListItem
+                                button
+                                onClick={() => {
+                                    window.open(selectedCourseAction.lesson_url, '_blank');
+                                    setSelectedCourseAction(null);
+                                }}
+                            >
+                                <ListItemIcon><VideoIcon /></ListItemIcon>
+                                <ListItemText primary="Смотреть введение" />
+                            </ListItem>
+                        )}
+                        <ListItem
+                            button
+                            onClick={() => {
+                                const firstLesson = selectedCourseAction?.lessons?.[0];
+                                if (firstLesson) handleLessonAction(firstLesson);
+                                setSelectedCourseAction(null);
+                            }}
+                        >
+                            <ListItemIcon><StartIcon /></ListItemIcon>
+                            <ListItemText primary="Начать обучение" />
+                        </ListItem>
+                    </List>
+                </DialogContent>
+            </Dialog>
+
+            {/* Викторина */}
+            {selectedTab.lesson && (
+                <Box sx={{ marginBottom: 6 }}>
+                    <SectionHeader variant="h3">
+                        <QuizIcon sx={{ verticalAlign: 'middle', marginRight: 2, fontSize: 'inherit' }} />
+                        Проверка знаний
                     </SectionHeader>
 
-                    {quizLoading ? (
-                        <CircularProgress />
-                    ) : quizError ? (
-                        <Alert severity="error">{quizError}</Alert>
+                    {loadingStates.quiz ? (
+                        <CircularProgress sx={{ display: 'block', margin: '40px auto' }} />
+                    ) : errors.quiz ? (
+                        <Alert severity="error" sx={{ margin: 4 }}>{errors.quiz}</Alert>
                     ) : questions.length === 0 ? (
-                        <Alert>Вопросы не найдены.</Alert>
-                    ) : currentQ < questions.length ? (
-                        <Card sx={{ mb: 3, position: 'relative' }}>
-                            {/* Progress bar */}
+                        <Alert severity="info" sx={{ margin: 4 }}>Вопросы не найдены</Alert>
+                    ) : currentQuestionIndex < questions.length ? (
+                        <Card sx={{ borderRadius: 3, overflow: 'visible' }}>
                             <LinearProgress
                                 variant="determinate"
-                                value={((currentQ) / questions.length) * 100}
-                                sx={{ height: 8, borderRadius: 4 }}
+                                value={quizProgress}
+                                sx={{
+                                    height: 6,
+                                    '& .MuiLinearProgress-bar': {
+                                        borderRadius: 3,
+                                        backgroundColor: theme.palette.primary.main
+                                    }
+                                }}
                             />
-
                             <CardContent>
-                                {/* Stepper */}
-                                <Stepper activeStep={currentQ} sx={{ mb: 2 }}>
-                                    {questions.map((_, idx) => (
-                                        <Step key={idx}>
+                                <Stepper
+                                    activeStep={currentQuestionIndex}
+                                    sx={{ marginBottom: 4 }}
+                                >
+                                    {questions.map((_, index) => (
+                                        <Step key={index}>
                                             <StepLabel />
                                         </Step>
                                     ))}
                                 </Stepper>
 
-                                {/* Question */}
-                                <Typography variant="h6" gutterBottom>
-                                    {questions[currentQ].question_text}
-                                </Typography>
-
-                                {/* Choices */}
-                                <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                                    <RadioGroup
-                                        value={answers[currentQ] || ''}
-                                        onChange={(e) =>
-                                            setAnswers((a) => ({ ...a, [currentQ]: e.target.value }))
-                                        }
+                                <AnimatePresence mode='wait'>
+                                    <motion.div
+                                        key={currentQuestionIndex}
+                                        initial={{ opacity: 0, x: 50 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -50 }}
+                                        transition={{ duration: 0.2 }}
                                     >
-                                        {questions[currentQ].choices.map((c, i) => (
-                                            <FormControlLabel
-                                                key={i}
-                                                value={c}
-                                                control={<Radio />}
-                                                label={c}
-                                                sx={{ display: 'block', mb: 1 }}
-                                            />
-                                        ))}
-                                    </RadioGroup>
-                                </Paper>
+                                        <Typography variant="h5" gutterBottom>
+                                            {questions[currentQuestionIndex]?.question_text}
+                                        </Typography>
+                                        <RadioGroup
+                                            value={answers[currentQuestionIndex] || ''}
+                                            onChange={(event) => setAnswers(prev => ({
+                                                ...prev,
+                                                [currentQuestionIndex]: event.target.value
+                                            }))}
+                                        >
+                                            {(() => {
+                                                const question = questions[currentQuestionIndex];
+                                                if (!question) return null;
 
-                                {/* Next/Finish Button */}
-                                <Button
-                                    variant="contained"
-                                    disabled={!answers[currentQ]}
-                                    onClick={() => setCurrentQ((q) => q + 1)}
-                                    sx={{ mt: 1, textTransform: 'none' }}
-                                >
-                                    {currentQ + 1 < questions.length ? 'Next Question' : 'Finish Quiz'}
-                                </Button>
+                                                // Обработка разных форматов choices
+                                                let choicesArray = [];
+                                                let isObjectFormat = false;
+
+                                                if (Array.isArray(question.choices)) {
+                                                    // Формат массива: ["вариант1", "вариант2"]
+                                                    choicesArray = question.choices.map((item, index) => ({
+                                                        key: String.fromCharCode(65 + index), // A, B, C...
+                                                        value: item
+                                                    }));
+                                                } else if (typeof question.choices === 'object' && question.choices !== null) {
+                                                    // Формат объекта: {A: "вариант1", B: "вариант2"}
+                                                    isObjectFormat = true;
+                                                    choicesArray = Object.entries(question.choices).map(([key, value]) => ({
+                                                        key: key,
+                                                        value: value
+                                                    }));
+                                                } else {
+                                                    // Неизвестный формат
+                                                    return <Typography color="error">Некорректный формат вариантов ответов</Typography>;
+                                                }
+
+                                                return choicesArray.map((choice, index) => (
+                                                    <FormControlLabel
+                                                        key={`${currentQuestionIndex}-${choice.key}`}
+                                                        value={isObjectFormat ? choice.key : choice.value}
+                                                        control={<Radio color="primary" />}
+                                                        label={
+                                                            <Typography
+                                                                variant="body1"
+                                                                sx={{
+                                                                    whiteSpace: 'pre-line',
+                                                                    wordBreak: 'break-word',
+                                                                    textAlign: 'left'
+                                                                }}
+                                                            >
+                                                                {`${choice.key}. ${choice.value}`}
+                                                            </Typography>
+                                                        }
+                                                        sx={{
+                                                            margin: '8px 0',
+                                                            padding: 2,
+                                                            borderRadius: 2,
+                                                            alignItems: 'flex-start',
+                                                            backgroundColor: alpha(
+                                                                theme.palette.primary.main,
+                                                                answers[currentQuestionIndex] === (isObjectFormat ? choice.key : choice.value) ? 0.1 : 0
+                                                            ),
+                                                            width: '100%'
+                                                        }}
+                                                    />
+                                                ));
+                                            })()}
+                                        </RadioGroup>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            size="large"
+                                            onClick={() => {
+                                                if (currentQuestionIndex < questions.length - 1) {
+                                                    setCurrentQuestionIndex(prev => prev + 1);
+                                                } else {
+                                                    setCurrentQuestionIndex(questions.length);
+                                                }
+                                            }}
+                                            disabled={!answers.hasOwnProperty(currentQuestionIndex)}
+                                            sx={{
+                                                marginTop: 3,
+                                                borderRadius: 2,
+                                                py: 1.5
+                                            }}
+                                        >
+                                            {currentQuestionIndex === questions.length - 1
+                                                ? 'Завершить тест'
+                                                : 'Следующий вопрос'}
+                                        </Button>
+                                    </motion.div>
+                                </AnimatePresence>
                             </CardContent>
                         </Card>
                     ) : (
-                        /* Quiz completed */
-                        <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
-                            <Typography variant="h6" gutterBottom>
-                                Quiz Completed!
+                        <Paper elevation={3} sx={{ padding: 4, borderRadius: 3 }}>
+                            <Typography variant="h4" gutterBottom>
+                                Тест завершен!
                             </Typography>
-                            <Typography variant="body1" gutterBottom>
-                                You answered {questions.length} questions.
+                            <Typography variant="body1" paragraph>
+                                Правильных ответов: {
+                                questions.filter((q, index) => {
+                                    const userAnswer = answers[index];
+                                    const correctAnswer = q.correct_answer;
+
+                                    // Обработка разных форматов ответов
+                                    if (Array.isArray(q.choices)) {
+                                        return userAnswer === correctAnswer;
+                                    } else {
+                                        return userAnswer === correctAnswer;
+                                    }
+                                }).length
+                            } из {questions.length}
                             </Typography>
-                            {questions.map((q, idx) => (
-                                <Box key={idx} sx={{ mb: 1 }}>
-                                    <Typography variant="subtitle2">Q{idx + 1}:</Typography>
-                                    <Typography variant="body2" sx={{ ml: 2 }}>
-                                        Your answer: <strong>{answers[idx]}</strong>
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ ml: 2 }}>
-                                        Correct answer: <strong>{q.correct_answer}</strong>
-                                    </Typography>
-                                </Box>
-                            ))}
+                            {questions.map((question, index) => {
+                                const userAnswer = answers[index];
+                                const correctAnswer = question.correct_answer;
+
+                                // Формируем данные для отображения
+                                let choicesData = [];
+                                if (Array.isArray(question.choices)) {
+                                    choicesData = question.choices.map((item, i) => ({
+                                        key: String.fromCharCode(65 + i),
+                                        value: item
+                                    }));
+                                } else {
+                                    choicesData = Object.entries(question.choices || {}).map(([key, value]) => ({
+                                        key: key,
+                                        value: value
+                                    }));
+                                }
+
+                                const userAnswerText = choicesData.find(c =>
+                                    Array.isArray(question.choices) ? c.value === userAnswer : c.key === userAnswer
+                                )?.value || 'Нет ответа';
+
+                                const correctAnswerText = choicesData.find(c =>
+                                    Array.isArray(question.choices) ? c.value === correctAnswer : c.key === correctAnswer
+                                )?.value || correctAnswer;
+
+                                return (
+                                    <Box
+                                        key={index}
+                                        sx={{
+                                            marginBottom: 3,
+                                            padding: 3,
+                                            borderRadius: 2,
+                                            backgroundColor: alpha(
+                                                userAnswer === correctAnswer
+                                                    ? theme.palette.success.light
+                                                    : theme.palette.error.light,
+                                                0.1
+                                            )
+                                        }}
+                                    >
+                                        <Typography variant="h6" paragraph>
+                                            Вопрос {index + 1}: {question.question_text}
+                                        </Typography>
+                                        <Typography color="text.secondary">
+                                            Ваш ответ: {userAnswerText}
+                                        </Typography>
+                                        <Typography color="text.secondary">
+                                            Правильный ответ: {correctAnswerText}
+                                        </Typography>
+                                    </Box>
+                                );
+                            })}
                         </Paper>
                     )}
-                </>
+                </Box>
             )}
-
         </Container>
     );
 }
