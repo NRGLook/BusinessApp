@@ -131,7 +131,10 @@ class UserProfile(Base, IDMixin, TimestampMixin):
         String(255),
         comment="Ссылка на аватар (например: 'https://example.com/avatar.jpg')",
     )
-    bio: Mapped[Optional[str]] = mapped_column(Text(), comment="Краткая биография пользователя")
+    bio: Mapped[Optional[str]] = mapped_column(
+        Text(),
+        comment="Краткая биография пользователя",
+    )
 
     user: Mapped["User"] = relationship(back_populates="profile")
 
@@ -139,47 +142,164 @@ class UserProfile(Base, IDMixin, TimestampMixin):
 class Business(Base, IDMixin, TimestampMixin):
     __tablename__ = "business"
 
-    name: Mapped[str] = mapped_column(String(100), comment="Название бизнеса (например: 'Моя криптоферма')")
-    description: Mapped[Optional[str]] = mapped_column(Text(), comment="Подробное описание бизнеса")
-    business_type: Mapped[BusinessType] = mapped_column(
-        SqlEnum(BusinessType), comment="Тип бизнеса: physical или virtual"
+    name: Mapped[str] = mapped_column(
+        String(100),
+        comment="Название бизнеса (например: 'Моя криптоферма')",
     )
+    description: Mapped[Optional[str]] = mapped_column(
+        Text(),
+        comment="Подробное описание бизнеса",
+    )
+    business_type: Mapped[BusinessType] = mapped_column(
+        SqlEnum(BusinessType),
+        comment="Тип бизнеса: physical или virtual",
+    )
+    initial_investment: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        comment="Первоначальные инвестиции в рублях/валюте",
+    )
+    operational_costs: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        default=0.0,
+        comment="Базовые операционные расходы в месяц",
+    )
+    expected_revenue: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        comment="Ожидаемый месячный доход",
+    )
+    break_even_months: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric,
+        comment="Расчетный срок окупаемости в месяцах",
+    )
+
     owner_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
-    owner: Mapped["User"] = relationship(back_populates="businesses")
-    physical_settings: Mapped["PhysicalBusinessSettings"] = relationship(back_populates="business")
-    virtual_settings: Mapped["VirtualBusinessSettings"] = relationship(back_populates="business")
-    reports: Mapped[List["Report"]] = relationship(back_populates="business")
-    transactions: Mapped[List["Transaction"]] = relationship(back_populates="business")
+    owner: Mapped["User"] = relationship(
+        back_populates="businesses",
+    )
+    physical_settings: Mapped["PhysicalBusinessSettings"] = relationship(
+        back_populates="business",
+    )
+    virtual_settings: Mapped["VirtualBusinessSettings"] = relationship(
+        back_populates="business",
+    )
+    reports: Mapped[List["Report"]] = relationship(
+        back_populates="business",
+    )
+    transactions: Mapped[List["Transaction"]] = relationship(
+        back_populates="business",
+    )
 
 
 class PhysicalBusinessSettings(Base, IDMixin):
     __tablename__ = "physical_business_settings"
 
-    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"), unique=True)
-    location: Mapped[str] = mapped_column(
-        String(255), comment="Координаты местоположения (например: '55.7558,37.6173')"
+    business_id: Mapped[UUID] = mapped_column(
+        ForeignKey("business.id"),
+        unique=True,
     )
-    size_sq_meters: Mapped[Decimal] = mapped_column(Numeric, comment="Площадь помещения в квадратных метрах")
-    employee_count: Mapped[UUID] = mapped_column(Integer, comment="Количество сотрудников")
+    location: Mapped[str] = mapped_column(
+        String(255),
+        comment="Координаты или адрес местоположения",
+    )
+    size_sq_meters: Mapped[Decimal] = mapped_column(
+        Numeric(8, 2),
+        comment="Площадь помещения (м²)",
+    )
+    employee_count: Mapped[int] = mapped_column(
+        Integer,
+        comment="Количество сотрудников",
+    )
+    average_salary: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Средняя зарплата сотрудника в месяц",
+    )
+    rent_cost: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Стоимость аренды в месяц",
+    )
+    equipment_maintenance_cost: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Расходы на обслуживание оборудования в месяц",
+    )
+    tax_rate: Mapped[Decimal] = mapped_column(
+        Numeric(5, 3),
+        default=0.15,
+        comment="Налоговая ставка (0.15 для 15%)",
+    )
+    utilities_cost: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Коммунальные расходы в месяц",
+    )
+    marketing_budget: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Бюджет на маркетинг в месяц",
+    )
     equipment: Mapped[JSON] = mapped_column(
         JSON,
-        comment="Оборудование в формате JSON (например: {'станки': 5, 'транспорт': 2})",
+        comment="Оборудование: {'тип': количество}",
     )
 
-    business: Mapped["Business"] = relationship(back_populates="physical_settings")
-    strategies: Mapped[List["StrategyPhysicalBusiness"]] = relationship(back_populates="settings")
-    profits: Mapped[List["ProfitPhysicalBusiness"]] = relationship(back_populates="settings")
+    business: Mapped["Business"] = relationship(
+        back_populates="physical_settings",
+    )
+    strategies: Mapped[List["StrategyPhysicalBusiness"]] = relationship(
+        back_populates="settings",
+    )
+    profits: Mapped[List["ProfitPhysicalBusiness"]] = relationship(
+        back_populates="settings",
+    )
 
 
 class VirtualBusinessSettings(Base, IDMixin):
     __tablename__ = "virtual_business_settings"
 
-    business_id: Mapped[UUID] = mapped_column(ForeignKey("business.id"), unique=True)
-    initial_capital: Mapped[Decimal] = mapped_column(
-        Numeric, default=100000.0, comment="Начальный капитал в виртуальной валюте"
+    business_id: Mapped[UUID] = mapped_column(
+        ForeignKey("business.id"),
+        unique=True,
     )
-    risk_level: Mapped[UUID] = mapped_column(Integer, default=3, comment="Уровень риска от 1 (низкий) до 5 (высокий)")
-    portfolio: Mapped[JSON] = mapped_column(JSON, comment="Структура портфеля (например: {'BTC': 60, 'ETH': 40})")
+    electricity_cost: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        comment="Стоимость электроэнергии в месяц",
+    )
+    hardware_cost: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        comment="Стоимость оборудования (амортизация в месяц)",
+    )
+    hashrate: Mapped[int] = mapped_column(
+        Integer,
+        comment="Хэшрейт оборудования (TH/s)",
+    )
+    mining_difficulty: Mapped[int] = mapped_column(
+        Integer,
+        comment="Текущая сложность майнинга",
+    )
+    pool_fees: Mapped[Decimal] = mapped_column(
+        Numeric(5, 3),
+        default=0.02,
+        comment="Комиссия пула (0.02 для 2%)",
+    )
+    crypto_price: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        comment="Текущая цена криптовалюты",
+    )
+    risk_multiplier: Mapped[Decimal] = mapped_column(
+        Numeric(3, 2),
+        default=1.0,
+        comment="Множитель риска для расчетов",
+    )
+
+    initial_capital: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        default=100000.0,
+    )
+    risk_level: Mapped[int] = mapped_column(
+        Integer,
+        default=3,
+    )
+    portfolio: Mapped[JSON] = mapped_column(
+        JSON,
+        comment="Структура портфеля",
+    )
 
     business: Mapped["Business"] = relationship(back_populates="virtual_settings")
     briefcase: Mapped["UserBriefcase"] = relationship(back_populates="settings")
@@ -378,6 +498,7 @@ class Course(Base, IDMixin, TimestampMixin, ImageMixin):
     category_id: Mapped[Optional[UUID]] = mapped_column(
         ForeignKey("course_category.id", ondelete="SET NULL"), comment="Категория курса"
     )
+    lesson_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="Ссылка на видео по курсу")
 
     category: Mapped["CourseCategory"] = relationship(back_populates="courses")
     lessons: Mapped[List["Lesson"]] = relationship(back_populates="course", cascade="all, delete-orphan")

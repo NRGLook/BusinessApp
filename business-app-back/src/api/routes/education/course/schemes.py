@@ -9,8 +9,18 @@ from src.api.schemes import ListDataResponseSchema, IDSchema
 class CourseBaseSchema(IDSchema):
     title: str
     description: Optional[str] = None
-    is_active: bool = Field(default=True, description="Флаг активности курса")
-    category_id: Optional[UUID] = Field(None, description="ID категории курса")
+    is_active: bool = Field(
+        default=True,
+        description="Флаг активности курса",
+    )
+    category_id: Optional[UUID] = Field(
+        None,
+        description="ID категории курса",
+    )
+    lesson_url: Optional[str] = Field(
+        None,
+        description="Ссылка на видеоурок по всему курсу",
+    )
 
 
 class CourseReadSchema(CourseBaseSchema):
