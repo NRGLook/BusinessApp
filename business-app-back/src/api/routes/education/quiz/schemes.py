@@ -1,5 +1,8 @@
 from uuid import UUID
-from typing import List
+from typing import (
+    List,
+    Dict,
+)
 
 from pydantic import BaseModel, Field
 
@@ -9,7 +12,7 @@ from src.api.schemes import ListDataResponseSchema, IDSchema
 class QuizQuestionBaseSchema(IDSchema):
     lesson_id: UUID = Field(..., description="ID урока, к которому относится вопрос")
     question_text: str = Field(..., description="Текст вопроса")
-    choices: List[str] = Field(..., description="Варианты ответов (в формате списка строк)")
+    choices: List[str] | Dict[str, str] = Field(..., description="Варианты ответов (в формате списка строк)")
     correct_answer: str = Field(..., description="Правильный ответ")
 
 
