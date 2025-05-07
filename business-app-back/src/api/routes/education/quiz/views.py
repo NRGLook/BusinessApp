@@ -5,13 +5,22 @@ import sqlalchemy.exc
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from src.api.schemes import Response500Schema, PaginationParams, OrderParams, Response400Schema, Response404Schema
+from src.api.schemes import (
+    Response500Schema,
+    PaginationParams,
+    OrderParams,
+    Response400Schema,
+    Response404Schema,
+)
 from src.api.routes.education.quiz.schemes import (
     QuizQuestionCreateBatchSchema,
     QuizQuestionReadSchema,
     QuizQuestionDeleteBatchSchema,
 )
-from src.services.quiz_questions.quiz_question import QuizQuestionService, get_quiz_question_service
+from src.services.quiz_questions.quiz_question import (
+    QuizQuestionService,
+    get_quiz_question_service,
+)
 from src.utils.helpers import pagination_params
 
 quiz_router = APIRouter(
@@ -39,9 +48,18 @@ quiz_router = APIRouter(
     summary="Retrieve quiz questions",
 )
 async def get_quiz_questions(
-    question_id: Optional[UUID] = Query(None, description="ID of the quiz question"),
-    lesson_id: Optional[UUID] = Query(None, description="Lesson ID for filtering"),
-    search: Optional[str] = Query(None, description="Search by question text"),
+    question_id: Optional[UUID] = Query(
+        None,
+        description="ID of the quiz question",
+    ),
+    lesson_id: Optional[UUID] = Query(
+        None,
+        description="Lesson ID for filtering",
+    ),
+    search: Optional[str] = Query(
+        None,
+        description="Search by question text",
+    ),
     pagination: PaginationParams = Depends(pagination_params),
     order_by: OrderParams = Depends(),
     service: QuizQuestionService = Depends(get_quiz_question_service),
@@ -55,12 +73,18 @@ async def get_quiz_questions(
             order_by=order_by.model_dump()["order_by"],
         )
         if not result:
-            raise HTTPException(status_code=404, detail="Quiz question not found")
+            raise HTTPException(
+                status_code=404,
+                detail="Quiz question not found",
+            )
         return result
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"detail": "Internal server error", "code": "server_error"},
+            detail={
+                "detail": "Internal server error",
+                "code": "server_error",
+            },
         )
 
 
