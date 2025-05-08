@@ -9,6 +9,10 @@ import PrivateRoute from "./components/PrivateRoute";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import LearnPage from "./pages/LearnPage/LearnPage";
 import MarketPlace from "./pages/MarketPlace/MarketPlace";
+import BusinessPage from "./pages/BusinessPage/BusinessPage";
+import BusinessDetailPage from "./pages/BusinessDetailPage/BusinessDetailPage";
+import PhysicalBusinessPage from "./pages/BusinessPage/PhysicalBusinessPage";
+import VirtualBusinessPage from "./pages/BusinessPage/VirtualBusinessPage";
 
 // Создаем кастомную тему
 export const theme = createTheme({
@@ -64,9 +68,29 @@ function App() {
                             <LearnPage />
                         </PrivateRoute>
                     } />
+                    <Route path="/business" element={
+                        <PrivateRoute>
+                            <BusinessPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/business/:id" element={
+                        <PrivateRoute>
+                            <BusinessDetailPage />
+                        </PrivateRoute>
+                    } />
                     <Route path="/profile" element={
                         <PrivateRoute>
                             <ProfilePage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/physical" element={
+                        <PrivateRoute>
+                            <PhysicalBusinessPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/virtual" element={
+                        <PrivateRoute>
+                            <VirtualBusinessPage />
                         </PrivateRoute>
                     } />
                     <Route path="/crypto" element={

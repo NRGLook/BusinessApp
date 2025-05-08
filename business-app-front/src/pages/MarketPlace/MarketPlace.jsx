@@ -8,7 +8,6 @@ import CoinHorizontal from "../../components/Widgets/Coin/CoinHorizontal.jsx";
 import CoinVertical from "../../components/Widgets/Coin/CoinVertical.jsx";
 import Market from "../../components/Widgets/Market/Market.jsx";
 import MainLayout from "../../layouts/MainLayout";
-import Header from "../../components/Header/Header";
 
 
 // variables
