@@ -1,4 +1,6 @@
 from .business import BusinessManager
+from .physical_business_settings import PhysicalBusinessManager
+from .virtual_business_settings import VirtualBusinessManager
 from .user import UserManager
 from .lesson import LessonManager
 from .course_category import CourseCategoryManager
