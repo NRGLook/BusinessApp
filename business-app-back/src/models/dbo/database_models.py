@@ -190,7 +190,7 @@ class Business(Base, IDMixin, TimestampMixin):
     )
 
 
-class PhysicalBusinessSettings(Base, IDMixin):
+class PhysicalBusinessSettings(Base, IDMixin, TimestampMixin):
     __tablename__ = "physical_business_settings"
 
     business_id: Mapped[UUID] = mapped_column(
@@ -250,7 +250,7 @@ class PhysicalBusinessSettings(Base, IDMixin):
     )
 
 
-class VirtualBusinessSettings(Base, IDMixin):
+class VirtualBusinessSettings(Base, IDMixin, TimestampMixin):
     __tablename__ = "virtual_business_settings"
 
     business_id: Mapped[UUID] = mapped_column(

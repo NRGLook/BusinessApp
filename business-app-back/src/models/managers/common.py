@@ -223,7 +223,10 @@ class BaseManager(Generic[T]):
             if self.entity.__tablename__ in apply_numeric_sorting_for_tables and isinstance(column_type, StringType):
                 numeric_part = cast(func.substring(order_by_column, r"([0-9]+)"), DECIMAL)
                 sort_column = case(
-                    (func.regexp_match(order_by_column, r"[0-9]+") is not None, numeric_part),
+                    (
+                        func.regexp_match(order_by_column, r"[0-9]+") is not None,
+                        numeric_part,
+                    ),
                     else_=None,
                 )
                 if descending:
@@ -380,15 +383,24 @@ class BaseManager(Generic[T]):
         updated_entities: list = []
         for entity in entities:
             if entity.id:
+                log.info(f"Updating entity with ID {entity.id}")
                 data_dict = {key: value for key, value in entity.model_dump().items() if key != "id"}
+                log.info(f"Update payload: {data_dict}")
                 updated_entity = await self.update_by_id(
                     entity_id=entity.id,
                     payload=data_dict,
                 )  # type: ignore[func-returns-value]
+                log.info(f"Updated entity: {updated_entity}")
                 updated_entities.append(updated_entity)
             else:
-                created_entity: T = await self.create(payload=entity.model_dump())
+                log.info("Creating new entity")
+                payload = entity.model_dump()
+                log.info(f"Create payload: {payload}")
+                created_entity: T = await self.create(payload=payload)
+                log.info(f"Created entity: {created_entity}")
                 updated_entities.append(created_entity)
+
+        log.info(f"Total entities processed: {len(updated_entities)}")
         return updated_entities
 
     async def fetch(self, query, with_scalars: bool = True):
