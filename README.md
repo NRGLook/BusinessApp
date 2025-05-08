@@ -5,8 +5,6 @@
 
 ## List of features according to UML diagram
 
-### Обязательные фичи (`<<include>>`)
-
 ---
 
 ### Функционал платформы
