@@ -91,6 +91,76 @@ const Navigation = () => {
                             </Button>
                         </Box>
                     )}
+
+                    {user && (
+                        <Box sx={{
+                            display: { xs: 'none', md: 'flex' },
+                            gap: 2
+                        }}>
+                            <Button
+                                component={Link}
+                                to="/business"
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: theme.palette.primary.main
+                                    }
+                                }}
+                            >
+                                Мои бизнесы
+                            </Button>
+                        </Box>
+                    )}
+
+                    {user && (
+                        <Box sx={{
+                            display: { xs: 'none', md: 'flex' },
+                            gap: 2
+                        }}>
+                            <Button
+                                component={Link}
+                                to="/physical"
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: theme.palette.primary.main
+                                    }
+                                }}
+                            >
+                                Физические бизнесы
+                            </Button>
+                        </Box>
+                    )}
+
+                    {user && (
+                        <Box sx={{
+                            display: { xs: 'none', md: 'flex' },
+                            gap: 2
+                        }}>
+                            <Button
+                                component={Link}
+                                to="/virtual"
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: theme.palette.primary.main
+                                    }
+                                }}
+                            >
+                                Виртуальные бизнесы
+                            </Button>
+                        </Box>
+                    )}
+
                 </Box>
 
                 {/* Правый блок - Профиль или авторизация */}
