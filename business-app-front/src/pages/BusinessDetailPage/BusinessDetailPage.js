@@ -128,7 +128,24 @@ export default function BusinessDetailPage() {
             const translations = {
                 location: "Местоположение",
                 size: "Площадь",
-                employees_count: "Количество сотрудников",
+                size_sq_meters: "Площадь в метрах квадратных",
+                average_salary: "Средняя зарплата",
+                rent_cost: "Стоимость аренды",
+                equipment_maintenance_cost: "Стоимость обслуживания оборудования",
+                tax_rate: "Налоговая ставка",
+                utilities_cost: "Коммунальные расходы",
+                marketing_budget: "Бюджет на маркетинг",
+                employee_count: "Количество сотрудников",
+                electricity_cost: "Стоимость электричества",
+                hardware_cost: "Стоимость оборудования",
+                hashrate: "Хешрейт (общая вычислительная мощность сети криптовалюты)",
+                mining_difficulty: "Сложность майнинга (добычи)",
+                pool_fees: "Сборы за пользование",
+                crypto_price: "Цена криптовалюты",
+                risk_multiplier: "Множитель риска",
+                initial_capital: "Начальный капитал",
+                risk_level: "Уровень риска",
+                portfolio: "Портфолио",
                 equipment: "Оборудование",
                 production_capacity: "Производственная мощность",
                 investment_portfolio: "Инвестиционный портфель",
@@ -136,7 +153,6 @@ export default function BusinessDetailPage() {
                 real_estate: "Недвижимость",
                 monthly_production: "Месячное производство",
                 energy_consumption: "Потребление энергии",
-                // Добавьте другие переводы по необходимости
             };
             return translations[key] || key.replace(/_/g, " ");
         };
