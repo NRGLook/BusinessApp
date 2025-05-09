@@ -53,13 +53,32 @@ export default function BusinessPage() {
         const fetchBusinesses = async () => {
             try {
                 const response = await axios.get("/business?page=1&per_page=100", {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    },
                 });
 
-                setBusinesses(response.data?.data || []);
+                if (response.data && Array.isArray(response.data.data)) {
+                    const validatedBusinesses = response.data.data.map(business => ({
+                        id: business.id || "",
+                        name: business.name || "Без названия",
+                        description: business.description || "",
+                        business_type: business.business_type === "PHYSICAL"
+                            ? "PHYSICAL"
+                            : "VIRTUAL",
+                        initial_investment: Number(business.initial_investment) || 0,
+                        operational_costs: Number(business.operational_costs) || 0,
+                        break_even_months: Number(business.break_even_months) || null,
+                    }));
+                    setBusinesses(validatedBusinesses);
+                } else {
+                    throw new Error("Некорректный формат данных от сервера");
+                }
             } catch (err) {
                 console.error("Ошибка загрузки:", err);
-                setError(err.response?.data?.message || "Ошибка при загрузке данных");
+                setError(err.response?.data?.message
+                    || err.message
+                    || "Ошибка при загрузке данных");
                 if (err.response?.status === 401) navigate("/auth");
             } finally {
                 setLoading(false);
@@ -69,18 +88,44 @@ export default function BusinessPage() {
         fetchBusinesses();
     }, [navigate]);
 
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('ru-RU').format(value) + ' ₽';
+    };
+
+    const formatMonths = (value) => {
+        return value ? `${value} мес.` : "N/A";
+    };
+
     if (loading) {
         return (
-            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                <CircularProgress />
+            <Box sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "200px"
+            }}>
+                <CircularProgress size={60} />
             </Box>
         );
     }
 
     if (error) {
         return (
-            <Box sx={{ p: 3 }}>
-                <Alert severity="error">{error}</Alert>
+            <Box sx={{
+                p: 3,
+                maxWidth: 600,
+                mx: "auto",
+                textAlign: "center"
+            }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+                <Button
+                    variant="outlined"
+                    onClick={() => window.location.reload()}
+                >
+                    Попробовать снова
+                </Button>
             </Box>
         );
     }
@@ -91,77 +136,115 @@ export default function BusinessPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                mb: 4
+                mb: 4,
+                flexWrap: "wrap",
+                gap: 2
             }}>
-                <Typography variant="h4" fontWeight={700}>
-                    Мои Бизнесы
-                </Typography>
                 <Button
                     variant="contained"
                     startIcon={<Business />}
                     onClick={() => navigate("/business/create")}
+                    sx={{ flexShrink: 0 }}
                 >
                     Создать бизнес
                 </Button>
             </Box>
 
             <Grid container spacing={3}>
-                {businesses.map((business) => (
-                    <Grid item xs={12} sm={6} md={4} key={business.id}>
-                        <StyledCard>
-                            <CardContent>
-                                <Box sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    mb: 2
-                                }}>
-                                    <Typography variant="h6" fontWeight={600}>
-                                        {business.name}
+                {businesses.map((business) => {
+                    const isPhysical = business.business_type === "PHYSICAL";
+
+                    return (
+                        <Grid item xs={12} sm={6} md={4} key={business.id}>
+                            <StyledCard>
+                                <CardContent>
+                                    <Box sx={{ mb: 2 }}>
+                                        <Typography
+                                            variant="h6"
+                                            fontWeight={600}
+                                            sx={{ mb: 1 }}
+                                        >
+                                            {business.name}
+                                        </Typography>
+                                        <Chip
+                                            label={isPhysical ? "Физический" : "Виртуальный"}
+                                            color={isPhysical ? "primary" : "secondary"}
+                                            size="small"
+                                            sx={{
+                                                borderRadius: 1,
+                                                fontSize: '0.75rem',
+                                                height: 24,
+                                                '& .MuiChip-label': {
+                                                    px: 1.5
+                                                }
+                                            }}
+                                        />
+                                    </Box>
+
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{
+                                            mb: 3,
+                                            minHeight: 72
+                                        }}
+                                    >
+                                        {business.description || "Описание отсутствует"}
                                     </Typography>
-                                    <Chip
-                                        label={business.business_type === "PHYSICAL" ? "Физический" : "Виртуальный"}
-                                        color={business.business_type === "PHYSICAL" ? "primary" : "secondary"}
-                                        size="small"
+
+                                    <StatItem
+                                        icon={<CurrencyExchange sx={{ color: "primary.main" }} />}
+                                        title="Инвестиции"
+                                        value={formatCurrency(business.initial_investment)}
+                                        color="primary"
                                     />
-                                </Box>
 
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                                    {business.description || "Описание отсутствует"}
-                                </Typography>
+                                    <StatItem
+                                        icon={<TrendingUp sx={{ color: "error.main" }} />}
+                                        title="Месячные расходы"
+                                        value={formatCurrency(business.operational_costs)}
+                                        color="error"
+                                    />
 
-                                <StatItem
-                                    icon={<CurrencyExchange sx={{ color: "primary.main" }} />}
-                                    title="Инвестиции"
-                                    value={`${business.initial_investment} ₽`}
-                                    color="primary"
-                                />
+                                    <StatItem
+                                        icon={<Factory sx={{ color: "success.main" }} />}
+                                        title="Окупаемость"
+                                        value={formatMonths(business.break_even_months)}
+                                        color="success"
+                                    />
 
-                                <StatItem
-                                    icon={<TrendingUp sx={{ color: "error.main" }} />}
-                                    title="Месячные расходы"
-                                    value={`${business.operational_costs} ₽`}
-                                    color="error"
-                                />
-
-                                <StatItem
-                                    icon={<Factory sx={{ color: "success.main" }} />}
-                                    title="Окупаемость"
-                                    value={`${business.break_even_months || "N/A"} мес.`}
-                                    color="success"
-                                />
-
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    sx={{ mt: 2 }}
-                                    onClick={() => navigate(`/business/${business.id}`)}
-                                >
-                                    Подробнее
-                                </Button>
-                            </CardContent>
-                        </StyledCard>
-                    </Grid>
-                ))}
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 2,
+                                        mt: 2
+                                    }}>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            onClick={() => navigate(`/business/${business.id}`)}
+                                            sx={{ flex: 1 }}
+                                        >
+                                            Подробнее
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => navigate(
+                                                `/business/${business.id}/settings/create`
+                                            )}
+                                            sx={{
+                                                minWidth: 140,
+                                                flexShrink: 0
+                                            }}
+                                        >
+                                            Настройки
+                                        </Button>
+                                    </Box>
+                                </CardContent>
+                            </StyledCard>
+                        </Grid>
+                    );
+                })}
             </Grid>
         </Box>
     );
