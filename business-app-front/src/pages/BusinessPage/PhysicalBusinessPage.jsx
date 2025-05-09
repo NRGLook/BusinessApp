@@ -82,9 +82,6 @@ export default function PhysicalBusinessPage() {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h4" fontWeight={700} mb={4}>
-                Физические Бизнесы
-            </Typography>
 
             <Grid container spacing={3}>
                 {businesses.map((business) => (
@@ -94,6 +91,7 @@ export default function PhysicalBusinessPage() {
                                 <Box sx={{
                                     display: "flex",
                                     justifyContent: "space-between",
+                                    flexDirection: "column", // Изменено на column для вертикального выравнивания
                                     mb: 2
                                 }}>
                                     <Typography variant="h6" fontWeight={600}>
@@ -103,6 +101,7 @@ export default function PhysicalBusinessPage() {
                                         label="Физический"
                                         color="primary"
                                         size="small"
+                                        sx={{ mt: 1 }} // Добавлено отступ для Chip
                                     />
                                 </Box>
 

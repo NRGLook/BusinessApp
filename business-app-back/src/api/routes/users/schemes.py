@@ -57,3 +57,7 @@ class UserProfileOutSchema(BaseModel):
 
 class UserProfileResponse(BaseModel):
     data: List[UserProfileOutSchema]
+
+
+class UserEmailOutSchema(BaseModel):
+    email: Optional[str]
