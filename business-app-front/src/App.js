@@ -15,6 +15,7 @@ import PhysicalBusinessPage from "./pages/BusinessPage/PhysicalBusinessPage";
 import VirtualBusinessPage from "./pages/BusinessPage/VirtualBusinessPage";
 import BusinessCreatePage from "./pages/BusinessCreatePage/BusinessCreatePage";
 import BusinessSettingsCreatePage from "./pages/BusinessSettingsCreatePage/BusinessSettingsCreatePage";
+import StartBusinessPage from "./pages/StartBusinessPage/StartBusinessPage";
 
 // Создаем кастомную тему
 export const theme = createTheme({
@@ -68,6 +69,11 @@ function App() {
                     <Route path="/learn" element={
                         <PrivateRoute>
                             <LearnPage />
+                        </PrivateRoute>
+                    } />
+                    <Route path="/start" element={
+                        <PrivateRoute>
+                            <StartBusinessPage />
                         </PrivateRoute>
                     } />
                     <Route path="/business" element={
