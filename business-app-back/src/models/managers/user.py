@@ -38,9 +38,8 @@ class UserManager(BaseManager):
     ):
         query = (
             select(
-                User.id,
-                User.username,
                 User.email,
+                User.id,
                 User.is_active,
                 User.created_at,
                 User.updated_at,
@@ -61,7 +60,11 @@ class UserManager(BaseManager):
             .join(user_roles, User.id == user_roles.c.user_id, isouter=True)
             .join(Role, user_roles.c.role_id == Role.id, isouter=True)
             .join(user_achievements, User.id == user_achievements.c.user_id, isouter=True)
-            .join(Achievement, user_achievements.c.achievement_id == Achievement.id, isouter=True)
+            .join(
+                Achievement,
+                user_achievements.c.achievement_id == Achievement.id,
+                isouter=True,
+            )
         )
 
         return query
