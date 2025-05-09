@@ -1,6 +1,11 @@
 from typing import Optional
+from uuid import UUID
 
-from fastapi import Depends
+from fastapi import (
+    Depends,
+    HTTPException,
+    status,
+)
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +17,7 @@ from src.api.routes.users.schemes import (
     RoleSchema,
     AchievementSchema,
     UserProfileOutSchema,
+    UserEmailOutSchema,
 )
 from src.config.database_config import get_session
 from src.services.common import BaseService
@@ -50,6 +56,7 @@ class UserService(BaseService):
 
     async def get_users(
         self,
+        user_id: UUID,
         search: Optional[str],
         **filters,
     ):
@@ -57,10 +64,41 @@ class UserService(BaseService):
 
         users = await self.user_manager.search(
             with_scalars=False,
+            id=user_id,
             **filters,
         )
 
         return UserProfileResponse(data=[self.map_user(user).model_dump() for user in users])
+
+    async def get_user_email(
+        self,
+        user_id: UUID,
+        **filters,
+    ) -> UserEmailOutSchema:
+        try:
+            users = await self.user_manager.search(
+                id=user_id,
+                with_scalars=False,
+            )
+
+            if not users:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                )
+
+            user = users[0]
+
+            log.info(f"User email requested for ID: {user_id}")
+
+            return UserEmailOutSchema(email=user.email)
+
+        except Exception as e:
+            log.error(f"Error getting user email: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error retrieving user email",
+            )
 
 
 async def get_user_service(
