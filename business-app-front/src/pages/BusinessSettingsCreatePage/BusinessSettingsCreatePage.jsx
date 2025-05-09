@@ -14,6 +14,10 @@ import {
     MenuItem
 } from "@mui/material";
 import axios from "../../api/axios";
+import { motion } from 'framer-motion';
+import {Save, Cancel, Settings} from '@mui/icons-material';
+import InputAdornment from '@mui/material/InputAdornment';
+import FiberManualRecord from '@mui/icons-material/FiberManualRecord';
 
 const initialPhysicalSettings = {
     location: "",
@@ -40,6 +44,193 @@ const initialVirtualSettings = {
     risk_level: 3,
     portfolio: "{}"
 };
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+};
+
+const PhysicalSettingsForm = ({ form, handleChange, itemVariants }) => (
+    <>
+        {[
+            { label: 'Местоположение', name: 'location', type: 'text' },
+            { label: 'Площадь (кв. м)', name: 'size_sq_meters', type: 'number' },
+            { label: 'Количество сотрудников', name: 'employee_count', type: 'number' },
+            { label: 'Средняя зарплата (₽)', name: 'average_salary', type: 'number' },
+            { label: 'Аренда (₽)', name: 'rent_cost', type: 'number' },
+            { label: 'Обслуживание оборудования (₽)', name: 'equipment_maintenance_cost', type: 'number' },
+            { label: 'Налоговая ставка', name: 'tax_rate', type: 'number', step: 0.01 },
+            { label: 'Коммунальные услуги (₽)', name: 'utilities_cost', type: 'number' },
+            { label: 'Маркетинговый бюджет (₽)', name: 'marketing_budget', type: 'number' },
+        ].map((field, index) => (
+            <Grid
+                item
+                xs={12}
+                md={6}
+                key={field.name}
+                component={motion.div}
+                variants={itemVariants}
+            >
+                <TextField
+                    {...field}
+                    value={form[field.name]}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '& fieldset': { borderWidth: 2 },
+                            '&:hover fieldset': { borderColor: 'primary.main' },
+                        }
+                    }}
+                    InputProps={{
+                        startAdornment: field.icon && (
+                            <InputAdornment position="start">
+                                {field.icon}
+                            </InputAdornment>
+                        )
+                    }}
+                />
+            </Grid>
+        ))}
+
+        <Grid item xs={12} component={motion.div} variants={itemVariants}>
+            <TextField
+                label="Оборудование (JSON)"
+                name="equipment"
+                value={form.equipment}
+                onChange={handleChange}
+                multiline
+                rows={4}
+                fullWidth
+                required
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '& textarea': { fontFamily: 'monospace' }
+                    }
+                }}
+            />
+        </Grid>
+    </>
+);
+
+const VirtualSettingsForm = ({ form, handleChange, itemVariants }) => (
+    <>
+        {[
+            { label: 'Стоимость электроэнергии (₽)', name: 'electricity_cost', type: 'number' },
+            { label: 'Стоимость оборудования (₽)', name: 'hardware_cost', type: 'number' },
+            { label: 'Хешрейт', name: 'hashrate', type: 'number' },
+            { label: 'Сложность майнинга', name: 'mining_difficulty', type: 'number' },
+            { label: 'Комиссия пула (%)', name: 'pool_fees', type: 'number', step: 0.01 },
+            { label: 'Цена криптовалюты (₽)', name: 'crypto_price', type: 'number' },
+            { label: 'Множитель риска', name: 'risk_multiplier', type: 'number' },
+            { label: 'Начальный капитал (₽)', name: 'initial_capital', type: 'number' },
+        ].map((field) => (
+            <Grid
+                item
+                xs={12}
+                md={6}
+                key={field.name}
+                component={motion.div}
+                variants={itemVariants}
+            >
+                <TextField
+                    {...field}
+                    value={form[field.name]}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    variant="outlined"
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '& fieldset': { borderWidth: 2 },
+                            '&:hover fieldset': { borderColor: 'primary.main' },
+                        }
+                    }}
+                />
+            </Grid>
+        ))}
+
+        <Grid item xs={12} md={6} component={motion.div} variants={itemVariants}>
+            <FormControl fullWidth>
+                <InputLabel>Уровень риска</InputLabel>
+                <Select
+                    name="risk_level"
+                    value={form.risk_level}
+                    onChange={handleChange}
+                    label="Уровень риска"
+                    required
+                    sx={{
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-notchedOutline': { borderWidth: 2 }
+                    }}
+                    MenuProps={{
+                        PaperProps: {
+                            sx: {
+                                borderRadius: 2,
+                                mt: 1,
+                                boxShadow: 3
+                            }
+                        }
+                    }}
+                >
+                    <MenuItem value={1}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <FiberManualRecord fontSize="small" color="success" />
+                            Низкий
+                        </Box>
+                    </MenuItem>
+                    <MenuItem value={2}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <FiberManualRecord fontSize="small" color="warning" />
+                            Средний
+                        </Box>
+                    </MenuItem>
+                    <MenuItem value={3}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                            <FiberManualRecord fontSize="small" color="error" />
+                            Высокий
+                        </Box>
+                    </MenuItem>
+                </Select>
+            </FormControl>
+        </Grid>
+
+        <Grid item xs={12} component={motion.div} variants={itemVariants}>
+            <TextField
+                label="Портфель (JSON)"
+                name="portfolio"
+                value={form.portfolio}
+                onChange={handleChange}
+                multiline
+                rows={4}
+                fullWidth
+                required
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        '& textarea': { fontFamily: 'monospace' }
+                    }
+                }}
+            />
+        </Grid>
+    </>
+);
 
 export default function BusinessSettingsCreatePage() {
     const { id } = useParams();
@@ -220,266 +411,100 @@ export default function BusinessSettingsCreatePage() {
     }
 
     return (
-        <Box sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
-            <Typography variant="h4" gutterBottom>
+        <Box
+            component={motion.div}
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            sx={{
+                p: 4,
+                maxWidth: 800,
+                mx: "auto",
+                bgcolor: 'background.paper',
+                borderRadius: 4,
+                boxShadow: 3
+            }}
+        >
+            <Typography
+                variant="h3"
+                gutterBottom
+                component={motion.div}
+                variants={itemVariants}
+                sx={{
+                    fontWeight: 700,
+                    color: 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                }}
+            >
+                <Settings fontSize="large" />
                 Настройки {business?.name}
             </Typography>
 
             <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
+                <Grid
+                    container
+                    spacing={3}
+                    component={motion.div}
+                    variants={containerVariants}
+                >
                     {business?.business_type === "PHYSICAL" ? (
-                        <>
-                            {/* Физические настройки */}
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Местоположение"
-                                    name="location"
-                                    value={form.location}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Площадь (кв. м)"
-                                    name="size_sq_meters"
-                                    type="number"
-                                    value={form.size_sq_meters}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Количество сотрудников"
-                                    name="employee_count"
-                                    type="number"
-                                    value={form.employee_count}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Средняя зарплата (₽)"
-                                    name="average_salary"
-                                    type="number"
-                                    value={form.average_salary}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Аренда (₽)"
-                                    name="rent_cost"
-                                    type="number"
-                                    value={form.rent_cost}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Обслуживание оборудования (₽)"
-                                    name="equipment_maintenance_cost"
-                                    type="number"
-                                    value={form.equipment_maintenance_cost}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Налоговая ставка"
-                                    name="tax_rate"
-                                    type="number"
-                                    step="0.01"
-                                    value={form.tax_rate}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Коммунальные услуги (₽)"
-                                    name="utilities_cost"
-                                    type="number"
-                                    value={form.utilities_cost}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Маркетинговый бюджет (₽)"
-                                    name="marketing_budget"
-                                    type="number"
-                                    value={form.marketing_budget}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Оборудование (JSON)"
-                                    name="equipment"
-                                    value={form.equipment}
-                                    onChange={handleChange}
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                        </>
+                        <PhysicalSettingsForm
+                            form={form}
+                            handleChange={handleChange}
+                            itemVariants={itemVariants}
+                        />
                     ) : (
-                        <>
-                            {/* Виртуальные настройки */}
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Стоимость электроэнергии (₽)"
-                                    name="electricity_cost"
-                                    type="number"
-                                    value={form.electricity_cost}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Стоимость оборудования (₽)"
-                                    name="hardware_cost"
-                                    type="number"
-                                    value={form.hardware_cost}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Хешрейт"
-                                    name="hashrate"
-                                    type="number"
-                                    value={form.hashrate}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Сложность майнинга"
-                                    name="mining_difficulty"
-                                    type="number"
-                                    value={form.mining_difficulty}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Комиссия пула (%)"
-                                    name="pool_fees"
-                                    type="number"
-                                    step="0.01"
-                                    value={form.pool_fees}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Цена криптовалюты (₽)"
-                                    name="crypto_price"
-                                    type="number"
-                                    value={form.crypto_price}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Множитель риска"
-                                    name="risk_multiplier"
-                                    type="number"
-                                    value={form.risk_multiplier}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Начальный капитал (₽)"
-                                    name="initial_capital"
-                                    type="number"
-                                    value={form.initial_capital}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Уровень риска</InputLabel>
-                                    <Select
-                                        name="risk_level"
-                                        value={form.risk_level}
-                                        onChange={handleChange}
-                                        label="Уровень риска"
-                                        required
-                                    >
-                                        <MenuItem value={1}>Низкий</MenuItem>
-                                        <MenuItem value={2}>Средний</MenuItem>
-                                        <MenuItem value={3}>Высокий</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Портфель (JSON)"
-                                    name="portfolio"
-                                    value={form.portfolio}
-                                    onChange={handleChange}
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    required
-                                />
-                            </Grid>
-                        </>
+                        <VirtualSettingsForm
+                            form={form}
+                            handleChange={handleChange}
+                            itemVariants={itemVariants}
+                        />
                     )}
 
-                    <Grid item xs={12}>
-                        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                    {/* Кнопки управления */}
+                    <Grid item xs={12} component={motion.div} variants={itemVariants}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                gap: 2,
+                                mt: 4,
+                                justifyContent: 'flex-end'
+                            }}
+                        >
                             <Button
                                 type="submit"
                                 variant="contained"
                                 disabled={isSubmitting}
-                                sx={{ width: 200 }}
+                                startIcon={isSubmitting ? <CircularProgress size={20} /> : <Save />}
+                                sx={{
+                                    width: 200,
+                                    py: 1.5,
+                                    borderRadius: 2,
+                                    transition: 'all 0.3s',
+                                    '&:hover': {
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: 4
+                                    }
+                                }}
                             >
-                                {isSubmitting ? (
-                                    <CircularProgress size={24} />
-                                ) : "Сохранить"}
+                                Сохранить
                             </Button>
+
                             <Button
                                 variant="outlined"
                                 onClick={() => navigate(-1)}
+                                startIcon={<Cancel />}
+                                sx={{
+                                    width: 200,
+                                    py: 1.5,
+                                    borderRadius: 2,
+                                    borderWidth: 2,
+                                    '&:hover': {
+                                        borderWidth: 2
+                                    }
+                                }}
                             >
                                 Отмена
                             </Button>
@@ -487,8 +512,22 @@ export default function BusinessSettingsCreatePage() {
                     </Grid>
 
                     {error && (
-                        <Grid item xs={12}>
-                            <Alert severity="error">
+                        <Grid
+                            item
+                            xs={12}
+                            component={motion.div}
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                        >
+                            <Alert
+                                severity="error"
+                                sx={{
+                                    borderRadius: 2,
+                                    boxShadow: 1,
+                                    alignItems: 'center',
+                                    fontSize: '1rem'
+                                }}
+                            >
                                 {typeof error === 'string' ? error : JSON.stringify(error)}
                             </Alert>
                         </Grid>
