@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     AppBar,
     Toolbar,
@@ -16,7 +16,7 @@ import {
 const Navigation = () => {
     const theme = useTheme();
     const [user, setUser] = useState(null);
-    const navigate = useNavigate(); // Добавляем хук навигации
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
 
     useEffect(() => {
@@ -42,11 +42,15 @@ const Navigation = () => {
     };
 
     return (
-        <AppBar position="sticky" elevation={1} sx={{
-            backgroundColor: 'background.paper',
-            color: 'text.primary',
-            borderBottom: `1px solid ${theme.palette.divider}`
-        }}>
+        <AppBar
+            position="sticky"
+            elevation={1}
+            sx={{
+                backgroundColor: 'background.paper',
+                color: 'text.primary',
+                borderBottom: `1px solid ${theme.palette.divider}`
+            }}
+        >
             <Toolbar sx={{
                 justifyContent: 'space-between',
                 padding: { xs: '0 16px', md: '0 32px' }
@@ -89,14 +93,6 @@ const Navigation = () => {
                             >
                                 Обучение
                             </Button>
-                        </Box>
-                    )}
-
-                    {user && (
-                        <Box sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            gap: 2
-                        }}>
                             <Button
                                 component={Link}
                                 to="/business"
@@ -112,14 +108,6 @@ const Navigation = () => {
                             >
                                 Мои бизнесы
                             </Button>
-                        </Box>
-                    )}
-
-                    {user && (
-                        <Box sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            gap: 2
-                        }}>
                             <Button
                                 component={Link}
                                 to="/physical"
@@ -135,14 +123,6 @@ const Navigation = () => {
                             >
                                 Физические бизнесы
                             </Button>
-                        </Box>
-                    )}
-
-                    {user && (
-                        <Box sx={{
-                            display: { xs: 'none', md: 'flex' },
-                            gap: 2
-                        }}>
                             <Button
                                 component={Link}
                                 to="/virtual"
@@ -160,70 +140,89 @@ const Navigation = () => {
                             </Button>
                         </Box>
                     )}
-
                 </Box>
 
-                {/* Правый блок - Профиль или авторизация */}
-                {user ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
-                            <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-                                {user?.email?.[0]?.toUpperCase()}
-                            </Avatar>
-                        </IconButton>
-                        <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleMenuClose}
-                        >
-                            <MenuItem disabled>
-                                <Typography variant="body2">{user?.email}</Typography>
-                            </MenuItem>
-                            <MenuItem onClick={() => {
-                                handleMenuClose();
-                                navigate('/profile');
-                            }}>
-                                Профиль
-                            </MenuItem>
-                            <MenuItem onClick={handleLogout}>Выйти</MenuItem>
-                        </Menu>
-                    </Box>
-                ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Button
-                            component={Link}
-                            to="/auth"
-                            variant="outlined"
-                            sx={{
-                                textTransform: 'none',
-                                borderRadius: 50,
-                                px: 3,
-                                borderWidth: 2,
-                                '&:hover': {
-                                    borderWidth: 2
-                                }
-                            }}
-                        >
-                            Войти
-                        </Button>
-                        <Button
-                            component={Link}
-                            to="/auth?mode=register"
-                            variant="contained"
-                            sx={{
-                                textTransform: 'none',
-                                borderRadius: 50,
-                                px: 3,
-                                boxShadow: 'none',
-                                '&:hover': {
-                                    boxShadow: 'none'
-                                }
-                            }}
-                        >
-                            Регистрация
-                        </Button>
-                    </Box>
-                )}
+                {/* Правый блок - Навигация + Профиль */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {/* Кнопка "О нас" */}
+                    <Button
+                        component={Link}
+                        to="/about"
+                        sx={{
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                            color: 'text.primary',
+                            '&:hover': {
+                                backgroundColor: 'transparent',
+                                color: theme.palette.primary.main
+                            }
+                        }}
+                    >
+                        О нас
+                    </Button>
+
+                    {user ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <IconButton onClick={handleMenuOpen} sx={{ p: 0 }}>
+                                <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+                                    {user?.email?.[0]?.toUpperCase()}
+                                </Avatar>
+                            </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleMenuClose}
+                            >
+                                <MenuItem disabled>
+                                    <Typography variant="body2">{user?.email}</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={() => {
+                                    handleMenuClose();
+                                    navigate('/profile');
+                                }}>
+                                    Профиль
+                                </MenuItem>
+                                <MenuItem onClick={handleLogout}>Выйти</MenuItem>
+                            </Menu>
+                        </Box>
+                    ) : (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Button
+                                component={Link}
+                                to="/auth"
+                                variant="outlined"
+                                sx={{
+                                    textTransform: 'none',
+                                    borderRadius: 50,
+                                    px: 3,
+                                    borderWidth: 2,
+                                    '&:hover': {
+                                        borderWidth: 2
+                                    }
+                                }}
+                            >
+                                Войти
+                            </Button>
+                            <Button
+                                component={Link}
+                                to="/auth?mode=register"
+                                variant="contained"
+                                sx={{
+                                    textTransform: 'none',
+                                    borderRadius: 50,
+                                    px: 3,
+                                    boxShadow: 'none',
+                                    '&:hover': {
+                                        boxShadow: 'none'
+                                    }
+                                }}
+                            >
+                                Регистрация
+                            </Button>
+                        </Box>
+                    )}
+                </Box>
             </Toolbar>
         </AppBar>
     );
