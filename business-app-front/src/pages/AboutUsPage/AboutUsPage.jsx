@@ -18,12 +18,13 @@ import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { TimelineDot } from '@mui/lab';
 import { CodeRounded, DesignServicesRounded, CloudRounded, PsychologyRounded } from '@mui/icons-material';
+import myImage from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/assets/images/profile.png';
 
 const team = [
     {
         name: 'Тиханенок Илья Александрович',
         role: 'Основатель & Full-stack разработчик',
-        img: 'https://images.unsplash.com/photo-1603415526960-f8f0b0e1f9b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+        img: myImage,
         bio: 'Пишу чистый и эффективный код с 2018 года. Специализируюсь на создании современных веб-приложений с использованием React, Node.js и облачных технологий. Верю, что технологии должны делать жизнь людей лучше.',
     },
 ];
@@ -103,9 +104,7 @@ export default function AboutUsPage() {
             <Box
                 sx={{
                     height: '100vh',
-                    backgroundImage: 'url(https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
+                    background: 'linear-gradient(to bottom, rgba(0, 100, 0, 0.8), rgba(0, 128, 0, 0.8))', // Темно-зеленый к обычному зеленому
                     position: 'relative',
                     display: 'flex',
                     alignItems: 'center',
