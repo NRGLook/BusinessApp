@@ -102,6 +102,7 @@ const AuthPage = () => {
                     });
                     localStorage.setItem("token", response.data.access_token);
                     localStorage.setItem("user", JSON.stringify({ email: form.email }));
+                    localStorage.setItem("user_id", response.data.user_id);
                     setSuccessMessage("Поздравляем Вы вошли в свою учетную запись! Теперь Вам доступен основной функционал сайта!");
 
                     window.location.reload();
