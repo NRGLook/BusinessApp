@@ -6,6 +6,7 @@ from fastapi import (
     status,
 )
 
+import sqlalchemy.exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import src.models.managers as managers
@@ -17,6 +18,7 @@ from src.api.routes.users.schemes import (
     AchievementSchema,
     UserProfileOutSchema,
     UserEmailOutSchema,
+    UserProfileCreateWithUserSchema,
 )
 from src.config.database_config import get_session
 from src.services.common import BaseService
@@ -31,6 +33,7 @@ class UserService(BaseService):
         db: AsyncSession,
     ):
         self.user_manager = managers.UserManager(db)
+        self.user_profile_manager = managers.UserProfileManager(db)
         self.base_fields = {
             "user_profile": UserProfileSchema,
             "user_stats": UserStatsSchema,
@@ -172,6 +175,35 @@ class UserService(BaseService):
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Error retrieving user email",
             )
+
+    async def create_or_update_user_profile(
+        self,
+        users: list[UserProfileCreateWithUserSchema],
+        user_id: UUID,
+        **filters,
+    ) -> list:
+        """
+        Create, update user profile based on the provided data.
+        """
+        profiles_create_update = []
+
+        for user in users:
+            profiles_create_update.append(
+                UserProfileCreateWithUserSchema(
+                    **user.model_dump(),
+                    # user_id=user_id,
+                )
+            )
+
+        try:
+            updated_category = await self.user_profile_manager.create_or_update(profiles_create_update)
+        except sqlalchemy.exc.IntegrityError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=str(e),
+            )
+
+        return updated_category
 
 
 async def get_user_service(

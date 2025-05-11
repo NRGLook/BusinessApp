@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from fastapi_users import schemas
 
-from src.api.schemes import NamedEntitySchema
+from src.api.schemes import NamedEntitySchema, IDSchema
 
 
 class UserRead(schemas.BaseUser[UUID]):
@@ -60,3 +60,11 @@ class UserProfileResponse(BaseModel):
 
 class UserEmailOutSchema(BaseModel):
     email: Optional[str]
+
+
+class UserProfileCreateWithUserSchema(UserProfileSchema, IDSchema):
+    user_id: UUID
+
+
+class UserProfileCreateBatchSchema(BaseModel):
+    data: list[UserProfileCreateWithUserSchema]

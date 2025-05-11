@@ -3,6 +3,8 @@ from typing import (
 )
 from uuid import UUID
 
+import sqlalchemy.exc
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -20,6 +22,7 @@ from src.api.routes.users.schemes import (
     UserRead,
     UserUpdate,
     UserEmailOutSchema,
+    UserProfileCreateBatchSchema,
 )
 from src.api.schemes import (
     Response400Schema,
@@ -137,4 +140,42 @@ async def get_user_email(
                 "detail": "Internal server error",
                 "code": "server_error",
             },
+        )
+
+
+@user_router.post(
+    "/{user_id}/profile/edit",
+    responses={
+        201: {
+            "model": UserProfileCreateBatchSchema,
+            "description": "User profile created/updated successfully",
+        },
+        400: {
+            "model": Response400Schema,
+            "description": "Invalid request",
+        },
+        500: {
+            "model": Response500Schema,
+            "description": "Server error occurred",
+        },
+    },
+    summary="Create, update user profile",
+)
+async def create_or_update_user_profile(
+    user: Annotated[
+        User,
+        Depends(current_active_user),
+    ],
+    users: UserProfileCreateBatchSchema,
+    service: UserService = Depends(get_user_service),
+):
+    try:
+        return await service.create_or_update_user_profile(
+            users.data,
+            user_id=user.id,
+        )
+    except sqlalchemy.exc.IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Resource not found.",
         )
