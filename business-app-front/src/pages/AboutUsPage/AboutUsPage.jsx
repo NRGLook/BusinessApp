@@ -12,7 +12,6 @@ import {
     Container,
     useTheme,
     Chip,
-    Divider,
     Button,
     IconButton,
     Dialog,
@@ -588,16 +587,6 @@ export default function AboutUsPage() {
                             />
                         </Paper>
                     </motion.div>
-                </Container>
-            </Box>
-
-            {/* Footer */}
-            <Box sx={{ py: 6, textAlign: 'center', bgcolor: theme.palette.grey[200] }}>
-                <Container maxWidth="lg">
-                    <Divider sx={{ mb: 4, borderColor: theme.palette.grey[400] }} />
-                    <Typography variant="body1" color="text.secondary">
-                        © {new Date().getFullYear()} {founder.name}. Все права защищены.
-                    </Typography>
                 </Container>
             </Box>
         </Box>
