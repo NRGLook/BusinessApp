@@ -1,4 +1,3 @@
-from typing import Optional
 from uuid import UUID
 
 from fastapi import (
@@ -27,7 +26,10 @@ log = LoggerProvider().get_logger(__name__)
 
 
 class UserService(BaseService):
-    def __init__(self, db: AsyncSession):
+    def __init__(
+        self,
+        db: AsyncSession,
+    ):
         self.user_manager = managers.UserManager(db)
         self.base_fields = {
             "user_profile": UserProfileSchema,
@@ -36,39 +38,110 @@ class UserService(BaseService):
             "achievement": AchievementSchema,
         }
 
-    def map_user(
+    def map_user_info(
         self,
         user,
     ) -> UserProfileOutSchema:
-        nested_fields = {
-            field: self.map_nested_fields(user, schema, field) for field, schema in self.base_fields.items()
-        }
+        achievements = []
+        roles = []
+        user_stats = []
+
+        if user.achievement_id and user.achievement_name:
+            achievements.append(
+                AchievementSchema(
+                    id=user.achievement_id,
+                    name=user.achievement_name,
+                )
+            )
+
+        if user.role_id and user.role_name:
+            roles.append(
+                RoleSchema(
+                    id=user.role_id,
+                    name=user.role_name,
+                )
+            )
+
+        if user.user_stats_total_business is not None:
+            user_stats.append(
+                UserStatsSchema(
+                    total_business=user.user_stats_total_business,
+                    total_capital=user.user_stats_total_capital,
+                    success_rate=user.user_stats_success_rate,
+                )
+            )
 
         return UserProfileOutSchema(
             id=user.id,
-            username=user.username,
             email=user.email,
             is_active=user.is_active,
             created_at=user.created_at,
             updated_at=user.updated_at,
-            **nested_fields,
+            user_profile=UserProfileSchema(
+                first_name=user.user_profile_first_name,
+                last_name=user.user_profile_last_name,
+                avatar_url=user.user_profile_avatar_url,
+                bio=user.user_profile_bio,
+            ),
+            user_stats=user_stats,
+            role=roles,
+            achievement=achievements,
         )
 
-    async def get_users(
+    async def get_user_profile_info(
         self,
         user_id: UUID,
-        search: Optional[str],
         **filters,
     ):
-        filters["name_ilike"] = search
-
+        user_profile_query = self.user_manager.get_user_info_query(user_id)
         users = await self.user_manager.search(
+            query=user_profile_query,
             with_scalars=False,
             id=user_id,
             **filters,
         )
 
-        return UserProfileResponse(data=[self.map_user(user).model_dump() for user in users])
+        user_profiles = {}
+        for user in users:
+            if user.id not in user_profiles:
+                user_profiles[user.id] = self.map_user_info(user)
+            else:
+                current_achievements = user_profiles[user.id].achievement or []
+                current_roles = user_profiles[user.id].role or []
+                current_stats = user_profiles[user.id].user_stats or []
+
+                if user.achievement_id and user.achievement_name:
+                    if not any(ach.id == user.achievement_id for ach in current_achievements):
+                        current_achievements.append(
+                            AchievementSchema(
+                                id=user.achievement_id,
+                                name=user.achievement_name,
+                            )
+                        )
+
+                if user.role_id and user.role_name:
+                    if not any(role.id == user.role_id for role in current_roles):
+                        current_roles.append(
+                            RoleSchema(
+                                id=user.role_id,
+                                name=user.role_name,
+                            )
+                        )
+
+                if user.user_stats_total_business is not None:
+                    current_stats.append(
+                        UserStatsSchema(
+                            total_business=user.user_stats_total_business,
+                            total_capital=user.user_stats_total_capital,
+                            success_rate=user.user_stats_success_rate,
+                        )
+                    )
+
+                user_profiles[user.id].achievement = current_achievements
+                user_profiles[user.id].role = current_roles
+                user_profiles[user.id].user_stats = current_stats
+
+        return UserProfileResponse(data=list(user_profiles.values()))
 
     async def get_user_email(
         self,
