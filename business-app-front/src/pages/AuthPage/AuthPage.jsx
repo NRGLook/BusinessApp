@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import axios from "../../api/axios";
-import qs from "qs";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
     Tabs,
     Tab,
@@ -28,6 +27,7 @@ import {
     ErrorRounded
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 
 const BASE_URL = "http://localhost:8000";
 
@@ -52,6 +52,16 @@ const AuthPage = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const navigate = useNavigate(); // Хук для навигации
+
+    // Проверяем, авторизован ли пользователь при загрузке страницы
+    // useEffect(() => {
+    //     if (localStorage.getItem("token")) {
+    //         // Если токен есть, перенаправляем на страницу профиля (или любую другую)
+    //         navigate("/profile");
+    //         window.location.reload();
+    //     }
+    // }, [navigate]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -92,50 +102,65 @@ const AuthPage = () => {
 
             switch (tab) {
                 case 0: // Login
-                    const loginData = qs.stringify({
-                        grant_type: "password",
-                        username: form.email,
-                        password: form.password,
-                    });
-                    response = await axios.post(`${BASE_URL}/auth/login`, loginData, {
+                    const loginData = new URLSearchParams();
+                    loginData.append('grant_type', 'password');
+                    loginData.append('username', form.email);
+                    loginData.append('password', form.password);
+
+                    // Выводим данные для отладки
+                    console.log('Данные для входа:', loginData.toString());
+
+                    response = await axios.post(`${BASE_URL}/auth/login`, loginData.toString(), {
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     });
                     localStorage.setItem("token", response.data.access_token);
                     localStorage.setItem("user", JSON.stringify({ email: form.email }));
-                    localStorage.setItem("user_id", response.data.user_id);
                     setSuccessMessage("Поздравляем Вы вошли в свою учетную запись! Теперь Вам доступен основной функционал сайта!");
-
+                    // Перенаправляем пользователя после успешного входа
+                    navigate("/profile");
                     window.location.reload();
                     break;
 
                 case 1: // Register
-                    response = await axios.post(`${BASE_URL}/auth/register`, {
+                    const registerData = {
                         email: form.email,
                         password: form.password,
-                    }, config);
+                    };
+                    console.log('Данные для регистрации:', registerData);
+                    response = await axios.post(`${BASE_URL}/auth/register`, registerData, config);
                     setSuccessMessage("Регистрация успешна! Проверьте почту для подтверждения");
+                    window.location.reload();
                     break;
 
                 case 2: // Forgot Password
-                    response = await axios.post(`${BASE_URL}/auth/forgot-password`, {
+                    const forgotPasswordData = {
                         email: form.email,
-                    }, config);
+                    };
+                    console.log('Данные для восстановления пароля:', forgotPasswordData);
+                    response = await axios.post(`${BASE_URL}/auth/forgot-password`, forgotPasswordData, config);
                     setSuccessMessage("Ссылка для сброса пароля отправлена на вашу почту");
+                    window.location.reload();
                     break;
 
                 case 3: // Reset Password
-                    response = await axios.post(`${BASE_URL}/auth/reset-password`, {
+                    const resetPasswordData = {
                         token: form.token,
                         password: form.password,
-                    }, config);
+                    };
+                    console.log('Данные для сброса пароля:', resetPasswordData);
+                    response = await axios.post(`${BASE_URL}/auth/reset-password`, resetPasswordData, config);
                     setSuccessMessage("Пароль успешно изменен!");
+                    window.location.reload();
                     break;
 
                 case 4: // Verify Email
-                    response = await axios.post(`${BASE_URL}/auth/verify`, {
+                    const verifyEmailData = {
                         token: form.token,
-                    }, config);
+                    };
+                    console.log('Данные для подтверждения email:', verifyEmailData);
+                    response = await axios.post(`${BASE_URL}/auth/verify`, verifyEmailData, config);
                     setSuccessMessage("Email успешно подтвержден!");
+                    window.location.reload();
                     break;
 
                 default:

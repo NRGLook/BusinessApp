@@ -20,6 +20,8 @@ import StartBusinessPage from "./pages/StartBusinessPage/StartBusinessPage";
 import BusinessAnalyticsPage from "./pages/BusinessAnalyticsPage/BusinessAnalyticsPage";
 import AboutUsPage from "./pages/AboutUsPage/AboutUsPage";
 import { Box } from '@mui/material';
+import CreateProfilePage from "./pages/CreateProfilePage/CreateProfilePage";
+import EditProfilePage from "./pages/EditProfilePage/EditProfilePage";
 
 export const theme = createTheme({
     palette: {
@@ -124,6 +126,16 @@ function App() {
                                     <ProfilePage />
                                 </PrivateRoute>
                             } />
+                            <Route path="/profile/create" element={
+                                <PrivateRoute>
+                                    <CreateProfilePage/>
+                                </PrivateRoute>
+                            }/>
+                            <Route path="/profile/:userId/edit" element={
+                                <PrivateRoute>
+                                    <EditProfilePage/>
+                                </PrivateRoute>
+                            }/>
                             <Route path="/physical" element={
                                 <PrivateRoute>
                                     <PhysicalBusinessPage />

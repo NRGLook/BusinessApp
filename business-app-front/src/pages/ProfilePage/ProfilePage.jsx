@@ -1,212 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import {
-//     Box,
-//     Container,
-//     Typography,
-//     Avatar,
-//     CircularProgress,
-//     Button,
-//     Paper,
-//     useTheme
-// } from '@mui/material';
-// import axios from '../../api/axios';
-// import { useNavigate } from 'react-router-dom';
-//
-// const ProfilePage = () => {
-//     const [userData, setUserData] = useState(null);
-//     const [loading, setLoading] = useState(true);
-//     const [error, setError] = useState('');
-//     const theme = useTheme();
-//     const navigate = useNavigate();
-//
-//     useEffect(() => {
-//         const fetchProfile = async () => {
-//             try {
-//                 const userId = localStorage.getItem('user_id');
-//                 const token = localStorage.getItem('token');
-//
-//                 if (!userId || !token) {
-//                     console.warn('No userId or token found, redirecting...');
-//                     navigate('/auth');
-//                     return;
-//                 }
-//
-//                 const response = await axios.get(`/user/${userId}/profile`, {
-//                     headers: {
-//                         Authorization: `Bearer ${token}`
-//                     }
-//                 });
-//
-//                 const raw = response.data;
-//
-//                 if (raw?.data && Array.isArray(raw.data) && raw.data.length > 0) {
-//                     const profile = raw.data[0];
-//                     setUserData(profile);
-//                 } else {
-//                     setError('Профиль не найден');
-//                 }
-//             } catch (err) {
-//                 console.error('Error while fetching profile:', err);
-//                 setError('Не удалось загрузить профиль');
-//                 if (err.response?.status === 401) {
-//                     navigate('/auth');
-//                 }
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-//
-//         fetchProfile();
-//     }, [navigate]);
-//
-//     if (loading) {
-//         return (
-//             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
-//                 <CircularProgress size={60} />
-//             </Box>
-//         );
-//     }
-//
-//     if (error) {
-//         return (
-//             <Container maxWidth="md" sx={{ mt: 4 }}>
-//                 <Typography variant="h5" color="error" align="center">
-//                     {error}
-//                 </Typography>
-//             </Container>
-//         );
-//     }
-//
-//     const { user_profile, user_stats, role, achievement } = userData || {};
-//     const fullName = `${user_profile?.first_name || ''} ${user_profile?.last_name || ''}`.trim();
-//
-//     return (
-//         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-//             <Paper elevation={3} sx={{
-//                 p: 4,
-//                 borderRadius: 4,
-//                 background: theme.palette.background.paper
-//             }}>
-//                 <Box sx={{
-//                     display: 'flex',
-//                     flexDirection: 'column',
-//                     alignItems: 'center',
-//                     gap: 3
-//                 }}>
-//                     <Avatar
-//                         src={user_profile?.avatar_url || undefined}
-//                         sx={{
-//                             width: 120,
-//                             height: 120,
-//                             fontSize: '3rem',
-//                             bgcolor: theme.palette.primary.main
-//                         }}
-//                     >
-//                         {fullName ? fullName[0].toUpperCase() : 'U'}
-//                     </Avatar>
-//
-//                     <Typography variant="h3" sx={{ fontWeight: 700, textAlign: 'center' }}>
-//                         {fullName || 'Пользователь'}
-//                     </Typography>
-//
-//                     <Box sx={{
-//                         width: '100%',
-//                         maxWidth: 500,
-//                         display: 'flex',
-//                         flexDirection: 'column',
-//                         gap: 2
-//                     }}>
-//                         <ProfileField
-//                             label="О себе"
-//                             value={user_profile?.bio}
-//                             theme={theme}
-//                         />
-//
-//                         {/* Display user stats */}
-//                         {user_stats && user_stats.length > 0 && (
-//                             <Box sx={{ mt: 2 }}>
-//                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>Статистика</Typography>
-//                                 {user_stats.map((stat, index) => (
-//                                     <Box key={index} sx={{ mt: 1 }}>
-//                                         <ProfileField
-//                                             label={`Бизнесов: ${stat.total_businesses}`}
-//                                             value={`Капитал: ${stat.total_capital}, Успех: ${stat.success_rate}`}
-//                                             theme={theme}
-//                                         />
-//                                     </Box>
-//                                 ))}
-//                             </Box>
-//                         )}
-//
-//                         {/* Display achievements */}
-//                         {achievement && achievement.length > 0 && (
-//                             <Box sx={{ mt: 2 }}>
-//                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>Достижения</Typography>
-//                                 {achievement.map((ach, index) => (
-//                                     <ProfileField
-//                                         key={index}
-//                                         label={`Достижение: ${ach.name}`}
-//                                         value={ach.name}
-//                                         theme={theme}
-//                                     />
-//                                 ))}
-//                             </Box>
-//                         )}
-//
-//                         {/* Display roles */}
-//                         {role && role.length > 0 && (
-//                             <Box sx={{ mt: 2 }}>
-//                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>Роль</Typography>
-//                                 {role.map((r, index) => (
-//                                     <ProfileField
-//                                         key={index}
-//                                         label={`Роль: ${r.name}`}
-//                                         value={r.name}
-//                                         theme={theme}
-//                                     />
-//                                 ))}
-//                             </Box>
-//                         )}
-//                     </Box>
-//
-//                     <Button
-//                         variant="contained"
-//                         size="large"
-//                         sx={{
-//                             mt: 3,
-//                             px: 6,
-//                             borderRadius: 2,
-//                             textTransform: 'none',
-//                             fontSize: '1.1rem'
-//                         }}
-//                         onClick={() => navigate('/profile/edit')}
-//                     >
-//                         Редактировать профиль
-//                     </Button>
-//                 </Box>
-//             </Paper>
-//         </Container>
-//     );
-// };
-//
-// const ProfileField = ({ label, value, theme }) => (
-//     <Box sx={{
-//         display: 'flex',
-//         justifyContent: 'space-between',
-//         p: 2,
-//         borderRadius: 2,
-//         bgcolor: theme.palette.background.default
-//     }}>
-//         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-//             {label}:
-//         </Typography>
-//         <Typography variant="body1" sx={{ color: theme.palette.text.secondary, maxWidth: 300, textAlign: 'right' }}>
-//             {value || 'Не указано'}
-//         </Typography>
-//     </Box>
-// );
-//
-// export default ProfilePage;
 import React, { useEffect, useState } from 'react';
 import {
     Box,
@@ -229,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSpring, animated, config } from 'react-spring';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import './ProfilePage.css'; // Ensure this CSS file exists with the provided styles
+import './ProfilePage.css';
 
 const AnimatedBox = animated(Box);
 const AnimatedCalendar = animated(Calendar);
@@ -247,6 +38,8 @@ const ProfilePage = () => {
         { date: new Date(new Date().setDate(new Date().getDate() + 7)), title: 'Вебинар по маркетингу' },
         { date: new Date(new Date().setDate(new Date().getDate() + 12)), title: 'Встреча с партнерами' },
     ]);
+    const [userId, setUserId] = useState(null);
+
 
     const fadeIn = useSpring({
         opacity: loading ? 0 : 1,
@@ -270,16 +63,33 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const userId = localStorage.getItem('user_id');
                 const token = localStorage.getItem('token');
 
-                if (!userId || !token) {
-                    console.warn('No userId or token found, redirecting...');
+                if (!token) {
+                    console.warn('No token found, redirecting...');
                     navigate('/auth');
                     return;
                 }
 
-                const response = await axios.get(`/user/${userId}/profile`, {
+                // First, get the user ID
+                const meResponse = await axios.get('/user/me', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                const myId = meResponse.data?.id;
+                if (!myId) {
+                    console.error("Failed to fetch user ID");
+                    setError("Failed to fetch user ID");
+                    setLoading(false);
+                    return;
+                }
+                setUserId(myId);
+                localStorage.setItem('user_id', myId.toString());
+
+
+                const response = await axios.get(`/user/${myId}/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -287,11 +97,16 @@ const ProfilePage = () => {
 
                 const raw = response.data;
 
-                if (raw?.data && Array.isArray(raw.data) && raw.data.length > 0) {
-                    const profile = raw.data[0];
-                    setUserData(profile);
+
+                if (raw?.data && Array.isArray(raw.data)) {
+                    if (raw.data.length > 0) {
+                        setUserData(raw.data[0]);
+                    } else {
+                        setUserData({}); // Set an empty object to indicate no profile
+                    }
                 } else {
-                    setError('Профиль не найден');
+                    setError('Ошибка при загрузке профиля');
+                    setUserData({});
                 }
             } catch (err) {
                 console.error('Error while fetching profile:', err);
@@ -299,6 +114,7 @@ const ProfilePage = () => {
                 if (err.response?.status === 401) {
                     navigate('/auth');
                 }
+                setUserData({});
             } finally {
                 setLoading(false);
             }
@@ -325,9 +141,17 @@ const ProfilePage = () => {
         );
     }
 
-    const { user_profile, user_stats, role, achievement } = userData || {};
+    const { user_profile, user_stats, role, achievement, id: profileId } = userData || {};
     const fullName = `${user_profile?.first_name || ''} ${user_profile?.last_name || ''}`.trim();
     const successRate = user_stats?.[0]?.success_rate || 0;
+    const hasProfile = userData && Object.keys(userData).length > 0 && userData.user_profile !== undefined && userData.user_profile !== null;
+    const isEmptyProfile = !hasProfile || !fullName;
+
+
+    const handleEditOrCreateProfile = () => {
+        console.log('User ID from localStorage:', localStorage.getItem('user_id'));
+        navigate(`/user/${userId}/profile/edit`);
+    };
 
     return (
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -384,121 +208,154 @@ const ProfilePage = () => {
                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Lightbulb /> Информация профиля
                             </Typography>
-                            <ProfileField
-                                label="О себе"
-                                value={user_profile?.bio}
-                                theme={theme}
-                            />
-                            {user_profile?.email && (
-                                <ProfileField
-                                    label="Email"
-                                    value={user_profile?.email}
-                                    theme={theme}
-                                />
-                            )}
-                            {user_profile?.phone_number && (
-                                <ProfileField
-                                    label="Телефон"
-                                    value={user_profile?.phone_number}
-                                    theme={theme}
-                                />
-                            )}
+                            {hasProfile &&  fullName ? (
+                                <>
+                                    <ProfileField
+                                        label="О себе"
+                                        value={user_profile?.bio}
+                                        theme={theme}
+                                    />
+                                    {user_profile?.email && (
+                                        <ProfileField
+                                            label="Email"
+                                            value={user_profile?.email}
+                                            theme={theme}
+                                        />
+                                    )}
+                                    {user_profile?.phone_number && (
+                                        <ProfileField
+                                            label="Телефон"
+                                            value={user_profile?.phone_number}
+                                            theme={theme}
+                                        />
+                                    )}
 
-                            {user_stats && user_stats.length > 0 && (
-                                <Box mt={3}>
-                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <TrendingUp /> Статистика
-                                    </Typography>
-                                    <Card sx={{ mb: 2, backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)' }}>
-                                        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            <Typography variant="subtitle2" color="text.secondary">
-                                                Общее количество бизнесов: {user_stats[0]?.total_businesses}
+                                    {user_stats && user_stats.length > 0 && (
+                                        <Box mt={3}>
+                                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <TrendingUp /> Статистика
                                             </Typography>
-                                            <Typography variant="subtitle2" color="text.secondary">
-                                                Общий капитал: {user_stats[0]?.total_capital}
-                                            </Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <Typography variant="subtitle2" color="text.secondary">
-                                                    Успешность: {Math.round(successRate * 100)}%
-                                                </Typography>
-                                                <AnimatedLinearProgress
-                                                    variant="determinate"
-                                                    value={progressAnimation.value}
-                                                    sx={{ flexGrow: 1, borderRadius: 4, height: 8 }}
-                                                    color="success"
-                                                />
-                                            </Box>
-                                        </CardContent>
-                                    </Card>
-                                </Box>
-                            )}
+                                            <Card sx={{ mb: 2, backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)' }}>
+                                                <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                                    <Typography variant="subtitle2" color="text.secondary">
+                                                        Общее количество бизнесов: {user_stats[0]?.total_businesses}
+                                                    </Typography>
+                                                    <Typography variant="subtitle2" color="text.secondary">
+                                                        Общий капитал: {user_stats[0]?.total_capital}
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Typography variant="subtitle2" color="text.secondary">
+                                                            Успешность: {Math.round(successRate * 100)}%
+                                                        </Typography>
+                                                        <AnimatedLinearProgress
+                                                            variant="determinate"
+                                                            value={progressAnimation.value}
+                                                            sx={{ flexGrow: 1, borderRadius: 4, height: 8 }}
+                                                            color="success"
+                                                        />
+                                                    </Box>
+                                                </CardContent>
+                                            </Card>
+                                        </Box>
+                                    )}
 
-                            {achievement && achievement.length > 0 && (
-                                <Box mt={3}>
-                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <People /> Достижения
-                                    </Typography>
-                                    <Grid container spacing={2}>
-                                        {achievement.map((ach, index) => (
-                                            <Grid item xs={12} sm={6} key={index}>
-                                                <Card sx={{ backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.03)' } }}>
+                                    {achievement && achievement.length > 0 && (
+                                        <Box mt={3}>
+                                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <People /> Достижения
+                                            </Typography>
+                                            <Grid container spacing={2}>
+                                                {achievement.map((ach, index) => (
+                                                    <Grid item xs={12} sm={6} key={index}>
+                                                        <Card sx={{ backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.03)' } }}>
+                                                            <CardContent>
+                                                                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                                                                    {ach.name}
+                                                                </Typography>
+                                                                {ach.description && (
+                                                                    <Typography variant="body2" color="text.secondary">
+                                                                        {ach.description}
+                                                                    </Typography>
+                                                                )}
+                                                            </CardContent>
+                                                        </Card>
+                                                    </Grid>
+                                                ))}
+                                            </Grid>
+                                        </Box>
+                                    )}
+
+                                    {role && role.length > 0 && (
+                                        <Box mt={3}>
+                                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <People /> Роли
+                                            </Typography>
+                                            {role.map((r, index) => (
+                                                <Card key={index} sx={{ mb: 1, backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.03)' } }}>
                                                     <CardContent>
                                                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                                            {ach.name}
+                                                            {r.name}
                                                         </Typography>
-                                                        {ach.description && (
+                                                        {r.description && (
                                                             <Typography variant="body2" color="text.secondary">
-                                                                {ach.description}
+                                                                {r.description}
                                                             </Typography>
                                                         )}
                                                     </CardContent>
                                                 </Card>
-                                            </Grid>
-                                        ))}
-                                    </Grid>
-                                </Box>
-                            )}
+                                            ))}
+                                        </Box>
+                                    )}
 
-                            {role && role.length > 0 && (
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        sx={{
+                                            mt: 4,
+                                            px: 5,
+                                            borderRadius: 6,
+                                            textTransform: 'none',
+                                            fontSize: '1.1rem',
+                                            backgroundColor: theme.palette.primary.main,
+                                            '&:hover': {
+                                                backgroundColor: theme.palette.primary.dark,
+                                            },
+                                        }}
+                                        onClick={handleEditOrCreateProfile}
+                                        disabled={false}
+                                    >
+                                        Редактировать профиль
+                                    </Button>
+                                </>
+                            ) : (
                                 <Box mt={3}>
-                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <People /> Роли
+                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: theme.palette.secondary.main }}>
+                                        Профиль отсутствует
                                     </Typography>
-                                    {role.map((r, index) => (
-                                        <Card key={index} sx={{ mb: 1, backgroundColor: theme.palette.grey[100], borderRadius: 4, boxShadow: '0px 1px 3px rgba(0,0,0,0.03)', transition: 'transform 0.2s ease-in-out', '&:hover': { transform: 'scale(1.03)' } }}>
-                                            <CardContent>
-                                                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                                    {r.name}
-                                                </Typography>
-                                                {r.description && (
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {r.description}
-                                                    </Typography>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    ))}
+                                    <Typography variant="body2" color="text.secondary" mb={2}>
+                                        Похоже, у вас еще нет профиля. Создайте его, чтобы поделиться своей информацией.
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        size="large"
+                                        sx={{
+                                            px: 5,
+                                            borderRadius: 6,
+                                            textTransform: 'none',
+                                            fontSize: '1.1rem',
+                                            backgroundColor: theme.palette.success.main,
+                                            '&:hover': {
+                                                backgroundColor: theme.palette.success.dark,
+                                            },
+                                        }}
+                                        onClick={handleEditOrCreateProfile}
+                                        disabled={false}
+
+                                    >
+                                        Создать профиль
+                                    </Button>
                                 </Box>
                             )}
-
-                            <Button
-                                variant="contained"
-                                size="large"
-                                sx={{
-                                    mt: 4,
-                                    px: 5,
-                                    borderRadius: 6,
-                                    textTransform: 'none',
-                                    fontSize: '1.1rem',
-                                    backgroundColor: theme.palette.primary.main,
-                                    '&:hover': {
-                                        backgroundColor: theme.palette.primary.dark,
-                                    },
-                                }}
-                                onClick={() => navigate('/profile/edit')}
-                            >
-                                Редактировать профиль
-                            </Button>
                         </Paper>
                     </Grid>
                     <Grid item md={6}>
