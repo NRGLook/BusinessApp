@@ -21,7 +21,7 @@ class UserUpdate(schemas.BaseUserUpdate):
     pass
 
 
-class UserProfileSchema(BaseModel):
+class UserProfileSchema(IDSchema):
     first_name: Optional[str]
     last_name: Optional[str]
     avatar_url: Optional[str]

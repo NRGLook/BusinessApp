@@ -81,6 +81,7 @@ class UserService(BaseService):
             created_at=user.created_at,
             updated_at=user.updated_at,
             user_profile=UserProfileSchema(
+                id=user.user_profile_id,
                 first_name=user.user_profile_first_name,
                 last_name=user.user_profile_last_name,
                 avatar_url=user.user_profile_avatar_url,
@@ -191,7 +192,6 @@ class UserService(BaseService):
             profiles_create_update.append(
                 UserProfileCreateWithUserSchema(
                     **user.model_dump(),
-                    # user_id=user_id,
                 )
             )
 
