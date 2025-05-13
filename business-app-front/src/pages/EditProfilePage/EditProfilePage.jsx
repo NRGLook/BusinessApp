@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from '../../api/axios';
-import { ProfileForm } from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/components/ProfileForm.jsx'; // Предполагается, что ProfileForm находится в ProfileForm.js
+import { ProfileForm } from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/components/ProfileForm.jsx';
 
 const EditProfilePage = () => {
     const [userData, setUserData] = useState(null);

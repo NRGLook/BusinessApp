@@ -58,7 +58,7 @@ const ProfileForm = ({ initialValues, isEditing }) => {
                 throw new Error('Token not found');
             }
 
-            const endpoint = `/user/${userId}/profile/edit`; // Use the same endpoint
+            const endpoint = `/user/${userId}/profile`; // Use the same endpoint
             const method = isEditing ? 'put' : 'post';
 
             const dataToSend = {

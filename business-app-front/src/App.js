@@ -131,7 +131,7 @@ function App() {
                                     <CreateProfilePage/>
                                 </PrivateRoute>
                             }/>
-                            <Route path="/profile/:userId/edit" element={
+                            <Route path="/user/profile/:id/edit" element={
                                 <PrivateRoute>
                                     <EditProfilePage/>
                                 </PrivateRoute>
