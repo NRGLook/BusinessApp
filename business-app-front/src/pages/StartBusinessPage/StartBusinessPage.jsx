@@ -13,6 +13,7 @@ import {
     Engineering, Cloud, People, LocalShipping, Construction, LocationCity, ElectricBolt, Warehouse
 } from '@mui/icons-material';
 import background from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/assets/images/background.png';
+import { Tooltip } from '@mui/material';
 
 const StartBusinessPage = () => {
     const [selectedType, setSelectedType] = useState(null);
@@ -102,66 +103,124 @@ const StartBusinessPage = () => {
                 color: 'black',
                 ...(selectedType === 'virtual'
                     ? {
-                        backgroundImage: `url(${background})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
+                        // Если выбран виртуальный бизнес
+                        backgroundImage: `url(${background})`, // Устанавливаем фоновое изображение
+                        backgroundSize: 'cover', // Фон будет покрывать весь контейнер
+                        backgroundPosition: 'center', // Центрируем фоновое изображение
+                        backgroundRepeat: 'no-repeat', // Фон не будет повторяться
                     }
-                    : {
-                        position: 'relative',
-                        backgroundColor: '#87CEEB',
-                        '&::after': {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '27.5vh',
-                            backgroundColor: '#4CAF50',
-                            zIndex: 1,
-                        },
-                    }),
+                    : selectedType === 'physical'
+                        ? {
+                            // Если выбран физический бизнес
+                            backgroundColor: '#87CEEB', // Устанавливаем цвет фона, имитирующий небо
+                            '&::after': {
+                                // Добавляем нижнюю часть фона (например, зелёная земля)
+                                content: '""',
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '19vh',
+                                backgroundColor: '#4CAF50', // Зелёный цвет для нижней части (земля)
+                                zIndex: 1,
+                            },
+                        }
+                        : {
+                            // Если тип не выбран (например, пустое состояние)
+                            backgroundColor: 'transparent', // Прозрачный фон
+                        }),
             }}
         >
             {!selectedType ? (
                 <Grid container spacing={6} justifyContent="center">
-                    <Grid item>
-                        <motion.div whileHover={{ scale: 1.1, rotate: 2 }} whileTap={{ scale: 0.9 }}>
-                            <Button
-                                variant="contained"
-                                size="large"
-                                onClick={() => startAnimation('physical')}
-                                sx={{
-                                    px: 8,
-                                    py: 3,
-                                    borderRadius: 4,
-                                    background: 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)',
-                                    fontSize: '1.5rem',
-                                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                                }}
-                            >
-                                Физический бизнес
-                            </Button>
-                        </motion.div>
+                    {/* Первая кнопка (Физический бизнес) */}
+                    <Grid item xs={6}>  {/* Разделяем экран пополам (xs={6} = 50% ширины экрана) */}
+                        <Tooltip
+                            title="Физический бизнес: Бизнес с физическим присутствием, магазины, офисы и т.д."
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        fontSize: '1.25rem', // Увеличенный шрифт
+                                        backgroundColor: '#333',
+                                        color: 'white',
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        maxWidth: 300, // Чтобы не растягивался на весь экран
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: '#333', // Цвет стрелки такой же как фон
+                                    },
+                                },
+                            }}
+                        >
+                            <motion.div whileHover={{ scale: 1.1, rotate: 2 }} whileTap={{ scale: 0.9 }}>
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => startAnimation('physical')}
+                                    sx={{
+                                        px: 35,  // Пропорциональные отступы
+                                        py: 55,
+                                        borderRadius: 4,
+                                        background: 'linear-gradient(45deg, #4CAF50 30%, #81C784 90%)',
+                                        fontSize: '1.8rem', // Увеличиваем размер шрифта на кнопке
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                                        width: '100%',  // Заставляем кнопку занимать всю ширину
+                                        color: 'black', // Черный цвет текста кнопки
+                                    }}
+                                >
+                                    Физический бизнес
+                                </Button>
+                            </motion.div>
+                        </Tooltip>
                     </Grid>
-                    <Grid item>
-                        <motion.div whileHover={{ scale: 1.1, rotate: -2 }} whileTap={{ scale: 0.9 }}>
-                            <Button
-                                variant="contained"
-                                size="large"
-                                onClick={() => startAnimation('virtual')}
-                                sx={{
-                                    px: 8,
-                                    py: 3,
-                                    borderRadius: 4,
-                                    background: 'linear-gradient(45deg, #2196F3 30%, #64B5F6 90%)',
-                                    fontSize: '1.5rem',
-                                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                                }}
-                            >
-                                Виртуальный бизнес
-                            </Button>
-                        </motion.div>
+
+                    {/* Вторая кнопка (Виртуальный бизнес) */}
+                    <Grid item xs={6}>  {/* Разделяем экран пополам (xs={6} = 50% ширины экрана) */}
+                        <Tooltip
+                            title="Виртуальный бизнес: Онлайн-бизнес, торговля через интернет, SaaS и т.д."
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        fontSize: '1.25rem', // Увеличенный шрифт
+                                        backgroundColor: '#333',
+                                        color: 'white',
+                                        borderRadius: 2,
+                                        padding: 2,
+                                        maxWidth: 300, // Чтобы не растягивался на весь экран
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: '#333', // Цвет стрелки такой же как фон
+                                    },
+                                },
+                            }}
+                        >
+                            <motion.div whileHover={{ scale: 1.1, rotate: -2 }} whileTap={{ scale: 0.9 }}>
+                                <Button
+                                    variant="contained"
+                                    size="large"
+                                    onClick={() => startAnimation('virtual')}
+                                    sx={{
+                                        px: 35,  // Пропорциональные отступы
+                                        py: 55,
+                                        borderRadius: 4,
+                                        background: 'linear-gradient(45deg, #2196F3 30%, #64B5F6 90%)',
+                                        fontSize: '1.8rem', // Увеличиваем размер шрифта на кнопке
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                                        width: '100%',  // Заставляем кнопку занимать всю ширину
+                                        color: 'black', // Черный цвет текста кнопки
+                                    }}
+                                >
+                                    Виртуальный бизнес
+                                </Button>
+                            </motion.div>
+                        </Tooltip>
                     </Grid>
                 </Grid>
             ) : (

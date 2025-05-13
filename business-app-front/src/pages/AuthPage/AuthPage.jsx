@@ -1,270 +1,5 @@
-// import React, { useState } from "react";
-// import axios from "../../api/axios";
-// import qs from "qs";
-// import {
-//     Tabs,
-//     Tab,
-//     Box,
-//     TextField,
-//     Button,
-//     Snackbar,
-//     CircularProgress,
-//     Alert,
-//     Typography,
-// } from "@mui/material";
-//
-// const BASE_URL = "http://localhost:8000";
-//
-// export default function AuthPage() {
-//     const [form, setForm] = useState({
-//         email: "",
-//         password: "",
-//         token: "",
-//     });
-//
-//     const [tab, setTab] = useState(0);
-//     const [loading, setLoading] = useState(false);
-//     const [errorMessage, setErrorMessage] = useState("");
-//     const [successMessage, setSuccessMessage] = useState("");
-//     const [openSnackbar, setOpenSnackbar] = useState(false);
-//
-//     const handleChange = (e) => {
-//         setForm({ ...form, [e.target.name]: e.target.value });
-//     };
-//
-//     const handleTabChange = (_, newValue) => {
-//         setTab(newValue);
-//     };
-//
-//     const handleSnackbarClose = () => {
-//         setOpenSnackbar(false);
-//     };
-//
-//     const handleSubmit = async () => {
-//         setLoading(true);
-//         setErrorMessage("");
-//         setSuccessMessage("");
-//
-//         try {
-//             let response;
-//             switch (tab) {
-//                 case 0:
-//                     const loginData = qs.stringify({
-//                         grant_type: "password",
-//                         username: form.email,
-//                         password: form.password,
-//                     });
-//
-//                     response = await axios.post(`${BASE_URL}/auth/login`, loginData, {
-//                         headers: {
-//                             "Content-Type": "application/x-www-form-urlencoded",
-//                         },
-//                     });
-//
-//                     setSuccessMessage("Вход успешен!");
-//                     // localStorage.setItem("token", response.data.access_token);
-//                     // В секции case 0:
-//                     localStorage.setItem("token", response.data.access_token);
-//                     localStorage.setItem("user", JSON.stringify({ email: form.email }));
-//                     window.location.reload(); // Для обновления навигации
-//
-//                     break;
-//                 case 1:
-//                     response = await axios.post(`${BASE_URL}/auth/register`, {
-//                         email: form.email,
-//                         password: form.password,
-//                         is_active: true,
-//                         is_superuser: false,
-//                         is_verified: false,
-//                     });
-//                     setSuccessMessage("Регистрация успешна!");
-//                     break;
-//                 case 2:
-//                     response = await axios.post(`${BASE_URL}/auth/forgot-password`, {
-//                         email: form.email,
-//                     });
-//                     setSuccessMessage("Ссылка для сброса отправлена!");
-//                     break;
-//                 case 3:
-//                     response = await axios.post(`${BASE_URL}/auth/reset-password`, {
-//                         token: form.token,
-//                         password: form.password,
-//                     });
-//                     setSuccessMessage("Пароль успешно сброшен!");
-//                     break;
-//                 case 4:
-//                     response = await axios.post(`${BASE_URL}/auth/verify`, {
-//                         token: form.token,
-//                     });
-//                     setSuccessMessage("Email успешно подтвержден!");
-//                     break;
-//                 default:
-//                     break;
-//             }
-//         } catch (err) {
-//             console.error("Error:", err.response?.data || err.message);
-//             setErrorMessage("Произошла ошибка. Попробуйте снова.");
-//         } finally {
-//             setLoading(false);
-//             setOpenSnackbar(true);
-//         }
-//     };
-//
-//     return (
-//         <Box sx={{ maxWidth: 400, mx: "auto", mt: 6, p: 3, boxShadow: 3, borderRadius: 2, bgcolor: "#fff" }}>
-//             <Tabs value={tab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
-//                 <Tab label="Вход" />
-//                 <Tab label="Регистрация" />
-//                 <Tab label="Забыл пароль" />
-//                 <Tab label="Сброс" />
-//                 <Tab label="Верификация" />
-//             </Tabs>
-//
-//             {tab === 0 && (
-//                 <Box mt={2}>
-//                     <TextField
-//                         fullWidth
-//                         label="Email"
-//                         name="email"
-//                         type="email"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <TextField
-//                         fullWidth
-//                         label="Пароль"
-//                         name="password"
-//                         type="password"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <Button
-//                         variant="contained"
-//                         fullWidth
-//                         onClick={handleSubmit}
-//                         disabled={loading}
-//                     >
-//                         {loading ? <CircularProgress size={24} /> : "Войти"}
-//                     </Button>
-//                 </Box>
-//             )}
-//
-//             {tab === 1 && (
-//                 <Box mt={2}>
-//                     <TextField
-//                         fullWidth
-//                         label="Email"
-//                         name="email"
-//                         type="email"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <TextField
-//                         fullWidth
-//                         label="Пароль"
-//                         name="password"
-//                         type="password"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <Button
-//                         variant="contained"
-//                         fullWidth
-//                         onClick={handleSubmit}
-//                         disabled={loading}
-//                     >
-//                         {loading ? <CircularProgress size={24} /> : "Зарегистрироваться"}
-//                     </Button>
-//                 </Box>
-//             )}
-//
-//             {tab === 2 && (
-//                 <Box mt={2}>
-//                     <TextField
-//                         fullWidth
-//                         label="Email"
-//                         name="email"
-//                         type="email"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <Button
-//                         variant="contained"
-//                         fullWidth
-//                         onClick={handleSubmit}
-//                         disabled={loading}
-//                     >
-//                         {loading ? <CircularProgress size={24} /> : "Отправить ссылку для сброса"}
-//                     </Button>
-//                 </Box>
-//             )}
-//
-//             {tab === 3 && (
-//                 <Box mt={2}>
-//                     <TextField
-//                         fullWidth
-//                         label="Токен"
-//                         name="token"
-//                         type="text"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <TextField
-//                         fullWidth
-//                         label="Новый пароль"
-//                         name="password"
-//                         type="password"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <Button
-//                         variant="contained"
-//                         fullWidth
-//                         onClick={handleSubmit}
-//                         disabled={loading}
-//                     >
-//                         {loading ? <CircularProgress size={24} /> : "Сбросить пароль"}
-//                     </Button>
-//                 </Box>
-//             )}
-//
-//             {tab === 4 && (
-//                 <Box mt={2}>
-//                     <TextField
-//                         fullWidth
-//                         label="Токен верификации"
-//                         name="token"
-//                         type="text"
-//                         margin="normal"
-//                         onChange={handleChange}
-//                     />
-//                     <Button
-//                         variant="contained"
-//                         fullWidth
-//                         onClick={handleSubmit}
-//                         disabled={loading}
-//                     >
-//                         {loading ? <CircularProgress size={24} /> : "Подтвердить Email"}
-//                     </Button>
-//                 </Box>
-//             )}
-//
-//             {/* Snackbar for success or error messages */}
-//             <Snackbar
-//                 open={openSnackbar}
-//                 autoHideDuration={6000}
-//                 onClose={handleSnackbarClose}
-//             >
-//                 <Alert onClose={handleSnackbarClose} severity={errorMessage ? "error" : "success"}>
-//                     {errorMessage || successMessage}
-//                 </Alert>
-//             </Snackbar>
-//         </Box>
-//     );
-// }
-import React, { useState } from "react";
-import axios from "../../api/axios";
-import qs from "qs";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
     Tabs,
     Tab,
@@ -292,6 +27,7 @@ import {
     ErrorRounded
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 
 const BASE_URL = "http://localhost:8000";
 
@@ -316,6 +52,16 @@ const AuthPage = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const navigate = useNavigate(); // Хук для навигации
+
+    // Проверяем, авторизован ли пользователь при загрузке страницы
+    // useEffect(() => {
+    //     if (localStorage.getItem("token")) {
+    //         // Если токен есть, перенаправляем на страницу профиля (или любую другую)
+    //         navigate("/profile");
+    //         window.location.reload();
+    //     }
+    // }, [navigate]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -356,47 +102,65 @@ const AuthPage = () => {
 
             switch (tab) {
                 case 0: // Login
-                    const loginData = qs.stringify({
-                        grant_type: "password",
-                        username: form.email,
-                        password: form.password,
-                    });
-                    response = await axios.post(`${BASE_URL}/auth/login`, loginData, {
+                    const loginData = new URLSearchParams();
+                    loginData.append('grant_type', 'password');
+                    loginData.append('username', form.email);
+                    loginData.append('password', form.password);
+
+                    // Выводим данные для отладки
+                    console.log('Данные для входа:', loginData.toString());
+
+                    response = await axios.post(`${BASE_URL}/auth/login`, loginData.toString(), {
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     });
                     localStorage.setItem("token", response.data.access_token);
                     localStorage.setItem("user", JSON.stringify({ email: form.email }));
+                    setSuccessMessage("Поздравляем Вы вошли в свою учетную запись! Теперь Вам доступен основной функционал сайта!");
+                    // Перенаправляем пользователя после успешного входа
+                    navigate("/profile");
                     window.location.reload();
                     break;
 
                 case 1: // Register
-                    response = await axios.post(`${BASE_URL}/auth/register`, {
+                    const registerData = {
                         email: form.email,
                         password: form.password,
-                    }, config);
+                    };
+                    console.log('Данные для регистрации:', registerData);
+                    response = await axios.post(`${BASE_URL}/auth/register`, registerData, config);
                     setSuccessMessage("Регистрация успешна! Проверьте почту для подтверждения");
+                    window.location.reload();
                     break;
 
                 case 2: // Forgot Password
-                    response = await axios.post(`${BASE_URL}/auth/forgot-password`, {
+                    const forgotPasswordData = {
                         email: form.email,
-                    }, config);
+                    };
+                    console.log('Данные для восстановления пароля:', forgotPasswordData);
+                    response = await axios.post(`${BASE_URL}/auth/forgot-password`, forgotPasswordData, config);
                     setSuccessMessage("Ссылка для сброса пароля отправлена на вашу почту");
+                    window.location.reload();
                     break;
 
                 case 3: // Reset Password
-                    response = await axios.post(`${BASE_URL}/auth/reset-password`, {
+                    const resetPasswordData = {
                         token: form.token,
                         password: form.password,
-                    }, config);
+                    };
+                    console.log('Данные для сброса пароля:', resetPasswordData);
+                    response = await axios.post(`${BASE_URL}/auth/reset-password`, resetPasswordData, config);
                     setSuccessMessage("Пароль успешно изменен!");
+                    window.location.reload();
                     break;
 
                 case 4: // Verify Email
-                    response = await axios.post(`${BASE_URL}/auth/verify`, {
+                    const verifyEmailData = {
                         token: form.token,
-                    }, config);
+                    };
+                    console.log('Данные для подтверждения email:', verifyEmailData);
+                    response = await axios.post(`${BASE_URL}/auth/verify`, verifyEmailData, config);
                     setSuccessMessage("Email успешно подтвержден!");
+                    window.location.reload();
                     break;
 
                 default:

@@ -298,6 +298,22 @@ export default function BusinessDetailPage() {
                     Назад
                 </Button>
 
+                <Button
+                    variant="contained"
+                    color="info"
+                    startIcon={<Settings />}
+                    onClick={() => navigate(`/business/${id}/analytics`)}
+                    sx={{
+                        ml: 2,
+                        mb: 3,
+                        "&:hover": { backgroundColor: theme.palette.info.dark },
+                    }}
+                    component={motion.div}
+                    whileHover={{ scale: 1.05 }}
+                >
+                    Аналитика
+                </Button>
+
                 <StyledCard
                     component={motion.div}
                     initial={{ scale: 0.95, opacity: 0 }}
