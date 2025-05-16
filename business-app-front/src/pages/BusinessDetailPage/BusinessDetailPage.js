@@ -76,25 +76,31 @@ export default function BusinessDetailPage() {
     }, [id, navigate]);
 
     useEffect(() => {
-        if (!business?.owner_id) return;
+        if (!business) return;
 
-        const fetchOwnerEmail = async () => {
-            setEmailLoading(true);
+        const fetchSettings = async () => {
+            setSettingsLoading(true);
+            const type = business.business_type;
+            const endpoint =
+                type === "PHYSICAL"
+                    ? `/business/${id}/physical-settings`
+                    : `/business/${id}/virtual-settings`;
+
             try {
-                const response = await axios.get(`/user/email/${business.owner_id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                const response = await axios.get(endpoint, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
-                setOwnerEmail(response.data.email);
+                setSettings(response.data);
             } catch (err) {
-                console.error("Ошибка при получении email:", err);
-                setEmailError("Не удалось загрузить email владельца");
+                console.error("Ошибка при получении настроек:", err);
+                setSettingsError("Ошибка загрузки настроек бизнеса");
             } finally {
-                setEmailLoading(false);
+                setSettingsLoading(false);
             }
         };
 
-        fetchOwnerEmail();
-    }, [business?.owner_id]);
+        fetchSettings();
+    }, [business, id]);
 
     useEffect(() => {
         if (!business) return;
@@ -114,7 +120,7 @@ export default function BusinessDetailPage() {
                 setSettings(response.data);
             } catch (err) {
                 console.error("Ошибка при получении настроек:", err);
-                setSettingsError("Ошибка загрузки настроек бизнеса");
+                setSettingsError("Установите дополнительные параметры бизнеса");
             } finally {
                 setSettingsLoading(false);
             }
@@ -296,6 +302,22 @@ export default function BusinessDetailPage() {
                     whileHover={{ scale: 1.05 }}
                 >
                     Назад
+                </Button>
+
+                <Button
+                    variant="contained"
+                    color="info"
+                    startIcon={<Settings />}
+                    onClick={() => navigate(`/business/${id}/analytics`)}
+                    sx={{
+                        ml: 2,
+                        mb: 3,
+                        "&:hover": { backgroundColor: theme.palette.info.dark },
+                    }}
+                    component={motion.div}
+                    whileHover={{ scale: 1.05 }}
+                >
+                    Аналитика
                 </Button>
 
                 <StyledCard

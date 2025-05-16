@@ -7,7 +7,8 @@ import {
     Typography,
     MenuItem,
     Alert,
-    CircularProgress
+    CircularProgress,
+    Fade
 } from "@mui/material";
 import axios from "../../api/axios";
 
@@ -52,8 +53,6 @@ export default function BusinessCreatePage() {
             ]
         };
 
-        console.log("📤 Payload:", payload);
-
         try {
             const response = await axios.post("/business", payload, {
                 headers: {
@@ -61,27 +60,17 @@ export default function BusinessCreatePage() {
                 },
             });
 
-            // Проверим, что структура ответа верна
-            console.log("✅ Response from server:", response.data);
-
             if (Array.isArray(response.data) && response.data.length > 0) {
-                // Убедимся, что объект с id существует
                 const business = response.data[0];
                 if (business?.id) {
-                    console.log(`🚀 Business created with ID: ${business.id}`);
-
-                    // Навигация на страницу созданного бизнеса
                     navigate(`/business/${business.id}`);
                 } else {
-                    console.error("❌ No business ID found in the response data");
                     setError("Не удалось получить данные о бизнесе.");
                 }
             } else {
-                console.error("❌ Response data is not an array or is empty");
                 setError("Не удалось получить данные о бизнесе.");
             }
         } catch (err) {
-            console.error("❌ Error:", err.response?.data);
             const apiMessage = err.response?.data?.detail || err.response?.data?.message;
             setError(apiMessage || "Ошибка при создании бизнеса");
         } finally {
@@ -90,12 +79,33 @@ export default function BusinessCreatePage() {
     };
 
     return (
-        <Box sx={{ p: 4, maxWidth: 600, mx: "auto" }}>
-            <Typography variant="h4" gutterBottom>
-                Создание бизнеса
-            </Typography>
+        <Box sx={{
+            p: 4,
+            maxWidth: 600,
+            mx: "auto",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            boxShadow: 3,
+            position: "relative",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+        }}>
+            {/* A subtle animated background effect */}
+            <Fade in={true} timeout={2000}>
+                <Typography variant="h4" sx={{
+                    marginBottom: 4,
+                    fontWeight: 700,
+                    textAlign: "center",
+                    color: "#333",
+                    letterSpacing: "1px"
+                }}>
+                    Создание бизнеса
+                </Typography>
+            </Fade>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} style={{ width: "100%" }}>
                 <TextField
                     label="Название бизнеса"
                     name="name"
@@ -104,6 +114,12 @@ export default function BusinessCreatePage() {
                     fullWidth
                     margin="normal"
                     required
+                    helperText="Введите название вашего бизнеса"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" },
+                        "& .MuiInputLabel-root": { fontSize: "14px" }
+                    }}
                 />
 
                 <TextField
@@ -115,6 +131,11 @@ export default function BusinessCreatePage() {
                     margin="normal"
                     multiline
                     rows={3}
+                    helperText="Напишите краткое описание бизнеса"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 />
 
                 <TextField
@@ -125,6 +146,11 @@ export default function BusinessCreatePage() {
                     onChange={handleChange}
                     fullWidth
                     margin="normal"
+                    helperText="Выберите тип бизнеса"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 >
                     <MenuItem value="PHYSICAL">Физический</MenuItem>
                     <MenuItem value="VIRTUAL">Виртуальный</MenuItem>
@@ -138,6 +164,11 @@ export default function BusinessCreatePage() {
                     type="number"
                     fullWidth
                     margin="normal"
+                    helperText="Введите начальные инвестиции"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 />
 
                 <TextField
@@ -148,6 +179,11 @@ export default function BusinessCreatePage() {
                     type="number"
                     fullWidth
                     margin="normal"
+                    helperText="Введите ежемесячные расходы"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 />
 
                 <TextField
@@ -158,6 +194,11 @@ export default function BusinessCreatePage() {
                     type="number"
                     fullWidth
                     margin="normal"
+                    helperText="Введите ожидаемый доход"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 />
 
                 <TextField
@@ -168,21 +209,61 @@ export default function BusinessCreatePage() {
                     type="number"
                     fullWidth
                     margin="normal"
+                    helperText="Введите время до окупаемости (в месяцах)"
+                    sx={{
+                        marginBottom: 3,
+                        "& .MuiInputBase-root": { borderRadius: "8px" }
+                    }}
                 />
 
-                {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                {error && (
+                    <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
+                        {typeof error === 'string' ? error : JSON.stringify(error)}
+                    </Alert>
+                )}
 
-                <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{
+                    mt: 3,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    gap: "10px"
+                }}>
                     <Button
                         type="submit"
                         variant="contained"
+                        fullWidth
+                        sx={{
+                            height: "48px",
+                            textTransform: "none",
+                            fontSize: "16px",
+                            backgroundColor: "#008000",
+                            borderRadius: "8px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            "&:hover": { backgroundColor: "#008000" }
+                        }}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} /> : "Создать"}
+                        {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Создать"}
                     </Button>
                     <Button
                         variant="outlined"
                         onClick={() => navigate("/business")}
+                        fullWidth
+                        sx={{
+                            height: "48px",
+                            textTransform: "none",
+                            fontSize: "16px",
+                            borderRadius: "8px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderColor: "#008000",
+                            color: "#008000",
+                            "&:hover": { borderColor: "#008000", color: "#008000" }
+                        }}
                     >
                         Отмена
                     </Button>

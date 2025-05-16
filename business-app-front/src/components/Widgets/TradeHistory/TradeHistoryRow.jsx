@@ -1,14 +1,14 @@
+import { TableRow, TableCell } from '@mui/material';
 
-
-const TradeHistoryRow = ({ item }) => (
-  <tr className={item.type === 1 ? 'green' : 'red'}>
-    <td className='left'>
-      {item.amount} {item.currency}
-    </td>
-    <td className='center'>{item.weight}</td>
-    <td className='center'>{item.type === 1 ? 'BUY' : 'SELL'}</td>
-    <td className='right'>{item.time}</td>
-  </tr>
-);
+const TradeHistoryRow = ({ item }) => {
+    return (
+        <TableRow>
+            <TableCell align="left">{item.amount} {item.currency}</TableCell>
+            <TableCell align="center">{item.weight}</TableCell>
+            <TableCell align="center">{item.type === 1 ? 'Buy' : 'Sell'}</TableCell>
+            <TableCell align="right">{item.time}</TableCell>
+        </TableRow>
+    );
+};
 
 export default TradeHistoryRow;

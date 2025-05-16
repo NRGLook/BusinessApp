@@ -10,7 +10,7 @@ import {
     CircularProgress,
     Box,
     Chip,
-    Alert
+    Alert, Select, MenuItem
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { Business, Factory, CurrencyExchange, TrendingUp } from "@mui/icons-material";
@@ -46,9 +46,21 @@ const StatItem = ({ icon, title, value, color }) => (
 export default function BusinessPage() {
     const navigate = useNavigate();
     const [businesses, setBusinesses] = useState([]);
+    const [filteredBusinesses, setFilteredBusinesses] = useState([]);
+    const [businessType, setBusinessType] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
+    useEffect(() => {
+        if(businessType === 'all'){
+            setFilteredBusinesses(businesses)
+        }
+        if(businessType === 'physical'){
+            setFilteredBusinesses(businesses.filter(businesse => businesse.business_type === 'PHYSICAL'))
+        }
+        if(businessType === 'virtual'){
+            setFilteredBusinesses(businesses.filter(businesse => businesse.business_type === 'VIRTUAL'))
+        }
+    }, [businessType, setBusinessType, businesses])
     useEffect(() => {
         const fetchBusinesses = async () => {
             try {
@@ -148,10 +160,15 @@ export default function BusinessPage() {
                 >
                     Создать бизнес
                 </Button>
+                <Select value={businessType} onChange={(e) => setBusinessType(e.target.value)}>
+                    <MenuItem value={'all'}>Все</MenuItem>
+                    <MenuItem value={'physical'}>Физичиские</MenuItem>
+                    <MenuItem value={'virtual'}>Виртуальные</MenuItem>
+                </Select>
             </Box>
 
             <Grid container spacing={3}>
-                {businesses.map((business) => {
+                {filteredBusinesses.map((business) => {
                     const isPhysical = business.business_type === "PHYSICAL";
 
                     return (

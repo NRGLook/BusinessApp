@@ -200,7 +200,7 @@ const HeroSection = () => {
                             }
                         }}
                     >
-                        Стартовать бизнес
+                        Нажимай сюда, если не знаешь с чего начать. Поможем определиться!
                     </Button>
                 </Box>
             </Container>
@@ -320,7 +320,7 @@ const BusinessCard = ({ title, description, path, icon, color, hoverMessage }) =
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+        <Grid item xs={12} md={6} maxWidth={'450px'} sx={{ display: 'flex' }}>
             <motion.div
                 style={{ flexGrow: 1 }}
                 whileHover={{ scale: 1.02 }}
@@ -437,8 +437,8 @@ const HomePage = () => {
     const businessTypes = [
         {
             title: 'Промышленный Гигант',
-            description: 'Создайте производственную империю с полным циклом',
-            path: '/physical',
+            description: 'Узнайте подробно как создать бизнес империю с полным циклом процессов',
+            path: '/startInfo',
             icon: <Business />,
             color: '#2196F3'
         },
