@@ -38,6 +38,7 @@ class BusinessCreateSchema(IDSchema):
     initial_investment: Decimal = Field(..., gt=0)
     operational_costs: Decimal = Field(default=0.0, ge=0)
     expected_revenue: Decimal = Field(..., ge=0)
+    break_even_months: Optional[Decimal] = Field(None, ge=0)
 
 
 class BusinessCreateWithUserSchema(BusinessCreateSchema):

@@ -22,6 +22,7 @@ class UserManager(BaseManager):
     entity = User
 
     join_columns = {
+        "user_profile_id": UserProfile.id,
         "user_profile_first_name": UserProfile.first_name,
         "user_profile_last_name": UserProfile.last_name,
         "user_profile_avatar_url": UserProfile.avatar_url,
@@ -46,6 +47,7 @@ class UserManager(BaseManager):
                 User.is_active,
                 User.created_at,
                 User.updated_at,
+                UserProfile.id.label("user_profile_id"),
                 UserProfile.first_name.label("user_profile_first_name"),
                 UserProfile.last_name.label("user_profile_last_name"),
                 UserProfile.avatar_url.label("user_profile_avatar_url"),
