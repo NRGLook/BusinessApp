@@ -14,7 +14,6 @@ from fastapi import (
 
 from src.api.routes.auth.fastapi_users_auth_router import (
     current_active_user,
-    current_active_super_user,
 )
 from src.api.schemes import (
     OrderParams,
@@ -72,7 +71,7 @@ business_router = APIRouter(
 async def get_businesses_for_all_user(
     user: Annotated[
         User,
-        Depends(current_active_super_user),
+        Depends(current_active_user),  # current_active_super_user
     ],
     business_id: Optional[UUID] = None,
     search: Optional[str] = Query(None, description="Search by business name"),
