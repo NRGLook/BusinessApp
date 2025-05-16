@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from fastapi_users import schemas
 
-from src.api.schemes import NamedEntitySchema
+from src.api.schemes import NamedEntitySchema, IDSchema
 
 
 class UserRead(schemas.BaseUser[UUID]):
@@ -44,15 +44,14 @@ class AchievementSchema(NamedEntitySchema):
 
 class UserProfileOutSchema(BaseModel):
     id: Optional[UUID]
-    username: Optional[str]
     email: Optional[str]
     is_active: Optional[bool]
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
-    user_profile: UserProfileSchema | None
-    user_stats: UserStatsSchema | None
-    role: RoleSchema | None
-    achievement: AchievementSchema | None
+    user_profile: Optional[UserProfileSchema]
+    user_stats: Optional[List[UserStatsSchema]]
+    role: Optional[List[RoleSchema]]
+    achievement: Optional[List[AchievementSchema]]
 
 
 class UserProfileResponse(BaseModel):
@@ -61,3 +60,11 @@ class UserProfileResponse(BaseModel):
 
 class UserEmailOutSchema(BaseModel):
     email: Optional[str]
+
+
+class UserProfileCreateWithUserSchema(UserProfileSchema, IDSchema):
+    user_id: UUID
+
+
+class UserProfileCreateBatchSchema(BaseModel):
+    data: list[UserProfileCreateWithUserSchema]

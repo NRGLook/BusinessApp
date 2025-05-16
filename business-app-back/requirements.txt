@@ -1,4 +1,6 @@
 fastapi~=0.115.12
+fastapi-users~=14.0.1
+fastapi-users-db-sqlalchemy~=7.0.0
 pydantic~=2.11.4
 SQLAlchemy~=2.0.40
 starlette~=0.46.2
@@ -41,3 +43,4 @@ PyJWT~=2.10.1
 pwdlib~=0.2.1
 typing-inspect~=0.9.0
 python-multipart~=0.0.20
+sqladmin~=0.20.1

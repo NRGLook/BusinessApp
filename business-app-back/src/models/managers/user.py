@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 
 from src.services.logger import LoggerProvider
@@ -33,8 +35,9 @@ class UserManager(BaseManager):
         "achievement_name": Achievement.name,
     }
 
-    def get_base_query(
+    def get_user_info_query(
         self,
+        user_id: UUID,
     ):
         query = (
             select(
@@ -65,6 +68,7 @@ class UserManager(BaseManager):
                 user_achievements.c.achievement_id == Achievement.id,
                 isouter=True,
             )
+            .where(User.id == user_id)
         )
 
         return query
