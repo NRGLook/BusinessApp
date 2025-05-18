@@ -2,8 +2,7 @@ import React from 'react';
 import {
     Container
 } from '@mui/material';
-import { ProfileForm } from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/components/ProfileForm.jsx'; // Предполагается, что ProfileForm находится в ProfileForm.js
-
+import {ProfileForm} from "../../components/ProfileForm";
 const CreateProfilePage = () => {
     const initialValues = {
         firstName: '',

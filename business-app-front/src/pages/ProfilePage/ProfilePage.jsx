@@ -144,13 +144,13 @@ const ProfilePage = () => {
     const { user_profile, user_stats, role, achievement, id: profileId } = userData || {};
     const fullName = `${user_profile?.first_name || ''} ${user_profile?.last_name || ''}`.trim();
     const successRate = user_stats?.[0]?.success_rate || 0;
-    const hasProfile = userData && Object.keys(userData).length > 0 && userData.user_profile !== undefined && userData.user_profile !== null;
-    const isEmptyProfile = !hasProfile || !fullName;
-
-
+    const hasProfile = user_profile.id
     const handleEditOrCreateProfile = () => {
-        console.log('User ID from localStorage:', localStorage.getItem('user_id'));
-        navigate(`/user/${userId}/profile/edit`);
+        if(hasProfile){
+            navigate(`/user/${userId}/profile/edit`);
+        }else{
+            navigate(`/user/${userId}/profile/create`);
+        }
     };
 
     return (

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useParams, useNavigate} from "react-router-dom";
 import axios from "../../api/axios";
 import {
     Box,
@@ -17,12 +17,12 @@ import {
     useTheme,
     Avatar,
 } from "@mui/material";
-import { ArrowBack, ExpandMore, Settings, Business, Email } from "@mui/icons-material";
-import { motion } from "framer-motion";
-import { styled } from "@mui/material/styles";
-import { Grid, Paper } from "@mui/material";
+import {ArrowBack, ExpandMore, Settings, Business, Email} from "@mui/icons-material";
+import {motion} from "framer-motion";
+import {styled} from "@mui/material/styles";
+import {Grid, Paper} from "@mui/material";
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(({theme}) => ({
     background: `linear-gradient(145deg, ${theme.palette.background.paper} 0%, ${theme.palette.action.hover} 100%)`,
     transition: "transform 0.3s, box-shadow 0.3s",
     "&:hover": {
@@ -31,7 +31,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const ExpandableSection = styled(Paper)(({ theme }) => ({
+const ExpandableSection = styled(Paper)(({theme}) => ({
     margin: theme.spacing(1),
     padding: theme.spacing(2),
     cursor: "pointer",
@@ -42,13 +42,14 @@ const ExpandableSection = styled(Paper)(({ theme }) => ({
 }));
 
 export default function BusinessDetailPage() {
-    const { id } = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
     const [business, setBusiness] = useState(null);
     const [settings, setSettings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [settingsLoading, setSettingsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [status, setStatus] = useState('unsettled')
     const [settingsError, setSettingsError] = useState("");
     const [expanded, setExpanded] = useState(false);
     const [ownerEmail, setOwnerEmail] = useState('');
@@ -60,7 +61,7 @@ export default function BusinessDetailPage() {
         const fetchBusiness = async () => {
             try {
                 const response = await axios.get(`/business/${id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    headers: {Authorization: `Bearer ${localStorage.getItem("token")}`},
                 });
                 setBusiness(response.data);
             } catch (err) {
@@ -76,27 +77,6 @@ export default function BusinessDetailPage() {
     }, [id, navigate]);
 
     useEffect(() => {
-        if (!business?.owner_id) return;
-
-        const fetchOwnerEmail = async () => {
-            setEmailLoading(true);
-            try {
-                const response = await axios.get(`/user/email/${business.owner_id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                });
-                setOwnerEmail(response.data.email);
-            } catch (err) {
-                console.error("Ошибка при получении email:", err);
-                setEmailError("Не удалось загрузить email владельца");
-            } finally {
-                setEmailLoading(false);
-            }
-        };
-
-        fetchOwnerEmail();
-    }, [business?.owner_id]);
-
-    useEffect(() => {
         if (!business) return;
 
         const fetchSettings = async () => {
@@ -109,10 +89,14 @@ export default function BusinessDetailPage() {
 
             try {
                 const response = await axios.get(endpoint, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    headers: {Authorization: `Bearer ${localStorage.getItem("token")}`},
                 });
                 setSettings(response.data);
+                setStatus('settled')
             } catch (err) {
+                if (err.status === 404) {
+                    setStatus('unsettled')
+                }
                 console.error("Ошибка при получении настроек:", err);
                 setSettingsError("Ошибка загрузки настроек бизнеса");
             } finally {
@@ -122,7 +106,24 @@ export default function BusinessDetailPage() {
 
         fetchSettings();
     }, [business, id]);
+    useEffect(() => {
+        const fetchOwnerEmail = async () => {
+            setEmailLoading(true);
+            try {
+                const response = await axios.get('/user/me', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                });
+                setOwnerEmail(response.data.email);
+            } catch (err) {
+                console.error("Ошибка при получении email пользователя:", err);
+                setEmailError("Не удалось загрузить email владельца");
+            } finally {
+                setEmailLoading(false);
+            }
+        };
 
+        fetchOwnerEmail();
+    }, []);
     const renderSettings = () => {
         const translateKey = (key) => {
             const translations = {
@@ -171,7 +172,9 @@ export default function BusinessDetailPage() {
             return String(value);
         };
 
-        if (settingsLoading) return <CircularProgress size={24} sx={{ mt: 2 }} />;
+        if (settingsLoading) return <CircularProgress size={24} sx={{mt: 2}}/>;
+        if (status === 'unsettled') return <Alert severity="info">Установите настройки бизнеса для его
+            аналитики</Alert>;
         if (settingsError) return <Alert severity="error">{settingsError}</Alert>;
         if (!settings) return null;
 
@@ -182,7 +185,7 @@ export default function BusinessDetailPage() {
         return (
             <Box mt={4}>
                 <Box display="flex" alignItems="center" mb={2}>
-                    <Settings sx={{ mr: 1, color: theme.palette.text.secondary }} />
+                    <Settings sx={{mr: 1, color: theme.palette.text.secondary}}/>
                     <Typography variant="h5" gutterBottom>
                         Конфигурация бизнеса
                     </Typography>
@@ -192,9 +195,9 @@ export default function BusinessDetailPage() {
                     {visibleEntries.map(([key, value], index) => (
                         <Grid item xs={12} sm={6} lg={4} key={key}>
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: index * 0.1 }}
+                                initial={{opacity: 0, scale: 0.9}}
+                                animate={{opacity: 1, scale: 1}}
+                                transition={{delay: index * 0.1}}
                             >
                                 <ExpandableSection elevation={3}>
                                     <Box display="flex" alignItems="center">
@@ -206,7 +209,7 @@ export default function BusinessDetailPage() {
                                                 mr: 2,
                                             }}
                                         >
-                                            <Business fontSize="small" />
+                                            <Business fontSize="small"/>
                                         </Avatar>
                                         <Box flexGrow={1}>
                                             <Typography
@@ -265,60 +268,59 @@ export default function BusinessDetailPage() {
 
     if (loading) {
         return (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-                <CircularProgress />
+            <Box sx={{display: "flex", justifyContent: "center", mt: 4}}>
+                <CircularProgress/>
             </Box>
         );
     }
 
     if (error) {
         return (
-            <Box sx={{ p: 3 }}>
+            <Box sx={{p: 3}}>
                 <Alert severity="error">{error}</Alert>
             </Box>
         );
     }
-
     if (!business) return null;
 
     return (
         <Grow in timeout={500}>
-            <Box sx={{ p: 3, maxWidth: 1200, margin: "0 auto" }}>
+            <Box sx={{p: 3, maxWidth: 1200, margin: "0 auto"}}>
                 <Button
                     variant="outlined"
-                    startIcon={<ArrowBack />}
+                    startIcon={<ArrowBack/>}
                     onClick={() => navigate(-1)}
                     sx={{
                         mb: 3,
-                        "&:hover": { backgroundColor: theme.palette.action.hover },
+                        "&:hover": {backgroundColor: theme.palette.action.hover},
                     }}
                     component={motion.div}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{scale: 1.05}}
                 >
                     Назад
                 </Button>
 
-                <Button
+                {status === 'settled' && <Button
                     variant="contained"
                     color="info"
-                    startIcon={<Settings />}
+                    startIcon={<Settings/>}
                     onClick={() => navigate(`/business/${id}/analytics`)}
                     sx={{
                         ml: 2,
                         mb: 3,
-                        "&:hover": { backgroundColor: theme.palette.info.dark },
+                        "&:hover": {backgroundColor: theme.palette.info.dark},
                     }}
                     component={motion.div}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{scale: 1.05}}
                 >
                     Аналитика
-                </Button>
+                </Button>}
 
                 <StyledCard
                     component={motion.div}
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{scale: 0.95, opacity: 0}}
+                    animate={{scale: 1, opacity: 1}}
+                    transition={{duration: 0.3}}
                 >
                     <CardContent>
                         <Box display="flex" alignItems="center" mb={2}>
@@ -333,14 +335,14 @@ export default function BusinessDetailPage() {
                                     mr: 3,
                                 }}
                             >
-                                <Business sx={{ fontSize: 32 }} />
+                                <Business sx={{fontSize: 32}}/>
                             </Avatar>
                             <Box>
                                 <Typography
                                     variant="h3"
                                     fontWeight={700}
                                     gutterBottom
-                                    sx={{ textTransform: "uppercase" }}
+                                    sx={{textTransform: "uppercase"}}
                                 >
                                     {business.name}
                                 </Typography>
@@ -353,16 +355,16 @@ export default function BusinessDetailPage() {
                                     color={
                                         business.business_type === "PHYSICAL" ? "primary" : "secondary"
                                     }
-                                    sx={{ borderRadius: 1, fontWeight: 600 }}
+                                    sx={{borderRadius: 1, fontWeight: 600}}
                                 />
                             </Box>
                         </Box>
 
-                        <Divider sx={{ my: 3 }} />
+                        <Divider sx={{my: 3}}/>
 
                         <Grid container spacing={3}>
                             <Grid item xs={12} md={6}>
-                                <Paper elevation={0} sx={{ p: 2, bgcolor: "background.default" }}>
+                                <Paper elevation={0} sx={{p: 2, bgcolor: "background.default"}}>
                                     <Typography variant="h6" gutterBottom>
                                         Финансовый обзор
                                     </Typography>
@@ -388,17 +390,17 @@ export default function BusinessDetailPage() {
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <Paper elevation={0} sx={{ p: 2, bgcolor: "background.default" }}>
+                                <Paper elevation={0} sx={{p: 2, bgcolor: "background.default"}}>
                                     <Typography variant="h6" gutterBottom>
                                         Информация о владельце
                                     </Typography>
                                     <Box display="flex" alignItems="center">
-                                        <Avatar sx={{ mr: 2, bgcolor: theme.palette.info.main }}>
+                                        <Avatar sx={{mr: 2, bgcolor: theme.palette.info.main}}>
                                             {ownerEmail ? ownerEmail[0].toUpperCase() : "?"}
                                         </Avatar>
                                         <Box>
                                             {emailLoading ? (
-                                                <CircularProgress size={20} />
+                                                <CircularProgress size={20}/>
                                             ) : emailError ? (
                                                 <Typography variant="body2" color="error">
                                                     {emailError}
@@ -411,12 +413,12 @@ export default function BusinessDetailPage() {
                                                     <Typography
                                                         variant="body2"
                                                         color="text.secondary"
-                                                        sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}
+                                                        sx={{display: 'flex', alignItems: 'center', mt: 0.5}}
                                                     >
-                                                        <Email sx={{ fontSize: 16, mr: 1 }} />
+                                                        <Email sx={{fontSize: 16, mr: 1}}/>
                                                         <a
                                                             href={`mailto:${ownerEmail}`}
-                                                            style={{ color: 'inherit', textDecoration: 'none' }}
+                                                            style={{color: 'inherit', textDecoration: 'none'}}
                                                         >
                                                             {ownerEmail}
                                                         </a>

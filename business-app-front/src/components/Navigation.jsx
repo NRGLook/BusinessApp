@@ -53,7 +53,7 @@ const Navigation = () => {
         >
             <Toolbar sx={{
                 justifyContent: 'space-between',
-                padding: { xs: '0 16px', md: '0 32px' }
+                padding: { xs: '0 16px', md: '0 16px' }
             }}>
                 {/* Левый блок - Лого и основные ссылки */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -110,7 +110,7 @@ const Navigation = () => {
                             </Button>
                             <Button
                                 component={Link}
-                                to="/physical"
+                                to="/successfull"
                                 sx={{
                                     textTransform: 'none',
                                     fontSize: '1rem',
@@ -121,22 +121,7 @@ const Navigation = () => {
                                     }
                                 }}
                             >
-                                Физические бизнесы
-                            </Button>
-                            <Button
-                                component={Link}
-                                to="/virtual"
-                                sx={{
-                                    textTransform: 'none',
-                                    fontSize: '1rem',
-                                    fontWeight: 500,
-                                    '&:hover': {
-                                        backgroundColor: 'transparent',
-                                        color: theme.palette.primary.main
-                                    }
-                                }}
-                            >
-                                Виртуальные бизнесы
+                                Успешные бизнесы
                             </Button>
                         </Box>
                     )}

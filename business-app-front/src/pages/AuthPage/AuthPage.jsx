@@ -54,7 +54,7 @@ const AuthPage = () => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const navigate = useNavigate(); // Хук для навигации
 
-    // Проверяем, авторизован ли пользователь при загрузке страницы
+
     // useEffect(() => {
     //     if (localStorage.getItem("token")) {
     //         // Если токен есть, перенаправляем на страницу профиля (или любую другую)
@@ -168,7 +168,7 @@ const AuthPage = () => {
             }
         } catch (err) {
             const error = err.response?.data?.detail || "Ошибка сервера";
-            setErrorMessage(error);
+            setErrorMessage(JSON.stringify(error.message ?? 'Error has occurred'));
         } finally {
             setLoading(false);
             setOpenSnackbar(true);

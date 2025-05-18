@@ -36,12 +36,11 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import DataObjectIcon from '@mui/icons-material/DataObject';
 import BuildIcon from '@mui/icons-material/Build';
 
-import myImage from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/assets/images/profile.png';
 
 const founder = {
     name: 'Тиханенок Илья Александрович',
     role: 'Основатель & Full-stack Архитектор',
-    img: myImage,
+    img: '',
     bio: 'С 2018 года я страстно увлечен созданием чистого, эффективного и масштабируемого кода. Специализируюсь на разработке инновационных full-stack веб-приложений, используя передовой стек технологий, включая React, Next.js, Node.js, Python, и глубоко разбираясь в облачных архитектурах AWS и Kubernetes. Моя цель — не просто писать код, а создавать продукты, которые решают сложные бизнес-задачи, оптимизируют процессы и действительно улучшают жизнь пользователей. Убежден, что в основе успешного проекта лежит синергия технологий, ориентированного на пользователя дизайна и глубокого понимания бизнес-целей. Этот сайт — витрина моих навыков и подхода к разработке.',
     telegram: 'https://t.me/your_telegram_link',
     email: 'your_email@example.com',

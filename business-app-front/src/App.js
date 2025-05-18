@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import './styles/site.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {ThemeProvider, createTheme} from '@mui/material/styles';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage/HomePage';
@@ -19,9 +19,12 @@ import BusinessSettingsCreatePage from "./pages/BusinessSettingsCreatePage/Busin
 import StartBusinessPage from "./pages/StartBusinessPage/StartBusinessPage";
 import BusinessAnalyticsPage from "./pages/BusinessAnalyticsPage/BusinessAnalyticsPage";
 import AboutUsPage from "./pages/AboutUsPage/AboutUsPage";
-import { Box } from '@mui/material';
+import {Box} from '@mui/material';
 import CreateProfilePage from "./pages/CreateProfilePage/CreateProfilePage";
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage";
+import SuccessfullBusinesses from "./pages/SuccessfullBusinesses/SuccessfullBusinesses";
+import SubscriptionInfoPage from "./pages/SubscriptionInfo/SubscriptionInfoPage";
+import StartBusinessInfoPage from "./pages/StartBusinessInfoPage/StartBusinessInfoPage";
 
 export const theme = createTheme({
     palette: {
@@ -75,86 +78,102 @@ function App() {
                         minHeight: '100vh', // Занимает всю высоту viewport
                     }}
                 >
-                    <Navigation user={user} updateUser={updateUser} />
+                    <Navigation user={user} updateUser={updateUser}/>
                     <Box
                         sx={{
                             flexGrow: 1, // Заставляет контент занимать оставшееся пространство
                         }}
                     >
                         <Routes>
-                            <Route path="/" element={<HomePage />} />
+                            <Route path="/" element={<HomePage/>}/>
                             <Route path="/learn" element={
                                 <PrivateRoute>
-                                    <LearnPage />
+                                    <LearnPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
+                            <Route path="/startInfo" element={
+                                <PrivateRoute>
+                                    <StartBusinessInfoPage/>
+                                </PrivateRoute>
+                            }/>
                             <Route path="/start" element={
                                 <PrivateRoute>
-                                    <StartBusinessPage />
+                                    <StartBusinessPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/about" element={
-                                <AboutUsPage />
-                            } />
+                                <AboutUsPage/>
+                            }/>
                             <Route path="/business" element={
                                 <PrivateRoute>
-                                    <BusinessPage />
+                                    <BusinessPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
+                            <Route path="/subscriptionInfo" element={
+                                <PrivateRoute>
+                                    <SubscriptionInfoPage/>
+                                </PrivateRoute>
+                            }/>
+                            <Route path="/successfull" element={<PrivateRoute>
+                                <SuccessfullBusinesses/>
+                            </PrivateRoute>}/>
                             <Route path="/business/:id" element={
                                 <PrivateRoute>
-                                    <BusinessDetailPage />
+                                    <BusinessDetailPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/business/:id/analytics" element={
                                 <PrivateRoute>
-                                    <BusinessAnalyticsPage />
+                                    <BusinessAnalyticsPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/business/create" element={
                                 <PrivateRoute>
-                                    <BusinessCreatePage />
+                                    <BusinessCreatePage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/business/:id/settings/create" element={
                                 <PrivateRoute>
-                                    <BusinessSettingsCreatePage />
+                                    <BusinessSettingsCreatePage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/profile" element={
                                 <PrivateRoute>
-                                    <ProfilePage />
+                                    <ProfilePage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/profile/create" element={
                                 <PrivateRoute>
                                     <CreateProfilePage/>
                                 </PrivateRoute>
                             }/>
-                            <Route path="/user/profile/:id/edit" element={
-                                <PrivateRoute>
-                                    <EditProfilePage/>
-                                </PrivateRoute>
-                            }/>
+                            <Route path="/user/:id/profile/create"
+                                   element={<PrivateRoute>
+                                       <EditProfilePage isEditing={false}/>
+                            </PrivateRoute>}/>
+                            <Route path="/user/:id/profile/edit"
+                                   element={<PrivateRoute>
+                                       <EditProfilePage isEditing={true}/>
+                            </PrivateRoute>}/>
                             <Route path="/physical" element={
                                 <PrivateRoute>
-                                    <PhysicalBusinessPage />
+                                    <PhysicalBusinessPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/virtual" element={
                                 <PrivateRoute>
-                                    <VirtualBusinessPage />
+                                    <VirtualBusinessPage/>
                                 </PrivateRoute>
-                            } />
+                            }/>
                             <Route path="/crypto" element={
                                 <PrivateRoute>
-                                    <MarketPlace />
+                                    <MarketPlace/>
                                 </PrivateRoute>
-                            } />
-                            <Route path="/auth" element={<AuthPage updateUser={updateUser} />} />
+                            }/>
+                            <Route path="/auth" element={<AuthPage updateUser={updateUser}/>}/>
                         </Routes>
                     </Box>
-                    <Footer />
+                    <Footer/>
                 </Box>
             </Router>
         </ThemeProvider>

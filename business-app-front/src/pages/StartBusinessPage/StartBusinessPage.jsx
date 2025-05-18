@@ -12,7 +12,6 @@ import {
     Store,
     Engineering, Cloud, People, LocalShipping, Construction, LocationCity, ElectricBolt, Warehouse
 } from '@mui/icons-material';
-import background from '/Users/ilya.tsikhanionak/Programming/BusinessApp/business-app-front/src/assets/images/background.png';
 import { Tooltip } from '@mui/material';
 
 const StartBusinessPage = () => {
@@ -104,7 +103,7 @@ const StartBusinessPage = () => {
                 ...(selectedType === 'virtual'
                     ? {
                         // Если выбран виртуальный бизнес
-                        backgroundImage: `url(${background})`, // Устанавливаем фоновое изображение
+                        backgroundImage: ``, // Устанавливаем фоновое изображение
                         backgroundSize: 'cover', // Фон будет покрывать весь контейнер
                         backgroundPosition: 'center', // Центрируем фоновое изображение
                         backgroundRepeat: 'no-repeat', // Фон не будет повторяться

@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import {
     LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer,
-    BarChart, Bar, Legend, PieChart, Pie, Cell,
+    BarChart, Bar, Legend, PieChart, Pie, Cell, RadarChart, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar
 } from "recharts";
 import { ArrowBack, Download } from "@mui/icons-material";
 import { motion } from "framer-motion";
@@ -37,74 +37,153 @@ export default function BusinessAnalyticsPage() {
     const navigate = useNavigate();
 
     const [business, setBusiness] = useState(null);
+    const [configData, setConfigData] = useState([]);
     const [settings, setSettings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [exportType, setExportType] = useState("pdf");
+    const [seasonalityInPercent, setSeasonalityInPercent] = useState("1");
+    const [randomFactorInPercent, setRandomFactorInPercent] = useState("1");
+    const [investmentsInPercent, setInvestmentsInPercent] = useState("1");
     const [startMonth, setStartMonth] = useState(dayjs().startOf("year"));
     const [endMonth, setEndMonth] = useState(dayjs().endOf("year"));
     const [showHints, setShowHints] = useState(true);
 
     useEffect(() => {
-        const fetchBusinessData = async () => {
+        const fetchAllData = async () => {
             try {
-                const response = await axios.get(`/business/${id}`, {
+                setLoading(true);
+                setError("");
+
+                // 1. Загружаем данные бизнеса
+                const businessResponse = await axios.get(`/business/${id}`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
-                setBusiness(response.data);
+                const businessData = businessResponse.data;
+                setBusiness(businessData);
 
-                const type = response.data.business_type;
-                const endpoint =
-                    type === "PHYSICAL"
-                        ? `/business/${id}/physical-settings`
-                        : `/business/${id}/virtual-settings`;
+                // 2. Загружаем настройки бизнеса
+                const endpoint = businessData.business_type === 'PHYSICAL'
+                    ? `/business/${id}/physical-settings`
+                    : `/business/${id}/virtual-settings`;
 
                 const settingsResponse = await axios.get(endpoint, {
                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                 });
+
                 setSettings(settingsResponse.data);
+
+                // 3. Загружаем конфигурационные данные
+                const configResponse = await axios.get(endpoint);
+                setConfigData(configResponse.data);
+
             } catch (err) {
-                console.error(err);
-                setError("Ошибка загрузки данных");
+                if (err.response?.status === 401) {
+                    navigate("/auth");
+                    return;
+                }
+                setError(err.response?.data?.message || "Ошибка загрузки данных");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchBusinessData();
-    }, [id]);
+        fetchAllData();
+    }, [id, navigate]);
+    const locationFactors = {
+        moscow: { taxRate: 0.20, marketing: 3.0, utilities: 4.0 },
+        spb: { taxRate: 0.18, marketing: 2.5, utilities: 3.5 },
+        kazan: { taxRate: 0.16, marketing: 2.0, utilities: 3.0 },
+        default: { taxRate: 0.15, marketing: 1.5, utilities: 2.5 }
+    };
+    const generateFinanceBarChartData = (configData) => {
+        const locationKey = (configData?.location || "").toLowerCase();
+        const location = locationFactors[locationKey] || locationFactors.default;
+
+        const employeeCount = parseInt(configData.employee_count || 0, 10);
+        const size = parseFloat(configData.size_sq_meters || 0);
+
+        const baseSalary = 2.0;
+        const salaryMultiplier = 1 + (employeeCount / 100);
+        const averageSalary = parseFloat((baseSalary * salaryMultiplier).toFixed(2));
+        const totalSalary = parseFloat((averageSalary * employeeCount).toFixed(2));
+
+        const marketing = parseFloat((location.marketing * (1 + size / 100)).toFixed(2));
+        const utilities = parseFloat((location.utilities * (size / 50)).toFixed(2));
+        const rent = parseFloat((2.0 * (size / 50)).toFixed(2));
+        const maintenance = 2.0;
+
+        const totalCosts = rent + maintenance + utilities + marketing + totalSalary;
+
+        // Функция для вычисления процента от общих расходов
+        const toPercent = (value) => parseFloat(((value / totalCosts) * 100).toFixed(2));
+
+        return [
+            { category: 'Аренда', value: toPercent(rent) },
+            { category: 'Обслуживание', value: toPercent(maintenance) },
+            { category: 'Коммунальные', value: toPercent(utilities) },
+            { category: 'Маркетинг', value: toPercent(marketing) },
+            { category: 'Зарплаты', value: toPercent(totalSalary) }
+        ];
+    };
 
     const generateAnalyticsData = () => {
         if (!business || !settings) return [];
 
-        const revenue = business.revenue || 200000;
-        const costs = business.operational_costs || 100000;
-        const investment = business.investment_amount || 1000000;
+        const revenueBase = parseFloat(business.expected_revenue) || 100000;
+        const costsBase = (parseFloat(business.operational_costs) || 50000) * 1.2;
+        const investmentBase = parseFloat(business.initial_investment) || 500000;
+
+        const seasonalityFactor = 1 + (parseFloat(seasonalityInPercent) || 0) / 100;       // e.g. 20 → 1.2
+        const randomFactorRange = (parseFloat(randomFactorInPercent) || 0) / 100;          // 20 → 0.2
+        const investmentMultiplier = 1 + (parseFloat(investmentsInPercent) || 0) / 100;    // 20 → 1.2
+
+        const investment = investmentBase * investmentMultiplier;
+        let accumulatedProfit = 0;
 
         return Array.from({ length: 12 }, (_, i) => {
             const monthDate = dayjs().startOf("year").add(i, "month");
             if (monthDate.isBefore(startMonth) || monthDate.isAfter(endMonth)) return null;
 
-            const multiplier = 1 + i * 0.02;
-            const monthlyRevenue = parseFloat((revenue * multiplier).toFixed(4));
-            const monthlyCosts = parseFloat((costs * multiplier).toFixed(4));
-            const monthlyProfit = parseFloat((monthlyRevenue - monthlyCosts).toFixed(4));
+            // --- FACTORS ---
+            const seasonality = 1 + 0.15 * Math.sin((i / 12) * 2 * Math.PI); // плавная волна
+            const randomNoise = 1 + (Math.random() * 2 * randomFactorRange - randomFactorRange);
+            const baseGrowth = 1 + i * 0.03; // рост 3% в месяц
+            const multiplier = seasonality * seasonalityFactor * randomNoise * baseGrowth;
+
+            // --- METRICS ---
+            const monthlyRevenue = parseFloat((revenueBase * multiplier).toFixed(2));
+            const monthlyCosts = parseFloat((costsBase * (0.9 + Math.random() * 0.2)).toFixed(2));
+            const monthlyProfit = parseFloat((monthlyRevenue - monthlyCosts).toFixed(2));
+            accumulatedProfit += monthlyProfit;
+
+            let clients;
+            if (business.avg_clients_per_month) {
+                clients = parseFloat(
+                    (
+                        business.avg_clients_per_month *
+                        multiplier *
+                        (0.9 + Math.random() * 0.2)
+                    ).toFixed(2)
+                );
+            }
+
+            const roi = parseFloat(((accumulatedProfit / investment) * 100).toFixed(2));
 
             return {
-                month: `${monthDate.format("MMM YYYY")}`,
+                month: monthDate.format("MMM YYYY"),
                 revenue: monthlyRevenue,
                 costs: monthlyCosts,
                 profit: monthlyProfit,
-                roi: parseFloat(((monthlyProfit * (i + 1)) / investment * 100).toFixed(4)),
-                clients: business.avg_clients_per_month
-                    ? parseFloat((business.avg_clients_per_month * (1 + i * 0.01)).toFixed(4))
-                    : undefined,
+                roi,
+                clients,
             };
         }).filter(Boolean);
     };
 
-    const data = generateAnalyticsData();
 
+    const data = generateAnalyticsData();
+    const configuration = generateFinanceBarChartData(configData);
     const handleExport = async () => {
         const container = document.getElementById("analytics-export-container");
         if (!container) return;
@@ -121,14 +200,16 @@ export default function BusinessAnalyticsPage() {
         } else if (exportType === "csv") {
             const csv = Papa.unparse({
                 fields: ["month", "revenue", "costs", "profit", "roi", "clients"],
-                data: data.map(item => [
-                    item.month,
-                    item.revenue,
-                    item.costs,
-                    item.profit,
-                    item.roi,
-                    item.clients ?? "",
-                ]),
+                data: data.map((item) => {
+                    return [
+                        item.month,
+                        item.revenue,
+                        item.costs,
+                        item.profit,
+                        item.roi,
+                        item.clients ?? "",
+                    ]
+                }),
             });
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const link = document.createElement("a");
@@ -140,14 +221,21 @@ export default function BusinessAnalyticsPage() {
         }
     };
 
-    if (loading) {
-        return <Box mt={4} display="flex" justifyContent="center"><CircularProgress /></Box>;
+    if (loading || !business || !settings) {
+        return (
+            <Box mt={4} display="flex" justifyContent="center">
+                <CircularProgress />
+            </Box>
+        );
     }
 
-    if (error || !business || !settings) {
-        return <Alert severity="error" sx={{ mt: 3 }}>{error || "Нет данных"}</Alert>;
+    if (error) {
+        return (
+            <Alert severity="error" sx={{ mt: 3 }}>
+                {error}
+            </Alert>
+        );
     }
-
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box p={3}>
@@ -185,6 +273,61 @@ export default function BusinessAnalyticsPage() {
                 <Box display="flex" gap={2} mb={2}>
                     <DatePicker label="Начало" value={startMonth} onChange={setStartMonth} views={["year", "month"]} />
                     <DatePicker label="Конец" value={endMonth} onChange={setEndMonth} views={["year", "month"]} />
+                    <FormControl>
+                        <InputLabel id="seasonality-label">Сезонность</InputLabel>
+                        <Select
+                            labelId="seasonality-label"
+                            value={seasonalityInPercent}
+                            onChange={e => setSeasonalityInPercent(e.target.value)}
+                            label="Сезонность"
+                        >
+                            <MenuItem value="1">Текущая</MenuItem>
+                            <MenuItem value="10">10%</MenuItem>
+                            <MenuItem value="20">20%</MenuItem>
+                            <MenuItem value="30">30%</MenuItem>
+                            <MenuItem value="40">40%</MenuItem>
+                            <MenuItem value="50">50%</MenuItem>
+                        </Select>
+                        <small style={{paddingTop : '4px'}}>Влияние сезонных колебаний на данные</small>
+                    </FormControl>
+
+                    {/* Селект рандомного фактора */}
+                    <FormControl>
+                        <InputLabel id="random-label">Флуктуации</InputLabel>
+                        <Select
+                            labelId="random-label"
+                            value={randomFactorInPercent}
+                            onChange={e => setRandomFactorInPercent(e.target.value)}
+                            label="Флуктуации"
+                        >
+                            <MenuItem value="1">Текущая</MenuItem>
+                            <MenuItem value="10">10%</MenuItem>
+                            <MenuItem value="20">20%</MenuItem>
+                            <MenuItem value="30">30%</MenuItem>
+                            <MenuItem value="40">40%</MenuItem>
+                            <MenuItem value="50">50%</MenuItem>
+                        </Select>
+                        <small  style={{paddingTop : '4px'}}>Процент случайных колебаний (риски и аномалии)</small>
+                    </FormControl>
+
+                    {/* Селект влияния инвестиций */}
+                    <FormControl>
+                        <InputLabel id="investment-label">Инвестиции</InputLabel>
+                        <Select
+                            labelId="investment-label"
+                            value={investmentsInPercent}
+                            onChange={e => setInvestmentsInPercent(e.target.value)}
+                            label="Инвестиции"
+                        >
+                            <MenuItem value="1">Текущая</MenuItem>
+                            <MenuItem value="10">10%</MenuItem>
+                            <MenuItem value="20">20%</MenuItem>
+                            <MenuItem value="30">30%</MenuItem>
+                            <MenuItem value="40">40%</MenuItem>
+                            <MenuItem value="50">50%</MenuItem>
+                        </Select>
+                        <small  style={{paddingTop : '4px'}}>Изменение объема инвестиций и их влияния на ROI</small>
+                    </FormControl>
                 </Box>
 
                 {showHints && (
@@ -202,13 +345,76 @@ export default function BusinessAnalyticsPage() {
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="month" />
-                            <YAxis />
-                            <Tooltip />
+
+                            {/* Левая ось (по умолчанию): profit и costs */}
+                            <YAxis
+                                yAxisId="left"
+                                tickFormatter={(value) => new Intl.NumberFormat('ru-RU').format(value)}
+                            />
+
+                            {/* Правая ось: revenue */}
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                tickFormatter={(value) => new Intl.NumberFormat('ru-RU').format(value)}
+                            />
+
+                            <Tooltip
+                                formatter={(value) => new Intl.NumberFormat('ru-RU').format(value)}
+                            />
                             <Legend />
-                            <Line type="monotone" dataKey="profit" stroke="#4caf50" />
-                            <Line type="monotone" dataKey="revenue" stroke="#2196f3" />
-                            <Line type="monotone" dataKey="costs" stroke="#f44336" />
+
+                            <Line
+                                yAxisId="left"
+                                type="monotone"
+                                dataKey="profit"
+                                stroke="#4caf50"
+                                name="Прибыль"
+                            />
+                            <Line
+                                yAxisId="right"
+                                type="monotone"
+                                dataKey="revenue"
+                                stroke="#2196f3"
+                                name="Выручка"
+                            />
+                            <Line
+                                yAxisId="left"
+                                type="monotone"
+                                dataKey="costs"
+                                stroke="#f44336"
+                                name="Расходы"
+                            />
                         </LineChart>
+                    </ChartBlock>
+                    <ChartBlock title="Распределение расходов по категориям (%)">
+                        <BarChart
+                            data={configuration}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                            barCategoryGap={30}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="category" />
+                            <YAxis tickFormatter={(value) => `${value}%`} /> {/* <-- отображение процентов */}
+                            <Tooltip
+                                formatter={(value) => `${value}%`}
+                                cursor={{ fill: 'rgba(33, 150, 243, 0.1)' }}
+                                contentStyle={{ borderRadius: '12px' }}
+                            />
+                            <Bar
+                                dataKey="value"
+                                radius={[8, 8, 0, 0]}
+                                isAnimationActive={true}
+                                animationDuration={1200}
+                            >
+                                <Cell fill="#ff9800" /> {/* Аренда */}
+                                <Cell fill="#4caf50" /> {/* Обслуживание */}
+                                <Cell fill="#03a9f4" /> {/* Коммунальные */}
+                                <Cell fill="#e91e63" /> {/* Маркетинг */}
+                                <Cell fill="#9c27b0" /> {/* Зарплаты */}
+                                <Cell fill="#f44336" /> {/* Всего */}
+                            </Bar>
+                        </BarChart>
                     </ChartBlock>
 
                     <ChartBlock title="Выручка и расходы (по месяцам)" data={data}>
@@ -223,12 +429,11 @@ export default function BusinessAnalyticsPage() {
                         </BarChart>
                     </ChartBlock>
 
-                    <ChartBlock title="Финансовое распределение за 12 мес. (Пирог)" data={data}>
+                    <ChartBlock title="Финансовое распределение за 12 мес. (Пирог)">
                         <PieChart>
                             <Pie
                                 dataKey="value"
                                 data={[
-                                    { name: "Выручка", value: data[data.length - 1]?.revenue },
                                     { name: "Расходы", value: data[data.length - 1]?.costs },
                                     { name: "Прибыль", value: data[data.length - 1]?.profit },
                                 ]}
@@ -244,37 +449,26 @@ export default function BusinessAnalyticsPage() {
                             <Tooltip />
                         </PieChart>
                     </ChartBlock>
-
-                    <ChartBlock title="Окупаемость инвестиций (ROI)" data={data}>
-                        <LineChart data={data}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis unit="%" />
+                    <ChartBlock title="Сравнение показателей по месяцам">
+                        <RadarChart outerRadius={90} width={730} height={250} data={data}>
+                            <PolarGrid />
+                            <PolarAngleAxis dataKey="month" />
+                            <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                            <Radar name="ROI" dataKey="roi" stroke="#ff9800" fill="#ff9800" fillOpacity={0.6} />
+                            <Radar name="Clients" dataKey="clients" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
                             <Tooltip />
-                            <Line type="monotone" dataKey="roi" stroke="#ff9800" />
-                        </LineChart>
+                        </RadarChart>
                     </ChartBlock>
-
-                    {data[0]?.clients && (
-                        <ChartBlock title="Рост числа клиентов" data={data}>
-                            <LineChart data={data}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="month" />
-                                <YAxis />
-                                <Tooltip />
-                                <Line type="monotone" dataKey="clients" stroke="#673ab7" />
-                            </LineChart>
-                        </ChartBlock>
-                    )}
                 </Box>
             </Box>
         </LocalizationProvider>
     );
 }
 
-function ChartBlock({ title, children }) {
+function ChartBlock({title, children}) {
     return (
-        <Paper sx={{ p: 2, my: 2 }} component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <Paper sx={{p: 2, my: 2}} component={motion.div} initial={{opacity: 0}} animate={{opacity: 1}}
+               transition={{duration: 0.5}}>
             <Typography variant="h6" gutterBottom>
                 {title}
             </Typography>

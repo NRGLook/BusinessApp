@@ -26,7 +26,7 @@ const initialPhysicalSettings = {
     average_salary: "",
     rent_cost: "",
     equipment_maintenance_cost: "",
-    tax_rate: 0.15,
+    tax_rate: 0.1,
     utilities_cost: "",
     marketing_budget: "",
     equipment: "{}"
@@ -37,7 +37,7 @@ const initialVirtualSettings = {
     hardware_cost: "",
     hashrate: "",
     mining_difficulty: "",
-    pool_fees: 0.02,
+    pool_fees: 0.2,
     crypto_price: "",
     risk_multiplier: "",
     initial_capital: "",
@@ -135,9 +135,18 @@ const VirtualSettingsForm = ({ form, handleChange, itemVariants }) => (
             { label: 'Стоимость оборудования (₽)', name: 'hardware_cost', type: 'number' },
             { label: 'Хешрейт', name: 'hashrate', type: 'number' },
             { label: 'Сложность майнинга', name: 'mining_difficulty', type: 'number' },
-            { label: 'Комиссия пула (%)', name: 'pool_fees', type: 'number', step: 0.01 },
+            { label: 'Комиссия пула (%)', name: 'pool_fees', type: 'number', step: 0.01, inputProps: { min: 0, max: 0.5, step: 0.01 },
+                error: parseInt(form.pool_fees)> 0.5,
+                helperText: parseInt(form.pool_fees) > 0.5 ? "Значение должно быть меньше либо равно 0.5" : ""},
             { label: 'Цена криптовалюты (₽)', name: 'crypto_price', type: 'number' },
-            { label: 'Множитель риска', name: 'risk_multiplier', type: 'number' },
+            {
+                label: 'Множитель риска',
+                name: 'risk_multiplier',
+                type: 'number',
+                inputProps: { min: 0, max: 2, step: 0.01 },
+                error: form.risk_multiplier > 2,
+                helperText: form.risk_multiplier > 2 ? "Значение должно быть меньше либо равно 2.0" : ""
+            },
             { label: 'Начальный капитал (₽)', name: 'initial_capital', type: 'number' },
         ].map((field) => (
             <Grid
@@ -158,8 +167,13 @@ const VirtualSettingsForm = ({ form, handleChange, itemVariants }) => (
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 2,
-                            '& fieldset': { borderWidth: 2 },
-                            '&:hover fieldset': { borderColor: 'primary.main' },
+                            '& fieldset': {
+                                borderWidth: 2,
+                                borderColor: field.error ? 'error.main' : undefined
+                            },
+                            '&:hover fieldset': {
+                                borderColor: field.error ? 'error.main' : 'primary.main'
+                            },
                         }
                     }}
                 />
@@ -240,8 +254,68 @@ export default function BusinessSettingsCreatePage() {
     const [form, setForm] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [hasExistingSettings, setHasExistingSettings] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    useEffect(() => {
+        if (!business) return;
 
+        const fetchSettings = async () => {
+            const type = business.business_type;
+            const endpoint =
+                type === "PHYSICAL"
+                    ? `/business/${id}/physical-settings`
+                    : `/business/${id}/virtual-settings`;
+
+            try {
+                const response = await axios.get(endpoint, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                });
+                const settingsData = response.data;
+                setHasExistingSettings(true)
+                setForm(prev => ({
+                    ...prev,
+                    ...(business.business_type === "PHYSICAL" ? {
+                        location: settingsData.location || "",
+                        size_sq_meters: settingsData.size_sq_meters?.toString() || "",
+                        employee_count: settingsData.employee_count?.toString() || "",
+                        average_salary: settingsData.average_salary?.toString() || "",
+                        rent_cost: settingsData.rent_cost?.toString() || "",
+                        equipment_maintenance_cost: settingsData.equipment_maintenance_cost?.toString() || "",
+                        tax_rate: settingsData.tax_rate?.toString() || "0.15",
+                        utilities_cost: settingsData.utilities_cost?.toString() || "",
+                        marketing_budget: settingsData.marketing_budget?.toString() || "",
+                        equipment: JSON.stringify(settingsData.equipment || {}, null, 2)
+                    } : {
+                        electricity_cost: settingsData.electricity_cost?.toString() || "",
+                        hardware_cost: settingsData.hardware_cost?.toString() || "",
+                        hashrate: settingsData.hashrate?.toString() || "",
+                        mining_difficulty: settingsData.mining_difficulty?.toString() || "",
+                        pool_fees: settingsData.pool_fees?.toString() || "0.02",
+                        crypto_price: settingsData.crypto_price?.toString() || "",
+                        risk_multiplier: settingsData.risk_multiplier?.toString() || "",
+                        initial_capital: settingsData.initial_capital?.toString() || "",
+                        risk_level: settingsData.risk_level ?? 3,
+                        portfolio: JSON.stringify(settingsData.portfolio || {}, null, 2)
+                    })
+                }));
+            } catch (err) {
+                if(err.status === 404){
+                    setHasExistingSettings(false)
+                    setForm(
+                        business.business_type === "PHYSICAL"
+                            ? { ...initialPhysicalSettings }
+                            : { ...initialVirtualSettings }
+                    );
+                }else{
+                    console.error("Ошибка при получении настроек:", err);
+                    setError("Ошибка загрузки настроек бизнеса");
+                }
+            } finally {
+            }
+        };
+
+        fetchSettings();
+    }, [business, id]);
     useEffect(() => {
         const fetchBusiness = async () => {
             try {
@@ -269,9 +343,12 @@ export default function BusinessSettingsCreatePage() {
                 );
 
             } catch (err) {
+                if(err.status === 401){
+                    navigate("/auth");
+                }
                 console.error("Ошибка загрузки:", err);
-                setError(err.response?.data?.detail
-                    || err.message
+                setError(JSON.stringify(err.response?.data?.detail ?? 'Error has occurred')
+                    || JSON.stringify(err.message ?? 'Error has occurred')
                     || "Не удалось загрузить данные бизнеса");
             } finally {
                 setLoading(false);
@@ -370,7 +447,7 @@ export default function BusinessSettingsCreatePage() {
                 ? errorDetails.map(e => `Поле ${e.loc[1]}: ${e.msg}`).join('\n')
                 : errorDetails;
 
-            setError(formattedError || "Неизвестная ошибка сервера");
+            setError(JSON.stringify(formattedError ?? 'Error has occurred') || "Неизвестная ошибка сервера");
         } finally {
             setIsSubmitting(false);
         }
@@ -398,7 +475,7 @@ export default function BusinessSettingsCreatePage() {
                 textAlign: "center"
             }}>
                 <Alert severity="error" sx={{ mb: 2 }}>
-                    {error.toString()}
+                    {JSON.stringify(error)}
                 </Alert>
                 <Button
                     variant="outlined"
@@ -473,11 +550,11 @@ export default function BusinessSettingsCreatePage() {
                                 justifyContent: 'flex-end'
                             }}
                         >
-                            <Button
+                            {!hasExistingSettings && <Button
                                 type="submit"
                                 variant="contained"
                                 disabled={isSubmitting}
-                                startIcon={isSubmitting ? <CircularProgress size={20} /> : <Save />}
+                                startIcon={isSubmitting ? <CircularProgress size={20}/> : <Save/>}
                                 sx={{
                                     width: 200,
                                     py: 1.5,
@@ -490,7 +567,7 @@ export default function BusinessSettingsCreatePage() {
                                 }}
                             >
                                 Сохранить
-                            </Button>
+                            </Button>}
 
                             <Button
                                 variant="outlined"
@@ -506,7 +583,7 @@ export default function BusinessSettingsCreatePage() {
                                     }
                                 }}
                             >
-                                Отмена
+                                {hasExistingSettings ? 'Назад' : 'Отмена'}
                             </Button>
                         </Box>
                     </Grid>

@@ -14,7 +14,6 @@ from fastapi import (
 
 from src.api.routes.auth.fastapi_users_auth_router import (
     current_active_user,
-    current_active_super_user,
 )
 from src.api.schemes import (
     OrderParams,
@@ -72,7 +71,7 @@ business_router = APIRouter(
 async def get_businesses_for_all_user(
     user: Annotated[
         User,
-        Depends(current_active_super_user),
+        Depends(current_active_user),  # current_active_super_user
     ],
     business_id: Optional[UUID] = None,
     search: Optional[str] = Query(None, description="Search by business name"),
@@ -450,23 +449,23 @@ async def create_or_update_virtual_settings_business(
     virtual_business: VirtualBusinessCreateBatchSchema,
     service: BusinessService = Depends(get_business_service),
 ):
-    try:
-        return await service.create_or_update_virtual_business_settings(
-            virtual_business.data,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "detail": str(e),
-                "code": "validation_error",
-            },
-        )
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "detail": "Internal server error",
-                "code": "server_error",
-            },
-        )
+    # try:
+    return await service.create_or_update_virtual_business_settings(
+        virtual_business.data,
+    )
+    # except ValueError as e:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail={
+    #             "detail": str(e),
+    #             "code": "validation_error",
+    #         },
+    #     )
+    # except Exception:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #         detail={
+    #             "detail": "Internal server error",
+    #             "code": "server_error",
+    #         },
+    #     )

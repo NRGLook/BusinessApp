@@ -8,7 +8,8 @@ import CoinHorizontal from "../../components/Widgets/Coin/CoinHorizontal.jsx";
 import CoinVertical from "../../components/Widgets/Coin/CoinVertical.jsx";
 import Market from "../../components/Widgets/Market/Market.jsx";
 import MainLayout from "../../layouts/MainLayout";
-
+import MarketContainer from "./MarketContainer";
+import {Box, CircularProgress} from "@mui/material";
 
 // variables
 const coinData = {
@@ -29,71 +30,76 @@ const coinData = {
 const MarketScreen = () => {
     const [keyword, setKeyword] = useState('');
     const [coinInfo, setCoinInfo] = useState(null);
+    const [loading, setLoading] = useState(true); // новое состояние загрузки
 
     useEffect(() => {
-        setCoinInfo(coinData);
+        // имитируем задержку 500мс
+        const timer = setTimeout(() => {
+            setCoinInfo(coinData);
+            setLoading(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
     }, []);
 
-    /**
-     * Handles the search input value change.
-     *
-     * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
-     * @returns {void}
-     */
     const handleSearchValue = (e) => {
         const { value } = e.target;
-
         setKeyword(value);
     };
 
-    /**
-     * Handles the search form submission.
-     *
-     * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
-     * @returns {void}
-     */
     const handleSearchSubmit = (e) => {
         e.preventDefault();
     };
 
-    return (  <MainLayout>
-            <div className='content'>
-                <div className='flex flex-destroy'>
-                    <div className='content-30 box-right-padding'>
-                        <Market />
+    if (loading) {
+        // Здесь можно вывести любой лоадер, например простой текст или спиннер
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
-                        {coinInfo && <CoinVertical item={coinInfo} />}
-                    </div>
-                    <div className='content-70 flex-1'>
-                        {coinInfo && (
-                            <CoinHorizontal
-                                item={coinInfo}
-                                searchValue={keyword}
-                                searchSubmit={handleSearchSubmit}
-                                searchOnChange={handleSearchValue}
-                            />
-                        )}
+    return (
+        <MainLayout>
+            <div className="content">
+                <div className="flex flex-destroy">
+                    <div className="content-70 flex-1">
+                        <MarketContainer>
+                            {({ coinInfo, keyword, handleSearchValue, handleSearchSubmit }) => (
+                                <>
+                                    {coinInfo && (
+                                        <CoinHorizontal
+                                            item={coinInfo}
+                                            searchValue={keyword}
+                                            searchSubmit={handleSearchSubmit}
+                                            searchOnChange={handleSearchValue}
+                                        />
+                                    )}
 
-                        <div className='flex flex-destroy'>
-                            <div className='content-70 flex-1 box-right-padding'>
-                                <CandleStick />
-                            </div>
-                            <div className='content-30'>
-                                <BuySell />
-                            </div>
-                        </div>
+                                    <div className="flex flex-destroy">
+                                        <div className="content-70 flex-1 box-right-padding">
+                                            <CandleStick />
+                                        </div>
+                                        <div className="content-30 box-right-padding" style={{ height: '100%' }}>
+                                            <Market item={coinInfo} />
+                                        </div>
+                                    </div>
 
-                        <div className='flex flex-destroy flex-space-between'>
-                            <div className='flex-1 box-right-padding'>
-                                <TradeHistory />
-                            </div>
-                            <div className='flex-1 box-right-padding'>
-                                <BuyOrders />
-                            </div>
-                            <div className='flex-1'>
-                                <SellOrders />
-                            </div>
-                        </div>
+                                    <div className="flex flex-destroy flex-space-between">
+                                        <div className="flex-1 box-right-padding">
+                                            <TradeHistory />
+                                        </div>
+                                        <div className="flex-1 box-right-padding">
+                                            <BuyOrders />
+                                        </div>
+                                        <div className="flex-1">
+                                            <SellOrders />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </MarketContainer>
                     </div>
                 </div>
             </div>

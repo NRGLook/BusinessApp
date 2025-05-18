@@ -10,7 +10,7 @@ import {
     CircularProgress,
     Box,
     Chip,
-    Alert
+    Alert, Select, MenuItem
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { Business, Factory, CurrencyExchange, TrendingUp } from "@mui/icons-material";
@@ -18,6 +18,10 @@ import { Business, Factory, CurrencyExchange, TrendingUp } from "@mui/icons-mate
 const StyledCard = styled(Card)(({ theme }) => ({
     borderRadius: 16,
     transition: "transform 0.3s, box-shadow 0.3s",
+    width: 320, // ✅ фиксированная ширина
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
     "&:hover": {
         transform: "translateY(-5px)",
         boxShadow: theme.shadows[8],
@@ -46,9 +50,15 @@ const StatItem = ({ icon, title, value, color }) => (
 export default function BusinessPage() {
     const navigate = useNavigate();
     const [businesses, setBusinesses] = useState([]);
+    const [businessType, setBusinessType] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
+    const filteredBusinesses = businesses.filter(business => {
+        if (businessType === 'all') return true;
+        if (businessType === 'physical') return business.business_type === 'PHYSICAL';
+        if (businessType === 'virtual') return business.business_type === 'VIRTUAL';
+        return true;
+    });
     useEffect(() => {
         const fetchBusinesses = async () => {
             try {
@@ -131,7 +141,7 @@ export default function BusinessPage() {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{p: 3}}>
             <Box sx={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -142,27 +152,36 @@ export default function BusinessPage() {
             }}>
                 <Button
                     variant="contained"
-                    startIcon={<Business />}
+                    startIcon={<Business/>}
                     onClick={() => navigate("/business/create")}
-                    sx={{ flexShrink: 0 }}
+                    sx={{flexShrink: 0}}
                 >
                     Создать бизнес
                 </Button>
+                <Select value={businessType} onChange={(e) => setBusinessType(e.target.value)}>
+                    <MenuItem value={'all'}>Все</MenuItem>
+                    <MenuItem value={'physical'}>Физичиские</MenuItem>
+                    <MenuItem value={'virtual'}>Виртуальные</MenuItem>
+                </Select>
             </Box>
+            <Grid container spacing={3}   sx={{
+                maxWidth: 1500,
+                margin: "0 auto",
+                paddingLeft: '80px'
+            }}>
 
-            <Grid container spacing={3}>
-                {businesses.map((business) => {
+                {filteredBusinesses.map((business) => {
                     const isPhysical = business.business_type === "PHYSICAL";
 
                     return (
                         <Grid item xs={12} sm={6} md={4} key={business.id}>
                             <StyledCard>
                                 <CardContent>
-                                    <Box sx={{ mb: 2 }}>
+                                    <Box sx={{mb: 2}}>
                                         <Typography
                                             variant="h6"
                                             fontWeight={600}
-                                            sx={{ mb: 1 }}
+                                            sx={{mb: 1}}
                                         >
                                             {business.name}
                                         </Typography>
@@ -193,21 +212,21 @@ export default function BusinessPage() {
                                     </Typography>
 
                                     <StatItem
-                                        icon={<CurrencyExchange sx={{ color: "primary.main" }} />}
+                                        icon={<CurrencyExchange sx={{color: "primary.main"}}/>}
                                         title="Инвестиции"
                                         value={formatCurrency(business.initial_investment)}
                                         color="primary"
                                     />
 
                                     <StatItem
-                                        icon={<TrendingUp sx={{ color: "error.main" }} />}
+                                        icon={<TrendingUp sx={{color: "error.main"}}/>}
                                         title="Месячные расходы"
                                         value={formatCurrency(business.operational_costs)}
                                         color="error"
                                     />
 
                                     <StatItem
-                                        icon={<Factory sx={{ color: "success.main" }} />}
+                                        icon={<Factory sx={{color: "success.main"}}/>}
                                         title="Окупаемость"
                                         value={formatMonths(business.break_even_months)}
                                         color="success"
@@ -222,7 +241,7 @@ export default function BusinessPage() {
                                             fullWidth
                                             variant="outlined"
                                             onClick={() => navigate(`/business/${business.id}`)}
-                                            sx={{ flex: 1 }}
+                                            sx={{flex: 1}}
                                         >
                                             Подробнее
                                         </Button>
