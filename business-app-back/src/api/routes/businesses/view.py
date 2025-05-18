@@ -449,23 +449,23 @@ async def create_or_update_virtual_settings_business(
     virtual_business: VirtualBusinessCreateBatchSchema,
     service: BusinessService = Depends(get_business_service),
 ):
-    try:
-        return await service.create_or_update_virtual_business_settings(
-            virtual_business.data,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "detail": str(e),
-                "code": "validation_error",
-            },
-        )
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={
-                "detail": "Internal server error",
-                "code": "server_error",
-            },
-        )
+    # try:
+    return await service.create_or_update_virtual_business_settings(
+        virtual_business.data,
+    )
+    # except ValueError as e:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail={
+    #             "detail": str(e),
+    #             "code": "validation_error",
+    #         },
+    #     )
+    # except Exception:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    #         detail={
+    #             "detail": "Internal server error",
+    #             "code": "server_error",
+    #         },
+    #     )
