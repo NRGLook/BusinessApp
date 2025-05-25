@@ -260,7 +260,6 @@ const RealEstatePage = () => {
                                                     <LightbulbIcon sx={{ fontSize: 16, mr: 0.5 }} /> {marker.reason}
                                                 </Typography>
                                             )}
-                                            <img src={marker.imageUrl} alt={marker.address} style={{ maxWidth: '100%', marginTop: 8, borderRadius: 8 }} />
                                         </>
                                     ) : (
                                         <>
