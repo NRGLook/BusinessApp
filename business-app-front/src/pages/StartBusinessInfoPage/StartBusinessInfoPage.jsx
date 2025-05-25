@@ -270,7 +270,6 @@ const RealEstatePage = () => {
                                             <PopupInfoTypography>
                                                 <LocationOnIcon sx={{ mr: 1, fontSize: 'inherit' }} /> Адрес: {marker.address}
                                             </PopupInfoTypography>
-                                            <img src={marker.imageUrl} alt={marker.name} style={{ maxWidth: '100%', marginTop: 8, borderRadius: 8 }} />
                                         </>
                                     )}
                                 </PopupBox>
