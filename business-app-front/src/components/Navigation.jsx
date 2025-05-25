@@ -123,6 +123,22 @@ const Navigation = () => {
                             >
                                 Успешные бизнесы
                             </Button>
+
+                            <Button
+                                component={Link}
+                                to="/simulation"
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: theme.palette.primary.main
+                                    }
+                                }}
+                            >
+                                 Симуляция
+                            </Button>
                         </Box>
                     )}
                 </Box>
