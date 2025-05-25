@@ -34,9 +34,9 @@ const BASE_URL = "http://localhost:8000";
 const tabLabels = [
     { label: "Вход", icon: <LoginRounded /> },
     { label: "Регистрация", icon: <PersonAddAltRounded /> },
-    { label: "Восстановление", icon: <PasswordRounded /> },
-    { label: "Сброс пароля", icon: <VpnKeyRounded /> },
-    { label: "Подтверждение", icon: <CheckCircleRounded /> }
+    // { label: "Восстановление", icon: <PasswordRounded /> },
+    // { label: "Сброс пароля", icon: <VpnKeyRounded /> },
+    // { label: "Подтверждение", icon: <CheckCircleRounded /> }
 ];
 
 const AuthPage = () => {
