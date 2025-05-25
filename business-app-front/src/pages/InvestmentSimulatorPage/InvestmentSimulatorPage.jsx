@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Stack } from '@mui/material';
 import {
     Box,
     Typography,
@@ -9,9 +8,6 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Paper,
-    Snackbar,
-    Alert,
     Grid,
     FormControlLabel,
     Checkbox,
@@ -29,8 +25,8 @@ import {
     Legend,
 } from 'chart.js';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import WalletOutlinedIcon from '@mui/icons-material/WalletOutlined'; // CORRECTED IMPORT
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // CORRECTED IMPORT (was already correct, but ensuring consistency)
+import WalletOutlinedIcon from '@mui/icons-material/WalletOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTooltip, Legend);
 
@@ -168,7 +164,10 @@ export default function InvestmentSimulatorPage() {
                 datasets: [{
                     label: `Стоимость (${assetType === 'currency' ? currency : '₽'})`,
                     data: incomeData,
-                    borderColor: 'rgb(75, 192, 192)', backgroundColor: 'rgba(75, 192, 192, 0.2)', tension: 0.4, fill: true,
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4,
+                    fill: true,
                 }],
             }} options={chartOptions} />
         },
@@ -286,7 +285,10 @@ export default function InvestmentSimulatorPage() {
 
     return (
         <Box sx={{ flexGrow: 1, p: 3 }}>
-            <Typography variant="h4" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+            <Typography
+                variant="h4"
+                sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}
+            >
                 <ShowChartIcon sx={{ mr: 1 }} /> Динамичный Симулятор Инвестиций
             </Typography>
 
@@ -295,165 +297,242 @@ export default function InvestmentSimulatorPage() {
                 <Grid item xs={12}>
                     <Grid container spacing={4}>
                         <Grid item xs={12} md={9}>
-                            <TextField
-                                fullWidth
-                                label="Начальная Инвестиция (₽)"
-                                type="number"
-                                value={parseFloat(investment).toFixed(2)}
-                                onChange={(e) => setInvestment(Math.max(0, parseFloat(e.target.value)))}
-                                InputProps={{ startAdornment: <WalletOutlinedIcon color="action" /> }}
+                            <Tooltip
+                                title="Введите сумму начальной инвестиции в рублях"
+                                enterTouchDelay={50}
+                                leaveTouchDelay={3000}
+                                arrow
+                                PopperProps={{
+                                    modifiers: [
+                                        {
+                                            name: 'preventOverflow',
+                                            options: {
+                                                boundary: 'viewport',
+                                            },
+                                        },
+                                    ],
+                                }}
+                            >
+                                <TextField
+                                    fullWidth
+                                    label="Начальная Инвестиция (₽)"
+                                    type="number"
+                                    value={parseFloat(investment).toFixed(2)}
+                                    onChange={(e) => setInvestment(Math.max(0, parseFloat(e.target.value)))}
+                                    InputProps={{ startAdornment: <WalletOutlinedIcon sx={{ mr: 1 }} /> }}
+                                />
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                <Typography>
+                                    Длительность: {duration} мес.
+                                    <Tooltip title="Выберите длительность инвестирования (в месяцах)" arrow>
+                                        <InfoOutlinedIcon sx={{ ml: 1, fontSize: 18 }} />
+                                    </Tooltip>
+                                </Typography>
+                            </Box>
+                            <Slider
+                                value={duration}
+                                onChange={(_, val) => setDuration(val)}
+                                step={1}
+                                min={1}
+                                max={MONTHS}
+                                marks
+                                valueLabelDisplay="auto"
                             />
                         </Grid>
-                        <Grid item xs={12} md={9}>
+                    </Grid>
+                </Grid>
+
+                {/* Asset Type and dependent inputs */}
+                <Grid item xs={12} md={3}>
+                    <Tooltip title="Выберите тип актива">
+                        <FormControl fullWidth>
+                            <InputLabel id="asset-type-label">Тип Активов</InputLabel>
+                            <Select
+                                labelId="asset-type-label"
+                                value={assetType}
+                                label="Тип Активов"
+                                onChange={(e) => setAssetType(e.target.value)}
+                            >
+                                {ASSET_TYPES.map((type) => (
+                                    <MenuItem key={type} value={type}>
+                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Tooltip>
+                </Grid>
+
+                {assetType === 'currency' && (
+                    <Grid item xs={12} md={3}>
+                        <Tooltip title="Выберите валюту инвестиций">
                             <FormControl fullWidth>
-                                <InputLabel
-                                    id="asset-type-label"
-                                    sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
-                                >
-                                    Тип Актива
-                                </InputLabel>
+                                <InputLabel id="currency-label">Валюта</InputLabel>
                                 <Select
-                                    labelId="asset-type-label"
-                                    value={assetType}
-                                    onChange={(e) => setAssetType(e.target.value)}
-                                    label="Тип Актива"
+                                    labelId="currency-label"
+                                    value={currency}
+                                    label="Валюта"
+                                    onChange={(e) => setCurrency(e.target.value)}
                                 >
-                                    {ASSET_TYPES.map((type) => (
-                                        <MenuItem key={type} value={type}>
-                                            {type.toUpperCase()}
+                                    {CURRENCIES.map((curr) => (
+                                        <MenuItem key={curr} value={curr}>
+                                            {curr}
                                         </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
-                        </Grid>
+                        </Tooltip>
                     </Grid>
-                </Grid>
+                )}
 
-                {/* Row for Currency / Stock / Crypto Selectors */}
-                <Grid item xs={12}>
-                    <Grid container spacing={4}>
-                        {assetType === 'currency' && (
-                            <Grid item xs={12} md={9}>
-                                <FormControl fullWidth>
-                                    <InputLabel
-                                        id="currency-label"
-                                        sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
-                                    >
-                                        Валюта
-                                    </InputLabel>
-                                    <Select
-                                        labelId="currency-label"
-                                        value={currency}
-                                        onChange={(e) => setCurrency(e.target.value)}
-                                        label="Валюта"
-                                    >
-                                        {CURRENCIES.map((c) => (
-                                            <MenuItem key={c} value={c}>
-                                                {c}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        )}
-
-                        {assetType === 'stock' && (
-                            <Grid item xs={12} md={12}>
-                                <FormControl fullWidth>
-                                    <InputLabel
-                                        id="stock-symbol-label"
-                                        sx={{ whiteSpace: 'nowrap' }}
-                                    >
-                                        Компания (Акции)
-                                    </InputLabel>
-
-                                    <Select
-                                        labelId="stock-symbol-label"
-                                        value={stockSymbol}
-                                        onChange={(e) => setStockSymbol(e.target.value)}
-                                        label="Компания (Акции)"
-                                        sx={{ width: '100%' }}  // растянуть селект по ширине
-                                        MenuProps={{
-                                            PaperProps: {
-                                                style: {
-                                                    minWidth: 200, // минимальная ширина выпадающего списка
-                                                },
-                                            },
-                                        }}
-                                    >
-                                        {ALL_STOCK_SYMBOLS.map((symbol) => (
-                                            <MenuItem key={symbol} value={symbol}>
-                                                {symbol}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        )}
-
-                        {assetType === 'crypto' && (
-                            <Grid item xs={12} md={9}>
-                                <FormControl fullWidth>
-                                    <InputLabel
-                                        id="crypto-symbol-label"
-                                        sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
-                                    >
-                                        Криптовалюта
-                                    </InputLabel>
-                                    <Select
-                                        labelId="crypto-symbol-label"
-                                        value={cryptoSymbol}
-                                        onChange={(e) => setCryptoSymbol(e.target.value)}
-                                        label="Криптовалюта"
-                                    >
-                                        {ALL_CRYPTO_SYMBOLS.map((symbol) => (
-                                            <MenuItem key={symbol} value={symbol}>
-                                                {symbol}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        )}
+                {assetType === 'property' && (
+                    <Grid item xs={12} md={3}>
+                        <Tooltip title="Выберите объект недвижимости">
+                            <FormControl fullWidth>
+                                <InputLabel id="property-label">Объект Недвижимости</InputLabel>
+                                <Select
+                                    labelId="property-label"
+                                    value={propertyIndex}
+                                    label="Объект Недвижимости"
+                                    onChange={(e) => setPropertyIndex(parseInt(e.target.value, 10))}
+                                >
+                                    {PROPERTY_PRICES.map((price, i) => (
+                                        <MenuItem key={i} value={i}>
+                                            Дом #{i + 1} — {formatCurrency(price)}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Tooltip>
                     </Grid>
-                </Grid>
+                )}
 
-                {/* Row for Duration Slider (Always full width, separate line) */}
-                <Grid item xs={12} md={9}>
-                    <Typography gutterBottom>Срок (мес.): {duration}</Typography>
-                    <Slider
-                        fullWidth
-                        min={1}
-                        max={MONTHS}
-                        value={duration}
-                        onChange={(_, val) => setDuration(val)}
-                        valueLabelDisplay="auto"
-                    />
-                </Grid>
+                {assetType === 'stock' && (
+                    <Grid item xs={12} md={3}>
+                        <Tooltip title="Выберите акцию">
+                            <FormControl fullWidth>
+                                <InputLabel id="stock-label">Акция</InputLabel>
+                                <Select
+                                    labelId="stock-label"
+                                    value={stockSymbol}
+                                    label="Акция"
+                                    onChange={(e) => setStockSymbol(e.target.value)}
+                                >
+                                    {ALL_STOCK_SYMBOLS.map((symbol) => (
+                                        <MenuItem key={symbol} value={symbol}>
+                                            {symbol}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Tooltip>
+                    </Grid>
+                )}
+
+                {assetType === 'crypto' && (
+                    <Grid item xs={12} md={3}>
+                        <Tooltip title="Выберите криптовалюту">
+                            <FormControl fullWidth>
+                                <InputLabel id="crypto-label">Криптовалюта</InputLabel>
+                                <Select
+                                    labelId="crypto-label"
+                                    value={cryptoSymbol}
+                                    label="Криптовалюта"
+                                    onChange={(e) => setCryptoSymbol(e.target.value)}
+                                >
+                                    {ALL_CRYPTO_SYMBOLS.map((symbol) => (
+                                        <MenuItem key={symbol} value={symbol}>
+                                            {symbol}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Tooltip>
+                    </Grid>
+                )}
             </Grid>
 
-            <Paper sx={{ p: 3, mb: 4, backgroundColor: '#f1f8e9' }}>
-                <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                    <InfoOutlinedIcon color="primary" sx={{ mr: 1 }} /> Итоговый Прогноз
+            <Box
+                sx={{
+                    mb: 3,
+                    p: 2,
+                    border: '1px solid #ddd',
+                    borderRadius: 2,
+                    backgroundColor: '#f9f9f9',
+                }}
+            >
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                    Сводка Инвестиций
                 </Typography>
-                <Typography variant="h5" color="success.main" fontWeight={700}>
-                    {formatCurrency(parseFloat(incomeData[incomeData.length - 1] || 0), currency)}
-                </Typography>
-            </Paper>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Typography variant="subtitle2" color="text.secondary">Начальная сумма</Typography>
+                        <Typography variant="h6">{formatCurrency(investment)}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Typography variant="subtitle2" color="text.secondary">Конечная сумма</Typography>
+                        <Typography variant="h6">{formatCurrency(parseFloat(incomeData[incomeData.length - 1] || 0))}</Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Typography variant="subtitle2" color="text.secondary">Общий доход</Typography>
+                        <Typography variant="h6">
+                            {formatCurrency(parseFloat((incomeData[incomeData.length - 1] - investment) || 0))}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={3}>
+                        <Typography variant="subtitle2" color="text.secondary">Доходность (%)</Typography>
+                        <Typography variant="h6">
+                            {incomeData.length > 1
+                                ? ((incomeData[incomeData.length - 1] - investment) / investment * 100).toFixed(2) + '%'
+                                : '—'}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            </Box>
 
-            <Grid container spacing={3} direction="column">
-                {charts.map(({ label, checked, setChecked, show, chart }, index) => (
-                    <Grid key={index} item xs={12} md={12}> {/* This part is correct for full width */}
-                        <Paper sx={{ p: 2 }}>
-                            <FormControlLabel
-                                control={<Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />}
-                                label={label}
-                            />
-                            {show && <Box sx={{ height: 350, width: '100%' }}>{chart}</Box>}
-                        </Paper>
+            <Divider sx={{ mb: 3 }} />
+
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                Настройки Отображения Графиков
+                <Tooltip title="Выберите, какие данные отображать на графиках" placement="right" arrow>
+                    <InfoOutlinedIcon sx={{ ml: 1, fontSize: 20, verticalAlign: 'middle' }} />
+                </Tooltip>
+            </Typography>
+
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+                {charts.map(({ label, checked, setChecked }) => (
+                    <Grid item xs={12} sm={6} md={3} key={label}>
+                        <FormControlLabel
+                            control={<Checkbox checked={checked} onChange={() => setChecked(!checked)} />}
+                            label={label}
+                        />
                     </Grid>
                 ))}
             </Grid>
+
+            <Divider sx={{ mb: 3 }} />
+
+            <Box sx={{ overflowX: 'auto', pb: 2 }}>
+                {charts.map(({ show, chart }, idx) =>
+                    show ? (
+                        <Box
+                            key={idx}
+                            sx={{
+                                minWidth: '900px',
+                                height: 400,
+                                mb: 4,
+                                pr: 2
+                            }}
+                        >
+                            {chart}
+                        </Box>
+                    ) : null
+                )}
+            </Box>
+
         </Box>
     );
 }
