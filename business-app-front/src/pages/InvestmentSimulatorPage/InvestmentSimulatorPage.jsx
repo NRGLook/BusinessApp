@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Stack } from '@mui/material';
 import {
     Box,
     Typography,
@@ -28,8 +29,8 @@ import {
     Legend,
 } from 'chart.js';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import WalletIcon from '@mui/icons-material/Wallet';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import WalletOutlinedIcon from '@mui/icons-material/WalletOutlined'; // CORRECTED IMPORT
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // CORRECTED IMPORT (was already correct, but ensuring consistency)
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTooltip, Legend);
 
@@ -46,8 +47,14 @@ const CURRENCY_RATES = {
 };
 const ASSET_TYPES = ['currency', 'property', 'stock', 'crypto'];
 const CURRENCIES = Object.keys(CURRENCY_RATES);
-const STOCK_SYMBOLS = ['AAPL', 'GOOGL', 'TSLA', 'AMZN'];
-const CRYPTO_SYMBOLS = ['BTC', 'ETH', 'LTC', 'DOGE'];
+const ALL_STOCK_SYMBOLS = [
+    'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NVDA', 'JPM', 'V', 'JNJ', 'PG',
+    'BABA', 'TCEHY', 'FB', 'NFLX', 'ADBE', 'CRM', 'PYPL', 'INTC', 'CSCO', 'KO',
+];
+const ALL_CRYPTO_SYMBOLS = [
+    'BTC', 'ETH', 'LTC', 'DOGE', 'XRP', 'ADA', 'SOL', 'DOT', 'AVAX', 'SHIB',
+    'TRX', 'BNB', 'USDT', 'USDC', 'BUSD', 'MATIC', 'LINK', 'XLM', 'EOS', 'XTZ',
+];
 
 const initialData = {
     investment: 100000 + Math.random() * 500000,
@@ -55,8 +62,8 @@ const initialData = {
     assetType: ASSET_TYPES[Math.floor(Math.random() * ASSET_TYPES.length)],
     currency: CURRENCIES[Math.floor(Math.random() * CURRENCIES.length)],
     propertyIndex: Math.floor(Math.random() * PROPERTY_PRICES.length),
-    stockSymbol: STOCK_SYMBOLS[Math.floor(Math.random() * STOCK_SYMBOLS.length)],
-    cryptoSymbol: CRYPTO_SYMBOLS[Math.floor(Math.random() * CRYPTO_SYMBOLS.length)],
+    stockSymbol: ALL_STOCK_SYMBOLS[Math.floor(Math.random() * ALL_STOCK_SYMBOLS.length)],
+    cryptoSymbol: ALL_CRYPTO_SYMBOLS[Math.floor(Math.random() * ALL_CRYPTO_SYMBOLS.length)],
 };
 
 const getRandomMonthlyChange = (baseRate) => {
@@ -280,43 +287,148 @@ export default function InvestmentSimulatorPage() {
     return (
         <Box sx={{ flexGrow: 1, p: 3 }}>
             <Typography variant="h4" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                <ShowChartIcon sx={{ mr: 1 }} /> Супер Динамичный Симулятор Инвестиций
+                <ShowChartIcon sx={{ mr: 1 }} /> Динамичный Симулятор Инвестиций
             </Typography>
 
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} md={3}>
-                    <TextField
-                        fullWidth
-                        label="Начальная Инвестиция (₽)"
-                        type="number"
-                        value={parseFloat(investment).toFixed(2)}
-                        onChange={(e) => setInvestment(Math.max(0, parseFloat(e.target.value)))}
-                        InputProps={{ startAdornment: <WalletIcon color="action" /> }}
-                    />
+            <Grid container spacing={4} sx={{ mb: 4, alignItems: 'center' }}>
+                {/* Row for Investment and Asset Type */}
+                <Grid item xs={12}>
+                    <Grid container spacing={4}>
+                        <Grid item xs={12} md={9}>
+                            <TextField
+                                fullWidth
+                                label="Начальная Инвестиция (₽)"
+                                type="number"
+                                value={parseFloat(investment).toFixed(2)}
+                                onChange={(e) => setInvestment(Math.max(0, parseFloat(e.target.value)))}
+                                InputProps={{ startAdornment: <WalletOutlinedIcon color="action" /> }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={9}>
+                            <FormControl fullWidth>
+                                <InputLabel
+                                    id="asset-type-label"
+                                    sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
+                                >
+                                    Тип Актива
+                                </InputLabel>
+                                <Select
+                                    labelId="asset-type-label"
+                                    value={assetType}
+                                    onChange={(e) => setAssetType(e.target.value)}
+                                    label="Тип Актива"
+                                >
+                                    {ASSET_TYPES.map((type) => (
+                                        <MenuItem key={type} value={type}>
+                                            {type.toUpperCase()}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="asset-type-label">Тип Актива</InputLabel>
-                        <Select labelId="asset-type-label" value={assetType} onChange={(e) => setAssetType(e.target.value)}>
-                            {ASSET_TYPES.map((type) => (
-                                <MenuItem key={type} value={type}>{type.toUpperCase()}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+
+                {/* Row for Currency / Stock / Crypto Selectors */}
+                <Grid item xs={12}>
+                    <Grid container spacing={4}>
+                        {assetType === 'currency' && (
+                            <Grid item xs={12} md={9}>
+                                <FormControl fullWidth>
+                                    <InputLabel
+                                        id="currency-label"
+                                        sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
+                                    >
+                                        Валюта
+                                    </InputLabel>
+                                    <Select
+                                        labelId="currency-label"
+                                        value={currency}
+                                        onChange={(e) => setCurrency(e.target.value)}
+                                        label="Валюта"
+                                    >
+                                        {CURRENCIES.map((c) => (
+                                            <MenuItem key={c} value={c}>
+                                                {c}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        )}
+
+                        {assetType === 'stock' && (
+                            <Grid item xs={12} md={12}>
+                                <FormControl fullWidth>
+                                    <InputLabel
+                                        id="stock-symbol-label"
+                                        sx={{ whiteSpace: 'nowrap' }}
+                                    >
+                                        Компания (Акции)
+                                    </InputLabel>
+
+                                    <Select
+                                        labelId="stock-symbol-label"
+                                        value={stockSymbol}
+                                        onChange={(e) => setStockSymbol(e.target.value)}
+                                        label="Компания (Акции)"
+                                        sx={{ width: '100%' }}  // растянуть селект по ширине
+                                        MenuProps={{
+                                            PaperProps: {
+                                                style: {
+                                                    minWidth: 200, // минимальная ширина выпадающего списка
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        {ALL_STOCK_SYMBOLS.map((symbol) => (
+                                            <MenuItem key={symbol} value={symbol}>
+                                                {symbol}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        )}
+
+                        {assetType === 'crypto' && (
+                            <Grid item xs={12} md={9}>
+                                <FormControl fullWidth>
+                                    <InputLabel
+                                        id="crypto-symbol-label"
+                                        sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}
+                                    >
+                                        Криптовалюта
+                                    </InputLabel>
+                                    <Select
+                                        labelId="crypto-symbol-label"
+                                        value={cryptoSymbol}
+                                        onChange={(e) => setCryptoSymbol(e.target.value)}
+                                        label="Криптовалюта"
+                                    >
+                                        {ALL_CRYPTO_SYMBOLS.map((symbol) => (
+                                            <MenuItem key={symbol} value={symbol}>
+                                                {symbol}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        )}
+                    </Grid>
                 </Grid>
-                <Grid item xs={12} md={3}>
-                    <FormControl fullWidth disabled={assetType !== 'currency'}>
-                        <InputLabel id="currency-label">Валюта</InputLabel>
-                        <Select labelId="currency-label" value={currency} onChange={(e) => setCurrency(e.target.value)}>
-                            {CURRENCIES.map((c) => (
-                                <MenuItem key={c} value={c}>{c}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={12} md={3}>
+
+                {/* Row for Duration Slider (Always full width, separate line) */}
+                <Grid item xs={12} md={9}>
                     <Typography gutterBottom>Срок (мес.): {duration}</Typography>
-                    <Slider min={1} max={MONTHS} value={duration} onChange={(_, val) => setDuration(val)} valueLabelDisplay="auto" />
+                    <Slider
+                        fullWidth
+                        min={1}
+                        max={MONTHS}
+                        value={duration}
+                        onChange={(_, val) => setDuration(val)}
+                        valueLabelDisplay="auto"
+                    />
                 </Grid>
             </Grid>
 
@@ -329,15 +441,15 @@ export default function InvestmentSimulatorPage() {
                 </Typography>
             </Paper>
 
-            <Grid container spacing={3}>
+            <Grid container spacing={3} direction="column">
                 {charts.map(({ label, checked, setChecked, show, chart }, index) => (
-                    <Grid key={index} item xs={12}>
+                    <Grid key={index} item xs={12} md={12}> {/* This part is correct for full width */}
                         <Paper sx={{ p: 2 }}>
                             <FormControlLabel
                                 control={<Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />}
                                 label={label}
                             />
-                            {show && <Box sx={{ height: 350 }}>{chart}</Box>}
+                            {show && <Box sx={{ height: 350, width: '100%' }}>{chart}</Box>}
                         </Paper>
                     </Grid>
                 ))}
