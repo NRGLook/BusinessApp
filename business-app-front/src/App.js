@@ -24,7 +24,7 @@ import CreateProfilePage from "./pages/CreateProfilePage/CreateProfilePage";
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage";
 import SuccessfullBusinesses from "./pages/SuccessfullBusinesses/SuccessfullBusinesses";
 import SubscriptionInfoPage from "./pages/SubscriptionInfo/SubscriptionInfoPage";
-import StartBusinessInfoPage from "./pages/StartBusinessInfoPage/StartBusinessInfoPage";
+import RealEstatePage from "./pages/StartBusinessInfoPage/StartBusinessInfoPage";
 
 export const theme = createTheme({
     palette: {
@@ -93,7 +93,7 @@ function App() {
                             }/>
                             <Route path="/startInfo" element={
                                 <PrivateRoute>
-                                    <StartBusinessInfoPage/>
+                                    <RealEstatePage/>
                                 </PrivateRoute>
                             }/>
                             <Route path="/start" element={
