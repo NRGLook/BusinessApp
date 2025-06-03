@@ -4,7 +4,7 @@ import { Box, Container, Typography, Divider, useTheme } from '@mui/material';
 
 const Footer = () => {
     const theme = useTheme();
-    const founderName = 'Тиханенок Илья Александрович'; // Замените на фактическое имя основателя, если необходимо
+    const founderName = 'Тиханёнок Илья Александрович';
 
     return (
         <Box

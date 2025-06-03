@@ -139,6 +139,22 @@ const Navigation = () => {
                             >
                                  Симуляция
                             </Button>
+
+                            <Button
+                                component={Link}
+                                to="/business-game"
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: theme.palette.primary.main
+                                    }
+                                }}
+                            >
+                                Игра
+                            </Button>
                         </Box>
                     )}
                 </Box>

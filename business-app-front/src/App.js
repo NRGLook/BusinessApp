@@ -26,6 +26,7 @@ import SuccessfullBusinesses from "./pages/SuccessfullBusinesses/SuccessfullBusi
 import SubscriptionInfoPage from "./pages/SubscriptionInfo/SubscriptionInfoPage";
 import RealEstatePage from "./pages/StartBusinessInfoPage/StartBusinessInfoPage";
 import InvestmentSimulatorPage from "./pages/InvestmentSimulatorPage/InvestmentSimulatorPage";
+import BusinessGamePage from "./pages/BusinessGame/BusinessGamePage";
 
 export const theme = createTheme({
     palette: {
@@ -126,6 +127,11 @@ function App() {
                             <Route path="/simulation" element={
                                 <PrivateRoute>
                                     <InvestmentSimulatorPage/>
+                                </PrivateRoute>
+                            }/>
+                            <Route path="/business-game" element={
+                                <PrivateRoute>
+                                    <BusinessGamePage/>
                                 </PrivateRoute>
                             }/>
                             <Route path="/business/:id/analytics" element={
