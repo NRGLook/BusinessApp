@@ -30,13 +30,13 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CasinoIcon from '@mui/icons-material/Casino';
-import CoffeeIcon from '@mui/icons-material/Coffee'; // For coffee shop
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid'; // For app development
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // For dropshipping
-import ArtTrackIcon from '@mui/icons-material/ArtTrack'; // For art gallery
-import AgricultureIcon from '@mui/icons-material/Agriculture'; // For local farm
+import CoffeeIcon from '@mui/icons-material/Coffee'; // Для кофейни
+import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid'; // Для разработки приложений
+import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // Для дропшиппинга
+import ArtTrackIcon from '@mui/icons-material/ArtTrack'; // Для арт-галереи
+import AgricultureIcon from '@mui/icons-material/Agriculture'; // Для локальной фермы
 
-// Import Chart.js components
+// Импорт компонентов Chart.js
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -44,12 +44,12 @@ import {
     PointElement,
     LineElement,
     Title,
-    Tooltip as ChartTooltip, // Renamed to avoid conflict with Material-UI Tooltip
+    Tooltip as ChartTooltip,
     Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-// Register Chart.js components
+// Регистрация компонентов Chart.js
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -60,8 +60,7 @@ ChartJS.register(
     Legend
 );
 
-
-// --- In-line Data ---
+// --- Данные проектов ---
 const projectsData = [
     {
         "id": "coffee_shop",
@@ -70,8 +69,8 @@ const projectsData = [
         "risk": 3,
         "potentialProfit": "medium",
         "intuitionHint": "Рынок кофеен насыщен, но уникальная концепция или локация могут изменить все. Ищите нишу.",
-        "profitFactor": 0.5, // 50% profit on success
-        "successThreshold": 60, // Need to roll 60 or higher
+        "profitFactor": 0.5, // 50% прибыли при успехе
+        "successThreshold": 60, // Нужно выбросить 60 или выше
         "icon": CoffeeIcon,
     },
     {
@@ -81,8 +80,8 @@ const projectsData = [
         "risk": 4,
         "potentialProfit": "high",
         "intuitionHint": "Идея — лишь начало. Важна команда, маркетинг и готовность к изменениям. Юзабилити решает.",
-        "profitFactor": 1.2, // 120% profit on success
-        "successThreshold": 75, // Need to roll 75 or higher
+        "profitFactor": 1.2, // 120% прибыли при успехе
+        "successThreshold": 75, // Нужно выбросить 75 или выше
         "icon": PhoneAndroidIcon,
     },
     {
@@ -92,8 +91,8 @@ const projectsData = [
         "risk": 3,
         "potentialProfit": "low",
         "intuitionHint": "Ключ к успеху в дропшиппинге — выбор ниши и надежные поставщики. Избегайте перенасыщенных рынков.",
-        "profitFactor": 0.2, // 20% profit on success
-        "successThreshold": 50, // Need to roll 50 or higher
+        "profitFactor": 0.2, // 20% прибыли при успехе
+        "successThreshold": 50, // Нужно выбросить 50 или выше
         "icon": LocalShippingIcon,
     },
     {
@@ -103,8 +102,8 @@ const projectsData = [
         "risk": 5,
         "potentialProfit": "high",
         "intuitionHint": "Искусство — это долгосрочная игра. Важна репутация, сеть контактов и понимание рынка. Не для быстрых денег.",
-        "profitFactor": 1.5, // 150% profit on success
-        "successThreshold": 85, // Need to roll 85 or higher
+        "profitFactor": 1.5, // 150% прибыли при успехе
+        "successThreshold": 85, // Нужно выбросить 85 или выше
         "icon": ArtTrackIcon,
     },
     {
@@ -114,23 +113,23 @@ const projectsData = [
         "risk": 2,
         "potentialProfit": "medium",
         "intuitionHint": "Устойчивый рост и лояльные клиенты. Риски связаны с природой, но инвестиции окупаются стабильностью и репутацией.",
-        "profitFactor": 0.4, // 40% profit on success
-        "successThreshold": 40, // Need to roll 40 or higher
+        "profitFactor": 0.4, // 40% прибыли при успехе
+        "successThreshold": 40, // Нужно выбросить 40 или выше
         "icon": AgricultureIcon,
     }
 ];
 
-// --- Game Settings ---
-const INITIAL_CAPITAL = 5000;
-const GOAL_CAPITAL = 20000;
-const STARTING_TURNS = 10;
-const INTUITION_MODIFIER = 10; // Bonus for intuition
-const FAILURE_LOSS_FACTOR = 0.8; // Lose 80% on failure
+// --- Настройки игры ---
+const INITIAL_CAPITAL = 5000; // Начальный капитал
+const GOAL_CAPITAL = 20000; // Цель игры
+const STARTING_TURNS = 10; // Начальное количество ходов
+const INTUITION_MODIFIER = 10; // Бонус за интуицию
+const FAILURE_LOSS_FACTOR = 0.8; // Потеря 80% при неудаче
 
-// --- Theme (Optional, but good practice for Material-UI) ---
+// --- Тема Material-UI ---
 const theme = createTheme();
 
-// Helper to format currency
+// --- Форматирование валюты ---
 const formatCurrency = (amount, currencySymbol = '€') => {
     return new Intl.NumberFormat('de-DE', {
         style: 'currency',
@@ -141,7 +140,7 @@ const formatCurrency = (amount, currencySymbol = '€') => {
 };
 
 const BusinessGamePage = () => {
-    // --- Game State Variables ---
+    // --- Переменные состояния игры ---
     const [currentCapital, setCurrentCapital] = useState(INITIAL_CAPITAL);
     const [turnsLeft, setTurnsLeft] = useState(STARTING_TURNS);
     const [winStreak, setWinStreak] = useState(0);
@@ -149,9 +148,9 @@ const BusinessGamePage = () => {
     const [gamesPlayed, setGamesPlayed] = useState(0);
     const [gamesWon, setGamesWon] = useState(0);
     const [gamePhase, setGamePhase] = useState('playing'); // 'playing', 'won', 'lost'
-    const [capitalHistory, setCapitalHistory] = useState([{ turn: 0, capital: INITIAL_CAPITAL }]); // For chart
+    const [capitalHistory, setCapitalHistory] = useState([{ turn: 0, capital: INITIAL_CAPITAL }]); // Для графика
 
-    // --- Existing State Variables ---
+    // --- Дополнительные переменные состояния ---
     const [selectedProjectId, setSelectedProjectId] = useState(projectsData[0].id);
     const [investmentAmount, setInvestmentAmount] = useState(500);
     const [gameResult, setGameResult] = useState(null); // { success: boolean, profit: number }
@@ -160,14 +159,15 @@ const BusinessGamePage = () => {
     const [showIntuition, setShowIntuition] = useState(false);
     const [rollResult, setRollResult] = useState(null);
     const [rollExplanation, setRollExplanation] = useState('');
-    const [capitalFlash, setCapitalFlash] = useState(false); // New: for visual flash
-    const [isRolling, setIsRolling] = useState(false); // For dice animation
+    const [capitalFlash, setCapitalFlash] = useState(false); // Для визуального эффекта
+    const [isRolling, setIsRolling] = useState(false); // Для анимации кубика
+    const [displayedRoll, setDisplayedRoll] = useState(null); // Для отображения анимации кубика
 
     const selectedProject = useMemo(() => {
         return projectsData.find(p => p.id === selectedProjectId);
     }, [selectedProjectId]);
 
-    // --- Game Reset Function ---
+    // --- Функция сброса игры ---
     const resetGame = useCallback(() => {
         setCurrentCapital(INITIAL_CAPITAL);
         setTurnsLeft(STARTING_TURNS);
@@ -182,48 +182,47 @@ const BusinessGamePage = () => {
         setGamesPlayed(0);
         setGamesWon(0);
         setHighestWinStreak(0);
-        setCapitalHistory([{ turn: 0, capital: INITIAL_CAPITAL }]); // Reset history
+        setCapitalHistory([{ turn: 0, capital: INITIAL_CAPITAL }]);
         setIsRolling(false);
     }, []);
 
-    // --- Game Logic: handleInvest ---
+    // --- Логика инвестирования ---
     const handleInvest = () => {
         if (gamePhase !== 'playing') {
             setSnackbarMessage('Игра завершена. Начните новую игру.');
             setSnackbarOpen(true);
             return;
         }
-
-        if (!selectedProject) {
-            setSnackbarMessage('Пожалуйста, выберите проект для инвестирования.');
-            setSnackbarOpen(true);
-            return;
-        }
-        if (investmentAmount <= 0) {
-            setSnackbarMessage('Сумма инвестиции должна быть больше нуля.');
-            setSnackbarOpen(true);
-            return;
-        }
-        if (investmentAmount > currentCapital) {
-            setSnackbarMessage('Недостаточно средств для этой инвестиции!');
+        if (!selectedProject || investmentAmount <= 0 || investmentAmount > currentCapital) {
+            setSnackbarMessage(
+                !selectedProject
+                    ? 'Пожалуйста, выберите проект для инвестирования.'
+                    : investmentAmount <= 0
+                        ? 'Сумма инвестиции должна быть больше нуля.'
+                        : 'Недостаточно средств для этой инвестиции!'
+            );
             setSnackbarOpen(true);
             return;
         }
 
-        setIsRolling(true); // Start rolling animation
+        setIsRolling(true);
+        setDisplayedRoll(Math.floor(Math.random() * 100) + 1); // Начальное случайное число
 
-        setTimeout(() => { // Simulate rolling time
+        const animationInterval = setInterval(() => {
+            setDisplayedRoll(Math.floor(Math.random() * 100) + 1);
+        }, 50); // Обновление каждые 50 мс
+
+        setTimeout(() => {
+            clearInterval(animationInterval);
             setGamesPlayed(prev => prev + 1);
             const newTurnsLeft = turnsLeft - 1;
-            setTurnsLeft(newTurnsLeft); // Decrement turns
+            setTurnsLeft(newTurnsLeft);
 
             let explanation = [];
-            let baseRoll = Math.floor(Math.random() * 100) + 1; // Roll from 1 to 100
+            let baseRoll = Math.floor(Math.random() * 100) + 1;
             explanation.push(`Вы бросили кубик: ${baseRoll}.`);
 
             let finalRoll = baseRoll;
-
-            // Apply risk modifier: Higher risk reduces the roll
             let riskModifier = 0;
             switch (selectedProject.risk) {
                 case 1: riskModifier = 10; explanation.push(`(${selectedProject.name} имеет низкий риск: +${riskModifier} к броску).`); break;
@@ -235,7 +234,6 @@ const BusinessGamePage = () => {
             }
             finalRoll += riskModifier;
 
-            // Apply intuition modifier
             const intuitionBonus = showIntuition ? INTUITION_MODIFIER : 0;
             if (intuitionBonus > 0) {
                 finalRoll += intuitionBonus;
@@ -244,50 +242,31 @@ const BusinessGamePage = () => {
                 setSnackbarOpen(true);
             }
 
-            // Clamp finalRoll between 1 and 100
             finalRoll = Math.max(1, Math.min(100, finalRoll));
             explanation.push(`Финальный результат броска: ${finalRoll}.`);
 
             const success = finalRoll >= selectedProject.successThreshold;
+            let profitLossAmount = success
+                ? investmentAmount * selectedProject.profitFactor
+                : -investmentAmount * FAILURE_LOSS_FACTOR;
+            const newCapital = currentCapital + profitLossAmount;
 
-            let profitLossAmount = 0;
-            let newCapital = currentCapital;
-
-            if (success) {
-                profitLossAmount = investmentAmount * selectedProject.profitFactor;
-                newCapital += profitLossAmount;
-                setWinStreak(prev => prev + 1);
-                setGamesWon(prev => prev + 1);
-                setGameResult({ success: true, profit: profitLossAmount });
-                explanation.push(`Для успеха требовался бросок не менее ${selectedProject.successThreshold}. Ваш бросок ${finalRoll} успешно прошел!`);
-            } else {
-                profitLossAmount = -investmentAmount * FAILURE_LOSS_FACTOR;
-                newCapital += profitLossAmount;
-                setWinStreak(0); // Reset streak on loss
-                setGameResult({ success: false, profit: profitLossAmount });
-                explanation.push(`Для успеха требовался бросок не менее ${selectedProject.successThreshold}. Ваш бросок ${finalRoll} был ниже порога. Проект не окупился.`);
-            }
-
-            setCurrentCapital(newCapital);
+            setDisplayedRoll(finalRoll);
             setRollResult(finalRoll);
             setRollExplanation(explanation.join(' '));
-
-            // Update highest win streak
-            if (winStreak + (success ? 1 : 0) > highestWinStreak) {
-                setHighestWinStreak(winStreak + (success ? 1 : 0));
-            }
-
-            // Add to capital history for the chart
+            setCurrentCapital(newCapital);
+            setGameResult({ success, profit: profitLossAmount });
+            setWinStreak(prev => success ? prev + 1 : 0);
+            setGamesWon(prev => success ? prev + 1 : prev);
+            setHighestWinStreak(prev => Math.max(prev, success ? winStreak + 1 : winStreak));
             setCapitalHistory(prev => [...prev, { turn: prev.length, capital: newCapital }]);
-
-            // Trigger capital flash effect
             setCapitalFlash(true);
-            setTimeout(() => setCapitalFlash(false), 500); // Flash for 0.5 seconds
-            setIsRolling(false); // Stop rolling animation
-        }, 1500); // Simulate 1.5 seconds of rolling
+            setTimeout(() => setCapitalFlash(false), 500);
+            setIsRolling(false);
+        }, 1500); // 1.5 секунды анимации
     };
 
-    // --- Check Game End Conditions ---
+    // --- Проверка условий окончания игры ---
     useEffect(() => {
         if (gamePhase === 'playing') {
             if (currentCapital >= GOAL_CAPITAL) {
@@ -309,10 +288,10 @@ const BusinessGamePage = () => {
         setSnackbarOpen(false);
     };
 
-    // Calculate progress towards goal
+    // --- Прогресс к цели ---
     const progress = Math.min(100, (currentCapital / GOAL_CAPITAL) * 100);
 
-    // Chart data and options
+    // --- Данные и настройки графика ---
     const chartData = {
         labels: capitalHistory.map(entry => `Ход ${entry.turn}`),
         datasets: [
@@ -364,28 +343,16 @@ const BusinessGamePage = () => {
         },
     };
 
-    const diceRollStyle = {
-        fontSize: '3rem',
-        fontWeight: 'bold',
-        color: gameResult?.success ? 'success.main' : 'error.main',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '8px',
-        transition: 'transform 1s ease-in-out', // Smooth transition
-        transform: isRolling ? 'rotate(360deg)' : 'rotate(0deg)', // Rotate during rolling
-    };
-
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box sx={{ flexGrow: 1, p: 3, maxWidth: 900, mx: 'auto' }}>
-                <Typography variant="h4" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                    <BusinessCenterIcon sx={{ mr: 1 }} /> Игра в риск: Оцени проект
+            <Box sx={{ flexGrow: 1, p: 3, maxWidth: 1200, mx: 'auto' }}>
+                <Typography variant="h3" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                    <BusinessCenterIcon sx={{ mr: 1, fontSize: 40 }} /> Игра в риск: Оцени проект
                 </Typography>
 
-                {/* --- Game Stats --- */}
-                <Card variant="outlined" sx={{ mb: 3 }}>
+                {/* --- Статистика игры --- */}
+                <Card elevation={2} sx={{ mb: 4 }}>
                     <CardContent>
                         <Typography variant="h6" sx={{ mb: 1 }}>
                             Ваш Капитал:{' '}
@@ -398,17 +365,18 @@ const BusinessGamePage = () => {
                                     transform: capitalFlash ? 'scale(1.05)' : 'scale(1)',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '4px'
+                                    gap: '4px',
+                                    fontSize: '1.5rem',
                                 }}
                             >
-                                <AttachMoneyIcon sx={{ verticalAlign: 'middle', fontSize: '1.2em' }} />
+                                <AttachMoneyIcon sx={{ fontSize: 28 }} />
                                 {formatCurrency(currentCapital)}
                             </Box>
                         </Typography>
                         <LinearProgress
                             variant="determinate"
                             value={progress}
-                            sx={{ height: 10, borderRadius: 5, mb: 1 }}
+                            sx={{ height: 15, borderRadius: 5, mb: 1 }}
                             color={currentCapital >= GOAL_CAPITAL ? 'success' : currentCapital < INITIAL_CAPITAL / 2 ? 'warning' : 'primary'}
                         />
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
@@ -417,13 +385,13 @@ const BusinessGamePage = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <EmojiEventsIcon sx={{ mr: 0.5, fontSize: 18 }} color="warning" />
+                                    <EmojiEventsIcon sx={{ mr: 0.5, fontSize: 24 }} color="warning" />
                                     Серия побед: <Box component="span" fontWeight="bold" sx={{ ml: 0.5 }}>{winStreak}</Box>
                                 </Typography>
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <EmojiEventsIcon sx={{ mr: 0.5, fontSize: 18 }} color="info" />
+                                    <EmojiEventsIcon sx={{ mr: 0.5, fontSize: 24 }} color="info" />
                                     Лучшая серия: <Box component="span" fontWeight="bold" sx={{ ml: 0.5 }}>{highestWinStreak}</Box>
                                 </Typography>
                             </Grid>
@@ -437,11 +405,11 @@ const BusinessGamePage = () => {
                     </CardContent>
                 </Card>
 
-                {/* --- Game Over/Win State --- */}
+                {/* --- Состояние окончания игры --- */}
                 {gamePhase !== 'playing' && (
                     <Alert
                         severity={gamePhase === 'won' ? 'success' : 'error'}
-                        sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                        sx={{ mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                     >
                         <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
                             {gamePhase === 'won' ? 'ПОБЕДА В ИГРЕ!' : 'ИГРА ОКОНЧЕНА!'}
@@ -462,19 +430,19 @@ const BusinessGamePage = () => {
                     </Alert>
                 )}
 
-                {/* --- Dynamic Capital Chart --- */}
-                <Card variant="outlined" sx={{ mb: 4 }}>
+                {/* --- График динамики капитала --- */}
+                <Card elevation={2} sx={{ mb: 4 }}>
                     <CardContent>
-                        <Box sx={{ height: 300 }}> {/* Fixed height for chart */}
+                        <Box sx={{ height: 400 }}>
                             <Line data={chartData} options={chartOptions} />
                         </Box>
                     </CardContent>
                 </Card>
 
-                {/* Project Selection */}
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                {/* --- Выбор проекта --- */}
+                <Grid container spacing={3} sx={{ mb: 6 }}>
                     <Grid item xs={12}>
-                        <Card variant="outlined">
+                        <Card elevation={2}>
                             <CardContent>
                                 <Typography variant="h6" sx={{ mb: 2 }}>
                                     Выберите проект для инвестирования
@@ -491,11 +459,12 @@ const BusinessGamePage = () => {
                                             setRollResult(null);
                                             setRollExplanation('');
                                         }}
+                                        sx={{ fontSize: '1.2rem' }}
                                     >
                                         {projectsData.map((project) => (
                                             <MenuItem key={project.id} value={project.id}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <project.icon />
+                                                    <project.icon sx={{ fontSize: 24 }} />
                                                     {project.name}
                                                 </Box>
                                             </MenuItem>
@@ -549,9 +518,9 @@ const BusinessGamePage = () => {
                         </Card>
                     </Grid>
 
-                    {/* Investment and Intuition */}
+                    {/* --- Инвестиция и интуиция --- */}
                     <Grid item xs={12}>
-                        <Card variant="outlined">
+                        <Card elevation={2}>
                             <CardContent>
                                 <Typography variant="h6" sx={{ mb: 2 }}>
                                     Ваша инвестиция
@@ -562,8 +531,8 @@ const BusinessGamePage = () => {
                                     type="number"
                                     value={investmentAmount}
                                     onChange={(e) => setInvestmentAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                                    InputProps={{ startAdornment: <AttachMoneyIcon sx={{ mr: 1 }} /> }}
-                                    sx={{ mb: 2 }}
+                                    InputProps={{ startAdornment: <AttachMoneyIcon sx={{ mr: 1, fontSize: 24 }} /> }}
+                                    sx={{ mb: 2, '& .MuiInputBase-input': { fontSize: '1.2rem' } }}
                                     disabled={gamePhase !== 'playing'}
                                 />
                                 <FormControlLabel
@@ -590,11 +559,11 @@ const BusinessGamePage = () => {
                                     color="primary"
                                     fullWidth
                                     onClick={handleInvest}
-                                    sx={{ py: 1.5 }}
+                                    sx={{ py: 2, fontSize: '1.2rem' }}
                                     disabled={gamePhase !== 'playing' || investmentAmount === 0 || investmentAmount > currentCapital}
-                                    startIcon={<PlayArrowIcon />}
-                                    className={isRolling ? 'rolling' : ''} // Apply rolling class
-                                    style={{ transition: 'transform 1s ease-in-out', transform: isRolling ? 'rotate(360deg)' : 'rotate(0deg)' }} // Inline style for animation
+                                    startIcon={<PlayArrowIcon sx={{ fontSize: 24 }} />}
+                                    className={isRolling ? 'rolling' : ''}
+                                    style={{ transition: 'transform 1s ease-in-out', transform: isRolling ? 'rotate(360deg)' : 'rotate(0deg)' }}
                                 >
                                     Инвестировать
                                 </Button>
@@ -602,57 +571,70 @@ const BusinessGamePage = () => {
                         </Card>
                     </Grid>
 
-                    {/* Game Result */}
-                    {gameResult && (
+                    {/* --- Результат игры --- */}
+                    {(isRolling || gameResult) && (
                         <Grid item xs={12}>
-                            <Card variant="outlined">
+                            <Card elevation={2}>
                                 <CardContent>
                                     <Typography variant="h6" sx={{ mb: 2 }}>
                                         Результат
                                     </Typography>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                                        <Typography variant="h5" color="text.secondary">
-                                            Ваш бросок:
-                                        </Typography>
-                                        <Typography
-                                            sx={{
-                                                fontSize: '3rem', // Larger font size for impact
-                                                fontWeight: 'bold',
-                                                color: gameResult.success ? 'success.main' : 'error.main', // Color changes based on success
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px',
-                                            }}
-                                        >
-                                            <CasinoIcon sx={{ fontSize: 'inherit' }} /> {rollResult}
-                                        </Typography>
-                                        <Typography
-                                            variant="h5"
-                                            sx={{
-                                                mt: 1,
-                                                fontWeight: 'bold',
-                                                color: gameResult.profit >= 0 ? 'success.main' : 'error.main',
-                                                transition: 'transform 0.3s ease-out',
-                                                transform: gameResult ? 'scale(1.05)' : 'scale(1)',
-                                            }}
-                                        >
-                                            {gameResult.profit >= 0 ? '+' : ''}{formatCurrency(gameResult.profit)}
-                                        </Typography>
-                                    </Box>
-                                    <Alert severity={gameResult.success ? 'success' : 'error'}>
-                                        <Typography variant="h6" fontWeight="bold">
-                                            {gameResult.success ? 'УСПЕХ!' : 'НЕУДАЧА!'}
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {gameResult.success
-                                                ? `Ваши инвестиции в размере ${formatCurrency(investmentAmount)} принесли прибыль в ${formatCurrency(gameResult.profit)}. Ваш капитал теперь: ${formatCurrency(currentCapital)}.`
-                                                : `Вы потеряли ${formatCurrency(Math.abs(gameResult.profit))}. Ваш капитал теперь: ${formatCurrency(currentCapital)}.`}
-                                        </Typography>
-                                        <Typography variant="caption" display="block" sx={{ mt: 1, fontStyle: 'italic' }}>
-                                            **Почему так:** {rollExplanation}
-                                        </Typography>
-                                    </Alert>
+                                    {isRolling ? (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                                            <Typography variant="h5" color="text.secondary">
+                                                Бросок кубика...
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                <CasinoIcon sx={{ fontSize: '3rem', animation: 'spin 1s linear infinite' }} />
+                                                <Typography sx={{ fontSize: '3rem', fontWeight: 'bold', color: 'text.secondary' }}>
+                                                    {displayedRoll}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ) : gameResult ? (
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+                                            <Typography variant="h5" color="text.secondary">
+                                                Ваш бросок:
+                                            </Typography>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '3rem',
+                                                    fontWeight: 'bold',
+                                                    color: gameResult.success ? 'success.main' : 'error.main',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                }}
+                                            >
+                                                <CasinoIcon sx={{ fontSize: 'inherit' }} /> {rollResult}
+                                            </Typography>
+                                            <Typography
+                                                variant="h5"
+                                                sx={{
+                                                    mt: 1,
+                                                    fontWeight: 'bold',
+                                                    color: gameResult.profit >= 0 ? 'success.main' : 'error.main',
+                                                }}
+                                            >
+                                                {gameResult.profit >= 0 ? '+' : ''}{formatCurrency(gameResult.profit)}
+                                            </Typography>
+                                        </Box>
+                                    ) : null}
+                                    {gameResult && (
+                                        <Alert severity={gameResult.success ? 'success' : 'error'}>
+                                            <Typography variant="h6" fontWeight="bold">
+                                                {gameResult.success ? 'УСПЕХ!' : 'НЕУДАЧА!'}
+                                            </Typography>
+                                            <Typography variant="body1">
+                                                {gameResult.success
+                                                    ? `Ваши инвестиции в размере ${formatCurrency(investmentAmount)} принесли прибыль в ${formatCurrency(gameResult.profit)}. Ваш капитал теперь: ${formatCurrency(currentCapital)}.`
+                                                    : `Вы потеряли ${formatCurrency(Math.abs(gameResult.profit))}. Ваш капитал теперь: ${formatCurrency(currentCapital)}.`}
+                                            </Typography>
+                                            <Typography variant="caption" display="block" sx={{ mt: 1, fontStyle: 'italic' }}>
+                                                **Почему так:** {rollExplanation}
+                                            </Typography>
+                                        </Alert>
+                                    )}
                                 </CardContent>
                             </Card>
                         </Grid>
