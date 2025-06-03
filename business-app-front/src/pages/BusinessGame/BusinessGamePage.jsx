@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import {
     Box,
     Typography,
@@ -20,6 +21,7 @@ import {
     ThemeProvider,
     CssBaseline,
     LinearProgress,
+    Popover,
 } from '@mui/material';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -30,13 +32,12 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CasinoIcon from '@mui/icons-material/Casino';
-import CoffeeIcon from '@mui/icons-material/Coffee'; // Для кофейни
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid'; // Для разработки приложений
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'; // Для дропшиппинга
-import ArtTrackIcon from '@mui/icons-material/ArtTrack'; // Для арт-галереи
-import AgricultureIcon from '@mui/icons-material/Agriculture'; // Для локальной фермы
+import CoffeeIcon from '@mui/icons-material/Coffee';
+import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import ArtTrackIcon from '@mui/icons-material/ArtTrack';
+import AgricultureIcon from '@mui/icons-material/Agriculture';
 
-// Импорт компонентов Chart.js
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -49,7 +50,6 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-// Регистрация компонентов Chart.js
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -60,7 +60,6 @@ ChartJS.register(
     Legend
 );
 
-// --- Данные проектов ---
 const projectsData = [
     {
         "id": "coffee_shop",
@@ -69,8 +68,8 @@ const projectsData = [
         "risk": 3,
         "potentialProfit": "medium",
         "intuitionHint": "Рынок кофеен насыщен, но уникальная концепция или локация могут изменить все. Ищите нишу.",
-        "profitFactor": 0.5, // 50% прибыли при успехе
-        "successThreshold": 60, // Нужно выбросить 60 или выше
+        "profitFactor": 0.5,
+        "successThreshold": 60,
         "icon": CoffeeIcon,
     },
     {
@@ -80,8 +79,8 @@ const projectsData = [
         "risk": 4,
         "potentialProfit": "high",
         "intuitionHint": "Идея — лишь начало. Важна команда, маркетинг и готовность к изменениям. Юзабилити решает.",
-        "profitFactor": 1.2, // 120% прибыли при успехе
-        "successThreshold": 75, // Нужно выбросить 75 или выше
+        "profitFactor": 1.2,
+        "successThreshold": 75,
         "icon": PhoneAndroidIcon,
     },
     {
@@ -91,8 +90,8 @@ const projectsData = [
         "risk": 3,
         "potentialProfit": "low",
         "intuitionHint": "Ключ к успеху в дропшиппинге — выбор ниши и надежные поставщики. Избегайте перенасыщенных рынков.",
-        "profitFactor": 0.2, // 20% прибыли при успехе
-        "successThreshold": 50, // Нужно выбросить 50 или выше
+        "profitFactor": 0.2,
+        "successThreshold": 50,
         "icon": LocalShippingIcon,
     },
     {
@@ -102,8 +101,8 @@ const projectsData = [
         "risk": 5,
         "potentialProfit": "high",
         "intuitionHint": "Искусство — это долгосрочная игра. Важна репутация, сеть контактов и понимание рынка. Не для быстрых денег.",
-        "profitFactor": 1.5, // 150% прибыли при успехе
-        "successThreshold": 85, // Нужно выбросить 85 или выше
+        "profitFactor": 1.5,
+        "successThreshold": 85,
         "icon": ArtTrackIcon,
     },
     {
@@ -113,23 +112,20 @@ const projectsData = [
         "risk": 2,
         "potentialProfit": "medium",
         "intuitionHint": "Устойчивый рост и лояльные клиенты. Риски связаны с природой, но инвестиции окупаются стабильностью и репутацией.",
-        "profitFactor": 0.4, // 40% прибыли при успехе
-        "successThreshold": 40, // Нужно выбросить 40 или выше
+        "profitFactor": 0.4,
+        "successThreshold": 40,
         "icon": AgricultureIcon,
     }
 ];
 
-// --- Настройки игры ---
-const INITIAL_CAPITAL = 5000; // Начальный капитал
-const GOAL_CAPITAL = 20000; // Цель игры
-const STARTING_TURNS = 10; // Начальное количество ходов
-const INTUITION_MODIFIER = 10; // Бонус за интуицию
-const FAILURE_LOSS_FACTOR = 0.8; // Потеря 80% при неудаче
+const INITIAL_CAPITAL = 5000;
+const GOAL_CAPITAL = 20000;
+const STARTING_TURNS = 10;
+const INTUITION_MODIFIER = 10;
+const FAILURE_LOSS_FACTOR = 0.8;
 
-// --- Тема Material-UI ---
 const theme = createTheme();
 
-// --- Форматирование валюты ---
 const formatCurrency = (amount, currencySymbol = '€') => {
     return new Intl.NumberFormat('de-DE', {
         style: 'currency',
@@ -139,35 +135,52 @@ const formatCurrency = (amount, currencySymbol = '€') => {
     }).format(amount);
 };
 
+const floatingSymbols = [
+    { top: '20px', left: '30px', symbol: '€', color: '#ffc107', delay: 0, size: 70 },
+    { top: '120px', right: '50px', symbol: '$', color: '#4caf50', delay: 1, size: 90 },
+    { bottom: '100px', left: '100px', symbol: '₿', color: '#f57c00', delay: 2, size: 60 },
+    { bottom: '180px', right: '150px', symbol: '€', color: '#1976d2', delay: 1.5, size: 80 },
+    { top: '250px', left: '200px', symbol: '$', color: '#388e3c', delay: 0.7, size: 100 },
+    { top: '80px', right: '200px', symbol: '₿', color: '#e65100', delay: 2.5, size: 75 },
+    { bottom: '30px', right: '30px', symbol: '€', color: '#0288d1', delay: 3, size: 65 },
+    { top: '300px', left: '50px', symbol: '$', color: '#2e7d32', delay: 0.3, size: 85 },
+];
+
 const BusinessGamePage = () => {
-    // --- Переменные состояния игры ---
     const [currentCapital, setCurrentCapital] = useState(INITIAL_CAPITAL);
     const [turnsLeft, setTurnsLeft] = useState(STARTING_TURNS);
     const [winStreak, setWinStreak] = useState(0);
     const [highestWinStreak, setHighestWinStreak] = useState(0);
     const [gamesPlayed, setGamesPlayed] = useState(0);
     const [gamesWon, setGamesWon] = useState(0);
-    const [gamePhase, setGamePhase] = useState('playing'); // 'playing', 'won', 'lost'
-    const [capitalHistory, setCapitalHistory] = useState([{ turn: 0, capital: INITIAL_CAPITAL }]); // Для графика
-
-    // --- Дополнительные переменные состояния ---
+    const [gamePhase, setGamePhase] = useState('playing');
+    const [capitalHistory, setCapitalHistory] = useState([{ turn: 0, capital: INITIAL_CAPITAL }]);
     const [selectedProjectId, setSelectedProjectId] = useState(projectsData[0].id);
     const [investmentAmount, setInvestmentAmount] = useState(500);
-    const [gameResult, setGameResult] = useState(null); // { success: boolean, profit: number }
+    const [gameResult, setGameResult] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [showIntuition, setShowIntuition] = useState(false);
     const [rollResult, setRollResult] = useState(null);
     const [rollExplanation, setRollExplanation] = useState('');
-    const [capitalFlash, setCapitalFlash] = useState(false); // Для визуального эффекта
-    const [isRolling, setIsRolling] = useState(false); // Для анимации кубика
-    const [displayedRoll, setDisplayedRoll] = useState(null); // Для отображения анимации кубика
+    const [capitalFlash, setCapitalFlash] = useState(false);
+    const [isRolling, setIsRolling] = useState(false);
+    const [displayedRoll, setDisplayedRoll] = useState(null);
+    const [guideStep, setGuideStep] = useState(0);
+    const [guideOpen, setGuideOpen] = useState(false);
+
+    const capitalDisplayRef = useRef(null);
+    const progressBarRef = useRef(null);
+    const chartRef = useRef(null);
+    const projectSelectRef = useRef(null);
+    const investmentInputRef = useRef(null);
+    const intuitionSwitchRef = useRef(null);
+    const investButtonRef = useRef(null);
 
     const selectedProject = useMemo(() => {
         return projectsData.find(p => p.id === selectedProjectId);
     }, [selectedProjectId]);
 
-    // --- Функция сброса игры ---
     const resetGame = useCallback(() => {
         setCurrentCapital(INITIAL_CAPITAL);
         setTurnsLeft(STARTING_TURNS);
@@ -186,7 +199,6 @@ const BusinessGamePage = () => {
         setIsRolling(false);
     }, []);
 
-    // --- Логика инвестирования ---
     const handleInvest = () => {
         if (gamePhase !== 'playing') {
             setSnackbarMessage('Игра завершена. Начните новую игру.');
@@ -206,11 +218,11 @@ const BusinessGamePage = () => {
         }
 
         setIsRolling(true);
-        setDisplayedRoll(Math.floor(Math.random() * 100) + 1); // Начальное случайное число
+        setDisplayedRoll(Math.floor(Math.random() * 100) + 1);
 
         const animationInterval = setInterval(() => {
             setDisplayedRoll(Math.floor(Math.random() * 100) + 1);
-        }, 50); // Обновление каждые 50 мс
+        }, 50);
 
         setTimeout(() => {
             clearInterval(animationInterval);
@@ -263,10 +275,9 @@ const BusinessGamePage = () => {
             setCapitalFlash(true);
             setTimeout(() => setCapitalFlash(false), 500);
             setIsRolling(false);
-        }, 1500); // 1.5 секунды анимации
+        }, 1500);
     };
 
-    // --- Проверка условий окончания игры ---
     useEffect(() => {
         if (gamePhase === 'playing') {
             if (currentCapital >= GOAL_CAPITAL) {
@@ -288,10 +299,8 @@ const BusinessGamePage = () => {
         setSnackbarOpen(false);
     };
 
-    // --- Прогресс к цели ---
     const progress = Math.min(100, (currentCapital / GOAL_CAPITAL) * 100);
 
-    // --- Данные и настройки графика ---
     const chartData = {
         labels: capitalHistory.map(entry => `Ход ${entry.turn}`),
         datasets: [
@@ -312,51 +321,94 @@ const BusinessGamePage = () => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Динамика Капитала',
-            },
+            legend: { position: 'top' },
+            title: { display: true, text: 'Динамика Капитала' },
         },
         scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Ход Игры',
-                },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)',
-                },
-            },
-            y: {
-                title: {
-                    display: true,
-                    text: 'Капитал (€)',
-                },
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)',
-                },
-            },
+            x: { title: { display: true, text: 'Ход Игры' }, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+            y: { title: { display: true, text: 'Капитал (€)' }, beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
         },
     };
+
+    const guideSteps = useMemo(() => [
+        { target: capitalDisplayRef, content: 'Это ваш текущий капитал. Ваша цель — достичь 20 000 €.' },
+        { target: progressBarRef, content: 'Прогресс-бар показывает, как близко вы к цели.' },
+        { target: chartRef, content: 'График отображает изменение вашего капитала с каждым ходом.' },
+        { target: projectSelectRef, content: 'Выберите проект, в который хотите инвестировать.' },
+        { target: investmentInputRef, content: 'Введите сумму инвестиции. Убедитесь, что она не превышает ваш капитал.' },
+        { target: intuitionSwitchRef, content: 'Активируйте интуицию для получения подсказок и бонуса к броску.' },
+        { target: investButtonRef, content: 'Нажмите, чтобы сделать инвестицию и бросить кубик.' },
+    ], [
+        capitalDisplayRef,
+        progressBarRef,
+        chartRef,
+        projectSelectRef,
+        investmentInputRef,
+        intuitionSwitchRef,
+        investButtonRef,
+    ]);
+
+    useEffect(() => {
+        if (guideOpen && guideSteps[guideStep]?.target?.current) {
+            guideSteps[guideStep].target.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+        }
+    }, [guideStep, guideOpen, guideSteps]);
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <Box sx={{ flexGrow: 1, p: 3, maxWidth: 1200, mx: 'auto' }}>
-                <Typography variant="h3" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center' }}>
-                    <BusinessCenterIcon sx={{ mr: 1, fontSize: 40 }} /> Игра в риск: Оцени проект
-                </Typography>
+            {floatingSymbols.map(({ top, left, right, bottom, symbol, color, delay, size }, i) => (
+                <motion.div
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.25 }}
+                    transition={{ duration: 2, delay }}
+                    style={{
+                        position: 'absolute',
+                        top,
+                        left,
+                        right,
+                        bottom,
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <svg width={size} height={size} viewBox="0 0 100 100">
+                        <g>
+                            <circle cx="50" cy="50" r="40" fill={color} stroke="#ffffffaa" strokeWidth="4" />
+                            <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontSize="32" fill="#fff">{symbol}</text>
+                            <animateTransform
+                                attributeName="transform"
+                                attributeType="XML"
+                                type="rotate"
+                                from="0 50 50"
+                                to="360 50 50"
+                                dur={`${18 + i * 2}s`}
+                                repeatCount="indefinite"
+                            />
+                        </g>
+                    </svg>
+                </motion.div>
+            ))}
 
-                {/* --- Статистика игры --- */}
+            <Box sx={{ flexGrow: 1, p: 3, maxWidth: 1200, mx: 'auto' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center' }}>
+                        <BusinessCenterIcon sx={{ mr: 1, fontSize: 40 }} /> Игра в риск: Оцени проект
+                    </Typography>
+                    <Button variant="outlined" onClick={() => { setGuideStep(0); setGuideOpen(true); }}>Как играть</Button>
+                </Box>
+
                 <Card elevation={2} sx={{ mb: 4 }}>
                     <CardContent>
                         <Typography variant="h6" sx={{ mb: 1 }}>
                             Ваш Капитал:{' '}
                             <Box
+                                ref={capitalDisplayRef}
                                 component="span"
                                 fontWeight="bold"
                                 sx={{
@@ -374,6 +426,7 @@ const BusinessGamePage = () => {
                             </Box>
                         </Typography>
                         <LinearProgress
+                            ref={progressBarRef}
                             variant="determinate"
                             value={progress}
                             sx={{ height: 15, borderRadius: 5, mb: 1 }}
@@ -405,7 +458,6 @@ const BusinessGamePage = () => {
                     </CardContent>
                 </Card>
 
-                {/* --- Состояние окончания игры --- */}
                 {gamePhase !== 'playing' && (
                     <Alert
                         severity={gamePhase === 'won' ? 'success' : 'error'}
@@ -430,16 +482,14 @@ const BusinessGamePage = () => {
                     </Alert>
                 )}
 
-                {/* --- График динамики капитала --- */}
                 <Card elevation={2} sx={{ mb: 4 }}>
                     <CardContent>
-                        <Box sx={{ height: 400 }}>
+                        <Box ref={chartRef} sx={{ height: 400 }}>
                             <Line data={chartData} options={chartOptions} />
                         </Box>
                     </CardContent>
                 </Card>
 
-                {/* --- Выбор проекта --- */}
                 <Grid container spacing={3} sx={{ mb: 6 }}>
                     <Grid item xs={12}>
                         <Card elevation={2}>
@@ -450,6 +500,7 @@ const BusinessGamePage = () => {
                                 <FormControl fullWidth sx={{ mb: 2 }} disabled={gamePhase !== 'playing'}>
                                     <InputLabel id="project-select-label">Проект</InputLabel>
                                     <Select
+                                        ref={projectSelectRef}
                                         labelId="project-select-label"
                                         value={selectedProjectId}
                                         label="Проект"
@@ -518,7 +569,6 @@ const BusinessGamePage = () => {
                         </Card>
                     </Grid>
 
-                    {/* --- Инвестиция и интуиция --- */}
                     <Grid item xs={12}>
                         <Card elevation={2}>
                             <CardContent>
@@ -526,6 +576,7 @@ const BusinessGamePage = () => {
                                     Ваша инвестиция
                                 </Typography>
                                 <TextField
+                                    ref={investmentInputRef}
                                     fullWidth
                                     label="Сумма инвестиции"
                                     type="number"
@@ -538,6 +589,7 @@ const BusinessGamePage = () => {
                                 <FormControlLabel
                                     control={
                                         <Switch
+                                            ref={intuitionSwitchRef}
                                             checked={showIntuition}
                                             onChange={(e) => setShowIntuition(e.target.checked)}
                                             name="checkIntuition"
@@ -555,6 +607,7 @@ const BusinessGamePage = () => {
                                     sx={{ mb: 2 }}
                                 />
                                 <Button
+                                    ref={investButtonRef}
                                     variant="contained"
                                     color="primary"
                                     fullWidth
@@ -562,8 +615,6 @@ const BusinessGamePage = () => {
                                     sx={{ py: 2, fontSize: '1.2rem' }}
                                     disabled={gamePhase !== 'playing' || investmentAmount === 0 || investmentAmount > currentCapital}
                                     startIcon={<PlayArrowIcon sx={{ fontSize: 24 }} />}
-                                    className={isRolling ? 'rolling' : ''}
-                                    style={{ transition: 'transform 1s ease-in-out', transform: isRolling ? 'rotate(360deg)' : 'rotate(0deg)' }}
                                 >
                                     Инвестировать
                                 </Button>
@@ -571,7 +622,6 @@ const BusinessGamePage = () => {
                         </Card>
                     </Grid>
 
-                    {/* --- Результат игры --- */}
                     {(isRolling || gameResult) && (
                         <Grid item xs={12}>
                             <Card elevation={2}>
@@ -641,6 +691,27 @@ const BusinessGamePage = () => {
                     )}
                 </Grid>
 
+                {guideOpen && guideStep < guideSteps.length && (
+                    <Popover
+                        open={true}
+                        anchorEl={guideSteps[guideStep].target.current}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        onClose={() => setGuideOpen(false)}
+                        disableScrollLock
+                    >
+                        <Box p={2}>
+                            <Typography>Шаг {guideStep + 1}: {guideSteps[guideStep].content}</Typography>
+                            {guideStep < guideSteps.length - 1 ? (
+                                <Button onClick={() => setGuideStep(guideStep + 1)}>Далее</Button>
+                            ) : (
+                                <Button onClick={() => setGuideOpen(false)}>Закрыть</Button>
+                            )}
+                            <Button onClick={() => setGuideOpen(false)}>Пропустить</Button>
+                        </Box>
+                    </Popover>
+                )}
+
                 <Snackbar
                     open={snackbarOpen}
                     autoHideDuration={4000}
@@ -648,6 +719,15 @@ const BusinessGamePage = () => {
                     message={snackbarMessage}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 />
+
+                <style>
+                    {`
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    `}
+                </style>
             </Box>
         </ThemeProvider>
     );
