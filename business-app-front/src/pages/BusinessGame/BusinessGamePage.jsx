@@ -37,6 +37,47 @@ import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ArtTrackIcon from '@mui/icons-material/ArtTrack';
 import AgricultureIcon from '@mui/icons-material/Agriculture';
+import StorefrontIcon from '@mui/icons-material/Storefront'; // Example for new icons
+import CodeIcon from '@mui/icons-material/Code'; // Example for new icons
+import PaletteIcon from '@mui/icons-material/Palette'; // Example
+import MicIcon from '@mui/icons-material/Mic'; // Example
+import FastfoodIcon from '@mui/icons-material/Fastfood'; // Example
+import BuildIcon from '@mui/icons-material/Build'; // Example
+import SchoolIcon from '@mui/icons-material/School'; // Example
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter'; // Example
+import HomeWorkIcon from '@mui/icons-material/HomeWork'; // Example
+import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'; // Example
+import DevicesIcon from '@mui/icons-material/Devices'; // Example
+import PetsIcon from '@mui/icons-material/Pets'; // Example
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard'; // Example
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff'; // Example
+import SecurityIcon from '@mui/icons-material/Security'; // Example
+import BiotechIcon from '@mui/icons-material/Biotech'; // Example
+import SmartToyIcon from '@mui/icons-material/SmartToy'; // Example
+import HandymanIcon from '@mui/icons-material/Handyman'; // Example
+import DesignServicesIcon from '@mui/icons-material/DesignServices'; // Example
+import CameraAltIcon from '@mui/icons-material/CameraAlt'; // Example
+import BookIcon from '@mui/icons-material/Book'; // Example
+import MusicNoteIcon from '@mui/icons-material/MusicNote'; // Example
+import LocalFloristIcon from '@mui/icons-material/LocalFlorist'; // Example
+import BakeryDiningIcon from '@mui/icons-material/BakeryDining'; // Example
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices'; // Example
+import EventIcon from '@mui/icons-material/Event'; // Example
+import TranslateIcon from '@mui/icons-material/Translate'; // Example
+import SpaIcon from '@mui/icons-material/Spa'; // Example
+import TwoWheelerIcon from '@mui/icons-material/TwoWheeler'; // Example
+import ScienceIcon from '@mui/icons-material/Science'; // Example
+import VpnKeyIcon from '@mui/icons-material/VpnKey'; // Example
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports'; // Example
+import MuseumIcon from '@mui/icons-material/Museum'; // Example
+import ParkIcon from '@mui/icons-material/Park'; // Example
+import SolarPowerIcon from '@mui/icons-material/SolarPower'; // Example
+import WaterDropIcon from '@mui/icons-material/WaterDrop'; // Example
+import ForestIcon from '@mui/icons-material/Forest'; // Example
+import LocalLaundryServiceIcon from '@mui/icons-material/LocalLaundryService'; // Example
+import ConstructionIcon from '@mui/icons-material/Construction'; // Example
+import DiamondIcon from '@mui/icons-material/Diamond'; // Example
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'; // Example
 
 import {
     Chart as ChartJS,
@@ -70,7 +111,7 @@ const projectsData = [
         "intuitionHint": "Рынок кофеен насыщен, но уникальная концепция или локация могут изменить все. Ищите нишу.",
         "profitFactor": 0.5,
         "successThreshold": 60,
-        "icon": CoffeeIcon,
+        "icon": CoffeeIcon, // Placeholder, replace with actual MUI icon
     },
     {
         "id": "app_development",
@@ -81,7 +122,7 @@ const projectsData = [
         "intuitionHint": "Идея — лишь начало. Важна команда, маркетинг и готовность к изменениям. Юзабилити решает.",
         "profitFactor": 1.2,
         "successThreshold": 75,
-        "icon": PhoneAndroidIcon,
+        "icon": PhoneAndroidIcon, // Placeholder
     },
     {
         "id": "dropshipping",
@@ -92,7 +133,7 @@ const projectsData = [
         "intuitionHint": "Ключ к успеху в дропшиппинге — выбор ниши и надежные поставщики. Избегайте перенасыщенных рынков.",
         "profitFactor": 0.2,
         "successThreshold": 50,
-        "icon": LocalShippingIcon,
+        "icon": LocalShippingIcon, // Placeholder
     },
     {
         "id": "art_gallery",
@@ -103,7 +144,7 @@ const projectsData = [
         "intuitionHint": "Искусство — это долгосрочная игра. Важна репутация, сеть контактов и понимание рынка. Не для быстрых денег.",
         "profitFactor": 1.5,
         "successThreshold": 85,
-        "icon": ArtTrackIcon,
+        "icon": ArtTrackIcon, // Placeholder
     },
     {
         "id": "local_farm",
@@ -114,7 +155,480 @@ const projectsData = [
         "intuitionHint": "Устойчивый рост и лояльные клиенты. Риски связаны с природой, но инвестиции окупаются стабильностью и репутацией.",
         "profitFactor": 0.4,
         "successThreshold": 40,
-        "icon": AgricultureIcon,
+        "icon": AgricultureIcon, // Placeholder
+    },
+    {
+        "id": "saas_platform",
+        "name": "SaaS платформа для бизнеса",
+        "description": "Разработка облачного ПО для решения конкретных бизнес-задач. Требует сильной тех. команды и маркетинга. Высокий потенциал масштабирования.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Найдите боль клиентов и предложите элегантное решение. Удержание клиентов важнее привлечения новых.",
+        "profitFactor": 1.3,
+        "successThreshold": 70,
+        "icon": CodeIcon, // Placeholder
+    },
+    {
+        "id": "vr_arcade",
+        "name": "VR-аркада",
+        "description": "Развлекательный центр с играми и опытом в виртуальной реальности. Высокие начальные затраты на оборудование, зависимость от новизны контента.",
+        "risk": 4,
+        "potentialProfit": "medium",
+        "intuitionHint": "Предлагайте уникальный опыт, который нельзя получить дома. Регулярно обновляйте игры.",
+        "profitFactor": 0.6,
+        "successThreshold": 65,
+        "icon": SportsEsportsIcon, // Placeholder
+    },
+    {
+        "id": "personal_chef_service",
+        "name": "Услуги личного повара",
+        "description": "Приготовление еды на дому для занятых людей или особых случаев. Требует кулинарного таланта и умения работать с клиентами.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Специализация на определенной кухне или диете может выделить вас.",
+        "profitFactor": 0.55,
+        "successThreshold": 50,
+        "icon": FastfoodIcon, // Placeholder
+    },
+    {
+        "id": "handmade_jewelry",
+        "name": "Создание украшений ручной работы",
+        "description": "Продажа уникальных ювелирных изделий через онлайн-платформы или ярмарки. Требует творческого подхода и навыков.",
+        "risk": 3,
+        "potentialProfit": "low",
+        "intuitionHint": "Качественные фотографии и история бренда помогут продажам.",
+        "profitFactor": 0.3,
+        "successThreshold": 45,
+        "icon": DiamondIcon, // Placeholder
+    },
+    {
+        "id": "marketing_agency",
+        "name": "Маркетинговое агентство",
+        "description": "Предоставление услуг по продвижению брендов (SEO, SMM, контент). Высокая конкуренция, требует постоянного обучения.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Специализация на нише или конкретном инструменте может быть преимуществом.",
+        "profitFactor": 0.65,
+        "successThreshold": 60,
+        "icon": DesignServicesIcon, // Placeholder
+    },
+    {
+        "id": "language_school",
+        "name": "Языковая школа (онлайн/офлайн)",
+        "description": "Обучение иностранным языкам. Спрос стабилен, но требует квалифицированных преподавателей и методик.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Интерактивные методики и фокус на разговорной практике привлекают студентов.",
+        "profitFactor": 0.4,
+        "successThreshold": 58,
+        "icon": SchoolIcon, // Placeholder
+    },
+    {
+        "id": "food_truck",
+        "name": "Фуд-трак",
+        "description": "Мобильная точка продажи уличной еды. Гибкость в выборе локации, но зависимость от погоды и разрешений.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Уникальная концепция и активное использование соцсетей для анонсов локаций.",
+        "profitFactor": 0.55,
+        "successThreshold": 62,
+        "icon": FastfoodIcon, // Placeholder
+    },
+    {
+        "id": "escape_room",
+        "name": "Квест-комната (Escape Room)",
+        "description": "Тематическое развлечение, где игрокам нужно решать головоломки. Требует креативности и инвестиций в декорации.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Захватывающий сюжет и качественные загадки — залог успеха.",
+        "profitFactor": 0.6,
+        "successThreshold": 63,
+        "icon": VpnKeyIcon, // Placeholder
+    },
+    {
+        "id": "custom_software_dev",
+        "name": "Разработка ПО на заказ",
+        "description": "Создание уникальных программных решений для корпоративных клиентов. Требует высокой квалификации и управления проектами.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Глубокое понимание бизнес-процессов клиента — ключ к успешному проекту.",
+        "profitFactor": 1.1,
+        "successThreshold": 72,
+        "icon": CodeIcon, // Placeholder
+    },
+    {
+        "id": "pet_sitting_walking",
+        "name": "Услуги по уходу за животными",
+        "description": "Выгул собак, присмотр за питомцами во время отсутствия хозяев. Растущий рынок, требует любви к животным и ответственности.",
+        "risk": 1,
+        "potentialProfit": "low",
+        "intuitionHint": "Доверие и хорошие отзывы — ваша главная реклама.",
+        "profitFactor": 0.25,
+        "successThreshold": 35,
+        "icon": PetsIcon, // Placeholder
+    },
+    {
+        "id": "freelance_writing_editing",
+        "name": "Фриланс: написание и редактура текстов",
+        "description": "Создание контента для веб-сайтов, блогов, маркетинговых материалов. Гибкий график, но нестабильный доход.",
+        "risk": 2,
+        "potentialProfit": "low",
+        "intuitionHint": "Портфолио и специализация на определенных темах помогут найти клиентов.",
+        "profitFactor": 0.3,
+        "successThreshold": 40,
+        "icon": BookIcon, // Placeholder
+    },
+    {
+        "id": "ai_consulting",
+        "name": "Консалтинг по внедрению ИИ",
+        "description": "Помощь компаниям в интеграции искусственного интеллекта в их процессы. Требует глубоких знаний и опыта.",
+        "risk": 5,
+        "potentialProfit": "high",
+        "intuitionHint": "Фокусируйтесь на реальной бизнес-ценности, а не на хайпе.",
+        "profitFactor": 1.4,
+        "successThreshold": 80,
+        "icon": SmartToyIcon, // Placeholder
+    },
+    {
+        "id": "vintage_clothing_store",
+        "name": "Магазин винтажной одежды",
+        "description": "Продажа уникальной одежды из прошлого. Требует хорошего вкуса и умения находить редкие вещи.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Курируйте коллекции и создавайте атмосферу. Каждая вещь должна иметь историю.",
+        "profitFactor": 0.45,
+        "successThreshold": 55,
+        "icon": StorefrontIcon, // Placeholder
+    },
+    {
+        "id": "podcast_production",
+        "name": "Студия производства подкастов",
+        "description": "Помощь в создании, записи и продвижении подкастов. Растущий рынок, требует технических навыков и креативности.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Качество звука и интересный контент — основа успеха.",
+        "profitFactor": 0.4,
+        "successThreshold": 52,
+        "icon": MicIcon, // Placeholder
+    },
+    {
+        "id": "board_game_cafe",
+        "name": "Кафе с настольными играми",
+        "description": "Место, где можно поесть и поиграть в настольные игры. Требует большой коллекции игр и уютной атмосферы.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Регулярные игровые вечера и турниры привлекут постоянных клиентов.",
+        "profitFactor": 0.5,
+        "successThreshold": 60,
+        "icon": CasinoIcon, // Placeholder
+    },
+    {
+        "id": "3d_printing_service",
+        "name": "Услуги 3D-печати",
+        "description": "Создание прототипов, кастомных деталей или сувениров на 3D-принтере. Требует оборудования и навыков моделирования.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Специализация на определенных материалах или типах объектов может быть выгодной.",
+        "profitFactor": 0.55,
+        "successThreshold": 57,
+        "icon": BuildIcon, // Placeholder
+    },
+    {
+        "id": "event_planning_agency",
+        "name": "Агентство по организации мероприятий",
+        "description": "Планирование и проведение свадеб, корпоративов, фестивалей. Требует организаторских способностей и стрессоустойчивости.",
+        "risk": 4,
+        "potentialProfit": "medium",
+        "intuitionHint": "Внимание к деталям и надежная сеть подрядчиков — залог успеха.",
+        "profitFactor": 0.6,
+        "successThreshold": 68,
+        "icon": EventIcon, // Placeholder
+    },
+    {
+        "id": "cybersecurity_consulting",
+        "name": "Консалтинг по кибербезопасности",
+        "description": "Защита компаний от киберугроз. Высокий спрос, требует глубоких технических знаний и постоянного обновления информации.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Проактивный подход и обучение персонала клиента так же важны, как и технические решения.",
+        "profitFactor": 1.25,
+        "successThreshold": 78,
+        "icon": SecurityIcon, // Placeholder
+    },
+    {
+        "id": "niche_subscription_box",
+        "name": "Тематическая подписная коробка",
+        "description": "Ежемесячная доставка набора товаров по определенной тематике (косметика, книги, еда). Требует хорошего подбора товаров и логистики.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Эффект сюрприза и эксклюзивность товаров удерживают подписчиков.",
+        "profitFactor": 0.45,
+        "successThreshold": 59,
+        "icon": CardGiftcardIcon, // Placeholder
+    },
+    {
+        "id": "mobile_car_wash",
+        "name": "Мобильная автомойка",
+        "description": "Мойка автомобилей с выездом к клиенту. Удобство для клиентов, но требует оборудования и разрешений.",
+        "risk": 2,
+        "potentialProfit": "low",
+        "intuitionHint": "Экологичные моющие средства и дополнительные услуги (полировка, химчистка) могут привлечь клиентов.",
+        "profitFactor": 0.35,
+        "successThreshold": 48,
+        "icon": LocalLaundryServiceIcon, // Placeholder
+    },
+    {
+        "id": "travel_blogging_vlogging",
+        "name": "Тревел-блоггинг/влоггинг",
+        "description": "Создание контента о путешествиях. Требует страсти к путешествиям, навыков съемки и монтажа. Монетизация через рекламу, спонсорство.",
+        "risk": 4,
+        "potentialProfit": "medium",
+        "intuitionHint": "Уникальный стиль и регулярность публикаций помогут набрать аудиторию.",
+        "profitFactor": 0.5, // Может быть высоким, но нестабильно
+        "successThreshold": 65,
+        "icon": FlightTakeoffIcon, // Placeholder
+    },
+    {
+        "id": "personal_fitness_trainer",
+        "name": "Персональный фитнес-тренер",
+        "description": "Разработка индивидуальных программ тренировок и питания. Требует знаний в области фитнеса и анатомии.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Специализация (например, реабилитация, работа с беременными) может повысить спрос.",
+        "profitFactor": 0.5,
+        "successThreshold": 50,
+        "icon": FitnessCenterIcon, // Placeholder
+    },
+    {
+        "id": "real_estate_photography",
+        "name": "Фотосъемка недвижимости",
+        "description": "Создание качественных фотографий и видео объектов недвижимости для продажи или аренды. Требует фотооборудования и навыков.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Дрон-съемка и виртуальные туры — востребованные услуги.",
+        "profitFactor": 0.45,
+        "successThreshold": 53,
+        "icon": CameraAltIcon, // Placeholder
+    },
+    {
+        "id": "interior_design_studio",
+        "name": "Студия дизайна интерьеров",
+        "description": "Разработка дизайн-проектов для жилых и коммерческих помещений. Требует творческого видения и знаний в области материалов.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Портфолио и умение слышать клиента — ключ к успеху.",
+        "profitFactor": 0.6,
+        "successThreshold": 64,
+        "icon": PaletteIcon, // Placeholder
+    },
+    {
+        "id": "specialty_bakery",
+        "name": "Специализированная пекарня (глютен-фри, веган)",
+        "description": "Выпечка для людей с особыми диетическими потребностями. Растущий спрос, но требует знаний и сертификации.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Качество и вкус не должны уступать традиционной выпечке.",
+        "profitFactor": 0.55,
+        "successThreshold": 61,
+        "icon": BakeryDiningIcon, // Placeholder
+    },
+    {
+        "id": "translation_services",
+        "name": "Бюро переводов",
+        "description": "Письменные и устные переводы. Требует команды квалифицированных переводчиков и редакторов.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Специализация на редких языках или технических текстах может быть выгодной.",
+        "profitFactor": 0.4,
+        "successThreshold": 56,
+        "icon": TranslateIcon, // Placeholder
+    },
+    {
+        "id": "bicycle_repair_shop",
+        "name": "Мастерская по ремонту велосипедов",
+        "description": "Обслуживание и ремонт велосипедов. Сезонный спрос, требует технических навыков.",
+        "risk": 2,
+        "potentialProfit": "low",
+        "intuitionHint": "Продажа аксессуаров и кастомизация могут увеличить доход.",
+        "profitFactor": 0.3,
+        "successThreshold": 47,
+        "icon": TwoWheelerIcon, // Placeholder
+    },
+    {
+        "id": "online_tutoring_platform",
+        "name": "Платформа для онлайн-репетиторства",
+        "description": "Соединяет учеников и репетиторов. Требует разработки платформы и привлечения пользователей с обеих сторон.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Удобный интерфейс и система рейтингов важны для доверия.",
+        "profitFactor": 0.9,
+        "successThreshold": 70,
+        "icon": SchoolIcon, // Placeholder
+    },
+    {
+        "id": "handyman_services",
+        "name": "Услуги 'Муж на час'",
+        "description": "Мелкий бытовой ремонт. Стабильный спрос, требует разносторонних навыков.",
+        "risk": 1,
+        "potentialProfit": "low",
+        "intuitionHint": "Пунктуальность и аккуратность — залог повторных обращений.",
+        "profitFactor": 0.28,
+        "successThreshold": 38,
+        "icon": HandymanIcon, // Placeholder
+    },
+    {
+        "id": "music_production_studio",
+        "name": "Студия звукозаписи и музыкального продакшена",
+        "description": "Запись вокала, инструментов, сведение и мастеринг. Требует дорогого оборудования и опыта.",
+        "risk": 4,
+        "potentialProfit": "medium",
+        "intuitionHint": "Хорошая акустика помещения и качественное оборудование решают.",
+        "profitFactor": 0.65,
+        "successThreshold": 66,
+        "icon": MusicNoteIcon, // Placeholder
+    },
+    {
+        "id": "florist_shop_delivery",
+        "name": "Цветочный магазин с доставкой",
+        "description": "Продажа свежих цветов и букетов. Требует навыков флористики и логистики.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Креативные букеты и быстрая доставка в праздники принесут прибыль.",
+        "profitFactor": 0.4,
+        "successThreshold": 54,
+        "icon": LocalFloristIcon, // Placeholder
+    },
+    {
+        "id": "home_cleaning_service",
+        "name": "Клининговые услуги на дому",
+        "description": "Уборка квартир и домов. Стабильный спрос, требует надежного персонала.",
+        "risk": 2,
+        "potentialProfit": "low",
+        "intuitionHint": "Использование эко-средств и предложение доп. услуг (мытье окон) может быть плюсом.",
+        "profitFactor": 0.33,
+        "successThreshold": 46,
+        "icon": CleaningServicesIcon, // Placeholder
+    },
+    {
+        "id": "wellness_retreat_center",
+        "name": "Центр оздоровительных ретритов",
+        "description": "Организация выездных программ (йога, медитация, детокс). Требует хорошей локации и команды специалистов.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Уникальная программа и атмосфера полного расслабления привлекут клиентов.",
+        "profitFactor": 0.8,
+        "successThreshold": 73,
+        "icon": SpaIcon, // Placeholder
+    },
+    {
+        "id": "scientific_research_consulting",
+        "name": "Консалтинг в области научных исследований",
+        "description": "Помощь компаниям в проведении исследований, анализе данных. Требует высокой научной квалификации.",
+        "risk": 5,
+        "potentialProfit": "high",
+        "intuitionHint": "Специализация в передовой области (биотех, ИИ) может быть очень прибыльной.",
+        "profitFactor": 1.35,
+        "successThreshold": 82,
+        "icon": ScienceIcon, // Placeholder
+    },
+    {
+        "id": "esports_team_management",
+        "name": "Управление киберспортивной командой",
+        "description": "Создание и менеджмент профессиональной команды игроков. Требует инвестиций, знаний индустрии и поиска талантов.",
+        "risk": 5,
+        "potentialProfit": "high", // Зависит от успехов команды
+        "intuitionHint": "Сильный тренерский состав и спонсорские контракты — ключ к успеху.",
+        "profitFactor": 1.0,
+        "successThreshold": 77,
+        "icon": SportsEsportsIcon, // Placeholder
+    },
+    {
+        "id": "local_history_museum_private",
+        "name": "Частный музей местной истории",
+        "description": "Создание и управление музеем, посвященным истории региона. Требует коллекции экспонатов и энтузиазма.",
+        "risk": 3,
+        "potentialProfit": "low",
+        "intuitionHint": "Интерактивные экспозиции и сотрудничество со школами привлекут посетителей.",
+        "profitFactor": 0.2,
+        "successThreshold": 44,
+        "icon": MuseumIcon, // Placeholder
+    },
+    {
+        "id": "adventure_tourism_company",
+        "name": "Компания по организации экстремального туризма",
+        "description": "Походы, рафтинг, альпинизм. Требует опытных инструкторов и мер безопасности.",
+        "risk": 4,
+        "potentialProfit": "medium",
+        "intuitionHint": "Уникальные маршруты и высокий уровень безопасности — ваши главные активы.",
+        "profitFactor": 0.7,
+        "successThreshold": 69,
+        "icon": ParkIcon, // Placeholder
+    },
+    {
+        "id": "renewable_energy_installation",
+        "name": "Установка систем возобновляемой энергии",
+        "description": "Монтаж солнечных панелей, ветрогенераторов. Растущий рынок, требует технических знаний и лицензий.",
+        "risk": 3,
+        "potentialProfit": "high",
+        "intuitionHint": "Государственные субсидии и рост тарифов на энергию стимулируют спрос.",
+        "profitFactor": 0.85,
+        "successThreshold": 67,
+        "icon": SolarPowerIcon, // Placeholder
+    },
+    {
+        "id": "water_purification_systems",
+        "name": "Продажа и установка систем очистки воды",
+        "description": "Обеспечение чистой питьевой водой для домов и офисов. Стабильный спрос, особенно в регионах с плохой водой.",
+        "risk": 2,
+        "potentialProfit": "medium",
+        "intuitionHint": "Качественное оборудование и сервисное обслуживание обеспечат лояльность клиентов.",
+        "profitFactor": 0.45,
+        "successThreshold": 51,
+        "icon": WaterDropIcon, // Placeholder
+    },
+    {
+        "id": "sustainable_forestry_products",
+        "name": "Производство изделий из устойчивой древесины",
+        "description": "Мебель, стройматериалы из сертифицированной древесины. Требует ответственного подхода к закупкам.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Экологическая маркировка и уникальный дизайн привлекут покупателей.",
+        "profitFactor": 0.5,
+        "successThreshold": 59,
+        "icon": ForestIcon, // Placeholder
+    },
+    {
+        "id": "construction_company_small",
+        "name": "Малая строительная фирма (ремонт, отделка)",
+        "description": "Ремонт квартир, офисов, отделочные работы. Высокая конкуренция, требует квалифицированных рабочих.",
+        "risk": 3,
+        "potentialProfit": "medium",
+        "intuitionHint": "Качество, сроки и прозрачная смета — залог хорошей репутации.",
+        "profitFactor": 0.55,
+        "successThreshold": 60,
+        "icon": ConstructionIcon, // Placeholder
+    },
+    {
+        "id": "luxury_concierge_service",
+        "name": "Люксовые консьерж-услуги",
+        "description": "Организация эксклюзивных услуг для состоятельных клиентов. Требует связей и безупречного сервиса.",
+        "risk": 4,
+        "potentialProfit": "high",
+        "intuitionHint": "Конфиденциальность и способность достать невозможное — ваш ключ к успеху.",
+        "profitFactor": 1.1,
+        "successThreshold": 76,
+        "icon": DiamondIcon, // Placeholder
+    },
+    {
+        "id": "rare_book_dealer",
+        "name": "Торговец редкими книгами",
+        "description": "Поиск и продажа антикварных и редких изданий. Требует знаний, терпения и капитала.",
+        "risk": 3,
+        "potentialProfit": "medium", // Может быть высоким при удачных находках
+        "intuitionHint": "Сеть контактов среди коллекционеров и экспертов бесценна.",
+        "profitFactor": 0.7,
+        "successThreshold": 65,
+        "icon": AutoStoriesIcon, // Placeholder
     }
 ];
 
