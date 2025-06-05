@@ -1,10 +1,10 @@
-from src.config.admin.categories import BUSINESS_CATEGORY
+from src.config.admin.categories import SETTINGS_CATEGORY
 from src.config.admin.model_admin.base_admin import BaseAdmin
 from src.models.dbo.database_models import VirtualBusinessSettings
 
 
 class VirtualBusinessSettingsAdmin(BaseAdmin, model=VirtualBusinessSettings):  # type: ignore[call-arg]
-    category = BUSINESS_CATEGORY
+    category = SETTINGS_CATEGORY
     name = "Виртуальные настройки бизнеса"
     name_plural = "Виртуальные настройки бизнеса"
     icon = "fa-solid fa-store"
