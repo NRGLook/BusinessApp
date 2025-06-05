@@ -287,7 +287,6 @@ class VirtualBusinessSettings(Base, IDMixin, TimestampMixin):
         default=1.0,
         comment="Множитель риска для расчетов",
     )
-
     initial_capital: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
         default=100000.0,

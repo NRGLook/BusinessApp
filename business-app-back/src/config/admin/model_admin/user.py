@@ -15,6 +15,13 @@ class UserAdmin(BaseAdmin, model=User):  # type: ignore[call-arg]
     column_list = [
         User.id,
         User.email,
+        User.profile,
+        User.roles,
+        User.businesses,
+        User.stats,
+        User.messages,
+        User.notifications,
+        User.achievements,
     ]
     column_details_list = [
         User.id,
